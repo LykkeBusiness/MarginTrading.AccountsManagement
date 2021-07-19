@@ -507,6 +507,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             string orderId = null)
         {
             var previousSnapshot = await EnsureAccountValidAsync(accountId, skipDeleteValidation: true);
+            if (previousSnapshot.IsDeleted) return;
 
             var updated= await _accountsRepository.UpdateAdditionalInfo(previousSnapshot.Id, s =>
                 {
