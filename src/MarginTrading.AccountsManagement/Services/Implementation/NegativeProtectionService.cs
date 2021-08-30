@@ -39,7 +39,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             if (_negativeProtectionAutoCompensation)
             {
-                var auditLog = new {CreatedAt = DateTime.UtcNow};
+                var auditLog = CreateCompensationAuditLog(DateTime.UtcNow);
                 
                 await _sendBalanceCommandsService.ChargeManuallyAsync(
                     accountId,
@@ -56,6 +56,21 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             }
 
             return compensationAmount;
+        }
+
+        private static dynamic CreateCompensationAuditLog(DateTime timestamp)
+        {
+            const string systemUserName = "System";
+            const string systemSessionId = "System";
+            
+            return new
+            {
+                CreatedAt = timestamp,
+                ApprovedAt = timestamp,
+                CreatedBy = systemUserName,
+                SessionId = systemSessionId,
+                ApprovedBy = systemUserName
+            };
         }
     }
 }
