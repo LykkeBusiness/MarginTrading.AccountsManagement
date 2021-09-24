@@ -21,6 +21,8 @@ using MarginTrading.AccountsManagement.InternalModels.ErrorCodes;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Settings;
+using MarginTrading.AssetService.Contracts;
+using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.TradingHistory.Client;
 using Microsoft.Extensions.Internal;
@@ -42,6 +44,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IDealsApi _dealsApi;
         private readonly IAccountsApi _accountsApi;
         private readonly IPositionsApi _positionsApi;
+        private readonly ITradingInstrumentsApi _tradingInstrumentsApi;
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
         private readonly AccountsCache _cache;
         private readonly IFeatureManager _featureManager;
@@ -60,6 +63,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IEodTaxFileMissingRepository taxFileMissingRepository, 
             IAccountsApi accountsApi,
             IPositionsApi positionsApi, 
+            ITradingInstrumentsApi tradingInstrumentsApi,
             IFeatureManager featureManager,
             IAuditService auditService)
         {
@@ -76,6 +80,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _taxFileMissingRepository = taxFileMissingRepository;
             _accountsApi = accountsApi;
             _positionsApi = positionsApi;
+            _tradingInstrumentsApi = tradingInstrumentsApi;
             _featureManager = featureManager;
             _auditService = auditService;
         }
@@ -440,10 +445,19 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             foreach (var accountId in beforeUpdate.Keys)
             {
-                var positions = await _positionsApi.ListAsyncByPages(accountId, skip: 0, take:1);
-                if (positions.Size > 0)
+                var positions = await _positionsApi.ListAsyncByPages(accountId);
+                var productIds = positions.Contents.Select(x => x.AssetPairId).Distinct().ToList();
+                var getUnavailableProductsResponse = await _tradingInstrumentsApi.CheckProductsUnavailableForTradingCondition(
+                    new CheckProductsUnavailableForTradingConditionRequest()
+                    {
+                        ProductIds = productIds,
+                        TradingConditionId = tradingConditionId,
+                    });
+
+                var unavailableProducts = getUnavailableProductsResponse.UnavailableProductIds;
+                if (unavailableProducts.Count > 0)
                 {
-                    _log.WriteWarning(nameof(AccountManagementService), nameof(accountId), $"Client {clientId} has open positions for account {accountId}.");
+                    _log.WriteWarning(nameof(AccountManagementService), nameof(accountId), $"Client {clientId} has open positions for account {accountId}. List of unavailable products: {string.Join(", ", unavailableProducts)}");
                     return new Result<TradingConditionErrorCodes>(TradingConditionErrorCodes.ClientHasOpenPositions);
                 }
             }

@@ -42,6 +42,7 @@ namespace MarginTrading.AccountsManagement.Modules
 
             builder.RegisterInstance(settingsClientGenerator.Generate<IAssetsApi>());
             builder.RegisterInstance(settingsClientGenerator.Generate<ITradingConditionsApi>());
+            builder.RegisterInstance(settingsClientGenerator.Generate<ITradingInstrumentsApi>());
             builder.RegisterInstance(settingsClientGenerator.Generate<IScheduleSettingsApi>());
 
             var mtCoreClientGenerator = HttpClientGenerator
