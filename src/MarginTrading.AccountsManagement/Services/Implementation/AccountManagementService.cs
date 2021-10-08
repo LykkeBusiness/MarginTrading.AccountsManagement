@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Common.Log;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 using MarginTrading.AccountsManagement.Contracts.Models;
@@ -322,6 +321,16 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         public Task<PaginatedResponse<IClient>> ListClientsByPagesAsync(string tradingConditionId, int skip, int take)
         {
             return _accountsRepository.GetClientsByPagesAsync(tradingConditionId, skip, take);
+        }
+
+        public Task<PaginatedResponse<IClientSearchResult>> SearchByClientIdAsync(string clientId, int skip, int take)
+        {
+            return _accountsRepository.SearchByClientIdAsync(clientId, skip, take);
+        }
+
+        public Task<PaginatedResponse<IClientSearchResult>> SearchByAccountAsync(string IdOrName, int skip, int take)
+        {
+            return _accountsRepository.SearchByAccountAsync(IdOrName, skip, take);
         }
 
         public Task<IEnumerable<IClient>> GetAllClients()

@@ -19,12 +19,17 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Internal;
-using MongoDB.Bson.IO;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
     internal class AccountsRepository : IAccountsRepository
     {
+        private enum ClientSearchBy
+        {
+            Id,
+            Account
+        }
+        
         #region SQL
 
         private const string CreateConstraintScript = @"
@@ -323,7 +328,90 @@ end
                 );
             }
         }
-        
+
+        public async Task<PaginatedResponse<IClientSearchResult>> SearchByClientIdAsync(string clientId, int skip, int take)
+        {
+            using var conn = new SqlConnection(_settings.Db.ConnectionString);
+
+            var gridReader = await conn.QueryMultipleAsync(
+                BuildClientSearchSql(ClientSearchBy.Id, skip, take),
+                new { query = clientId });
+            
+            var clients = (await gridReader.ReadAsync<ClientSearchResultEntity>()).ToList();
+            var totalCount = await gridReader.ReadSingleAsync<int>();
+
+            return new PaginatedResponse<IClientSearchResult>(
+                clients,
+                skip,
+                clients.Count,
+                totalCount
+            );
+        }
+
+        public async Task<PaginatedResponse<IClientSearchResult>> SearchByAccountAsync(string IdOrName, int skip, int take)
+        {
+            using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            
+            var gridReader = await conn.QueryMultipleAsync(
+                BuildClientSearchSql(ClientSearchBy.Account, skip, take),
+                new { query = IdOrName });
+            
+            var clients = (await gridReader.ReadAsync<ClientSearchResultEntity>()).ToList();
+            var totalCount = await gridReader.ReadSingleAsync<int>();
+
+            return new PaginatedResponse<IClientSearchResult>(
+                clients,
+                skip,
+                clients.Count,
+                totalCount
+            );
+        }
+
+        private string BuildClientSearchSql(ClientSearchBy searchBy, int skip, int take)
+        {
+            var selectClause = @"
+SELECT 
+    ctc.ClientId, 
+    ctc.TradingConditionId, 
+    COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) as AccountIdentityCommaSeparatedList
+";
+
+            var fromClause = @"
+FROM (
+         SELECT c.Id                                 as ClientId,
+                c.TradingConditionId,
+                STUFF((SELECT ',' + acc.AccountName
+                       FROM MarginTradingAccounts acc
+                       WHERE acc.ClientId = c.Id
+                       FOR XML PATH ('')), 1, 1, '') AS AccountNameCommaSeparatedList,
+                STUFF((SELECT ',' + acc.Id
+                       FROM MarginTradingAccounts acc
+                       WHERE acc.ClientId = c.Id
+                       FOR XML PATH ('')),
+                      1, 1, '')                      AS AccountIdCommaSeparatedList
+         FROM MarginTradingClients c
+                  INNER JOIN
+              MarginTradingAccounts a on c.Id = a.ClientId
+         GROUP by c.Id, c.TradingConditionId
+     ) ctc
+";
+            var whereClause = "WHERE " + searchBy switch
+            {
+                ClientSearchBy.Id => 
+                    $"ctc.ClientId LIKE CONCAT('%', @query, '%')",
+                ClientSearchBy.Account => 
+                    $"COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) LIKE CONCAT('%', @query, '%')",
+                _ => 
+                    throw new ArgumentOutOfRangeException(nameof(searchBy), $"Unexpected type of search: {searchBy.ToString()}")
+            };
+            
+            var paginationClause = $" ORDER BY ctc.TradingConditionId OFFSET {skip} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+
+            return
+                $"{selectClause} {fromClause} {whereClause} {paginationClause};" +
+                $"SELECT COUNT(*) {fromClause} {whereClause}";
+        }
+
         public async Task<IEnumerable<IClient>> GetClients(IEnumerable<string> clientIds)
         {
             await using var conn = new SqlConnection(_settings.Db.ConnectionString);
