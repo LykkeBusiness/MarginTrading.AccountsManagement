@@ -355,9 +355,9 @@ end
         {
             return new ClientSearchResultEntity
             {
-                Id = reader["Id"] as string,
-                TradingConditionId = reader["TradingConditionId"] as string,
-                AccountIdentityCommaSeparatedList = reader["TradingConditionId"] as string
+                Id = reader[nameof(ClientSearchResultEntity.Id)] as string,
+                TradingConditionId = reader[nameof(ClientSearchResultEntity.TradingConditionId)] as string,
+                AccountIdentityCommaSeparatedList = reader[nameof(ClientSearchResultEntity.AccountIdentityCommaSeparatedList)] as string
             };
         }
 
