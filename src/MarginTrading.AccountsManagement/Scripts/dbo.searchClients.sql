@@ -7,9 +7,10 @@
 
 CREATE OR ALTER PROCEDURE [dbo].[searchClients] (
     @Query NVARCHAR(128),
-    @ByClient BIT = 1,
+    @ByClient BIT,
     @Skip INT = 0,
-    @Take INT = 20
+    @Take INT = 20,
+    @SortAscending BIT = 1
 )
 AS
 BEGIN
@@ -53,7 +54,8 @@ BEGIN
         CONVERT(INT, rowsCount.Total) AS TotalRows
     FROM
          clients, rowsCount
-    ORDER BY 
-        TradingConditionId
+    ORDER BY
+        CASE WHEN @SortAscending = 1 THEN TradingConditionId END ASC,
+        CASE WHEN @SortAscending = 0 THEN TradingConditionId END DESC
     OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
 END
