@@ -165,7 +165,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
 
         /// <summary>
-        /// Search clients by account id or account name on partial matching
+        /// Search clients by account name first or account id (if name is empty) on partial matching
         /// </summary>
         /// <param name="query"></param>
         /// <param name="skip"></param>
