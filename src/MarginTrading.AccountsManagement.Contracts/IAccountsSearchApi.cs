@@ -35,7 +35,7 @@ namespace MarginTrading.AccountsManagement.Contracts
         /// <param name="take"></param>
         /// <returns></returns>
         [Get("/api/accounts/client-trading-conditions/search/byAccount")]
-        Task<PaginatedResponseContract<ClientTradingConditionsSearchResultContract>> SearchByAccount(
+        Task<PaginatedResponseContract<ClientTradingConditionsSearchResultContract>> SearchByAccountAsync(
             [Query] string query,
             [Query] int? skip = null,
             [Query] int? take = null);
