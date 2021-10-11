@@ -11,8 +11,10 @@ using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 
 namespace MarginTrading.AccountsManagement.Repositories
 {
-    internal interface IAccountsRepository
+    public interface IAccountsRepository
     {
+        void Initialize();
+        
         Task AddAsync(IAccount account);
         
         Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null,

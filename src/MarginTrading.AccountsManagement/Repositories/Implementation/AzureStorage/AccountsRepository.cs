@@ -33,6 +33,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
                 settings.Nested(s => s.Db.ConnectionString), "MarginTradingAccounts", log);
         }
 
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddAsync(IAccount account)
         {
             await _tableStorage.InsertAsync(Convert(account));
