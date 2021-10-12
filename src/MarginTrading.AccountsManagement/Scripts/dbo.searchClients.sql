@@ -38,8 +38,8 @@ BEGIN
                  GROUP by c.Id, c.TradingConditionId
              ) ctc
         WHERE
-            (@ByClient = 0 AND COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) LIKE CONCAT('%', @query, '%')) OR
-            (@ByClient = 1 AND ctc.Id LIKE CONCAT('%', @query, '%'))
+            (@ByClient = 0 AND (ISNULL(@query, 0) = 0 OR COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) LIKE CONCAT('%', @query, '%'))) OR
+            (@ByClient = 1 AND (ISNULL(@query, 0) = 0 OR ctc.Id LIKE CONCAT('%', @query, '%')))
     ),
     rowsCount as (
         SELECT 

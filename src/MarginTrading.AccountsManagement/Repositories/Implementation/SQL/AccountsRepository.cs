@@ -274,7 +274,7 @@ end
             var clientsResult = await base.GetAllAsync(_searchClients, skip, take, false,
                 new[]
                 {
-                    new SqlParameter("@Query", clientId),
+                    new SqlParameter("@Query",string.IsNullOrEmpty(clientId) ? (object) DBNull.Value : clientId),
                     new SqlParameter("@ByClient", true)
                 }, MapClientSearchResult);
             
@@ -291,7 +291,7 @@ end
             var clientsResult = await base.GetAllAsync(_searchClients, skip, take, false,
                 new[]
                 {
-                    new SqlParameter("@Query", IdOrName),
+                    new SqlParameter("@Query", string.IsNullOrEmpty(IdOrName) ? (object) DBNull.Value : IdOrName),
                     new SqlParameter("@ByClient", false)
                 }, MapClientSearchResult);
             
