@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AutoMapper;
 using JetBrains.Annotations;
 using MarginTrading.AccountsManagement.Contracts.Audit;
@@ -31,7 +32,13 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 cfg.CreateMap<IAccount, AccountContract>()
                     .ForMember(p => p.AdditionalInfo,
                         s => s.ResolveUsing(x => x.AdditionalInfo.Serialize()));
-                cfg.CreateMap<IClient, ClientTradingConditionsContract>().ForMember(x => x.ClientId, o => o.MapFrom(s=> s.Id));
+                cfg.CreateMap<IClient, ClientTradingConditionsContract>()
+                    .ForMember(x => x.ClientId, o => o.MapFrom(s=> s.Id));
+                cfg.CreateMap<IClientSearchResult, ClientTradingConditionsSearchResultContract>()
+                    .ForMember(x => x.ClientId, o => o.MapFrom(s => s.Id))
+                    .ForMember(x => x.AccountIdentities,
+                        o => o.ResolveUsing((src, dest, destMember, resContext) =>
+                            dest.AccountIdentities = src.AccountIdentityCommaSeparatedList.Split(',').ToList()));
                 
                 //Audit
                 cfg.CreateMap<AuditModel, AuditContract>();

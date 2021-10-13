@@ -33,6 +33,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
                 settings.Nested(s => s.Db.ConnectionString), "MarginTradingAccounts", log);
         }
 
+        public void Initialize()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task AddAsync(IAccount account)
         {
             await _tableStorage.InsertAsync(Convert(account));
@@ -81,6 +86,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
         }
 
         public Task<PaginatedResponse<IClient>> GetClientsByPagesAsync(string tradingConditionId, int skip, int take)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<PaginatedResponse<IClientSearchResult>> SearchByClientIdAsync(string clientId, int skip, int take)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<PaginatedResponse<IClientSearchResult>> SearchByAccountAsync(string IdOrName, int skip, int take)
         {
             throw new NotImplementedException();
         }

@@ -12,15 +12,17 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IAuditRepository _auditRepository;
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
         private readonly IComplexityWarningRepository _complexityWarningRepository;
+        private readonly IAccountsRepository _accountsRepository;
         
         private readonly ILog _log;
 
-        public StartupManager(ILog log, IAuditRepository auditRepository, IEodTaxFileMissingRepository taxFileMissingRepository, IComplexityWarningRepository complexityWarningRepository)
+        public StartupManager(ILog log, IAuditRepository auditRepository, IEodTaxFileMissingRepository taxFileMissingRepository, IComplexityWarningRepository complexityWarningRepository, IAccountsRepository accountsRepository)
         {
             _log = log;
             _auditRepository = auditRepository;
             _taxFileMissingRepository = taxFileMissingRepository;
             _complexityWarningRepository = complexityWarningRepository;
+            _accountsRepository = accountsRepository;
         }
 
         public async Task StartAsync()
@@ -32,6 +34,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _taxFileMissingRepository.Initialize();
             
             _complexityWarningRepository.Initialize();
+            
+            _accountsRepository.Initialize();
 
             _log.WriteInfoAsync(nameof(StartupManager), nameof(StartAsync), "Repositories initialization done.");
 

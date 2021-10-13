@@ -46,5 +46,13 @@ namespace MarginTrading.AccountsManagement.Dal.Common
                 .AddFirstSymbolIfNotExists(WildcardCharacterAnyString)
                 .AddLastSymbolIfNotExists(WildcardCharacterAnyString);
         }
+
+        /// <summary>
+        /// Checks if string is empty or null and return corresponding NULL value for SQL provider
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static object AsSqlParameterValue(this string source) =>
+            string.IsNullOrWhiteSpace(source) ? (object)DBNull.Value : source;
     }
 }

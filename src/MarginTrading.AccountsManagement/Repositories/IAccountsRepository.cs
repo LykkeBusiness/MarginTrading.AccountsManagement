@@ -11,8 +11,10 @@ using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 
 namespace MarginTrading.AccountsManagement.Repositories
 {
-    internal interface IAccountsRepository
+    public interface IAccountsRepository
     {
+        void Initialize();
+        
         Task AddAsync(IAccount account);
         
         Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null,
@@ -22,6 +24,10 @@ namespace MarginTrading.AccountsManagement.Repositories
             int? skip = null, int? take = null, bool isAscendingOrder = true);
 
         Task<PaginatedResponse<IClient>> GetClientsByPagesAsync(string tradingConditionId, int skip, int take);
+        
+        Task<PaginatedResponse<IClientSearchResult>> SearchByClientIdAsync(string clientId, int skip, int take);
+        
+        Task<PaginatedResponse<IClientSearchResult>> SearchByAccountAsync(string IdOrName, int skip, int take);
         
         Task<IEnumerable<IClient>> GetClients(IEnumerable<string> clientIds);
         Task<IEnumerable<IClient>> GetAllClients();
