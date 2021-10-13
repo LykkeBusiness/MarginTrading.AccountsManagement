@@ -140,12 +140,12 @@ namespace MarginTrading.AccountsManagement.Controllers
         /// <summary>
         /// Search clients by clientId on partial matching
         /// </summary>
-        /// <param name="query"></param>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
-        /// <returns></returns>
+        /// <param name="query">The search string</param>
+        /// <param name="skip">How many items to skip</param>
+        /// <param name="take">How many items to take</param>
+        /// <returns>The list of clients with trading condition and account names matching the search criteria</returns>
         [HttpGet]
-        [Route("client-trading-conditions/search/byClientId")]
+        [Route("client-trading-conditions/search/by-client-id")]
         public async Task<Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>>
             SearchByClientId([FromQuery] string query, [FromQuery] int skip = 0, [FromQuery] int take = 20)
         {
@@ -167,12 +167,12 @@ namespace MarginTrading.AccountsManagement.Controllers
         /// <summary>
         /// Search clients by account name first or account id (if name is empty) on partial matching
         /// </summary>
-        /// <param name="query"></param>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
-        /// <returns></returns>
+        /// <param name="query">The search string</param>
+        /// <param name="skip">How many items to skip</param>
+        /// <param name="take">How many items to take</param>
+        /// <returns>The list of clients with trading condition and account names matching the search criteria</returns>
         [HttpGet]
-        [Route("client-trading-conditions/search/byAccount")]
+        [Route("client-trading-conditions/search/by-account")]
         public async Task<Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>>
             SearchByAccount([FromQuery] string query, [FromQuery] int skip = 0, [FromQuery] int take = 20)
         {
