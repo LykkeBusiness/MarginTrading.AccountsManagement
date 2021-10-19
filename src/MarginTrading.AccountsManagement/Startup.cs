@@ -114,6 +114,12 @@ namespace MarginTrading.AccountsManagement
                 
                 services.AddFeatureManagement(_mtSettingsManager.CurrentValue.MarginTradingAccountManagement.BrokerId);
                 services.AddProductComplexity(_mtSettingsManager.CurrentValue);
+                
+                var builder = new ContainerBuilder();
+
+                builder.Populate(services);
+
+                ApplicationContainer = builder.Build();
             }
             catch (Exception ex)
             {
@@ -138,8 +144,6 @@ namespace MarginTrading.AccountsManagement
         {
             try
             {
-                ApplicationContainer = app.ApplicationServices.GetAutofacRoot();
-                
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
