@@ -16,6 +16,7 @@ using Lykke.Messaging;
 using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
+using Lykke.Snow.Common.Correlation.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Commands;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Services;
@@ -56,9 +57,11 @@ namespace MarginTrading.AccountsManagement.Modules
         private readonly ILog _log;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
+        private readonly CqrsCorrelationManager _correlationManager;
 
-        public CqrsModule(CqrsSettings settings, ILog log)
+        public CqrsModule(CqrsCorrelationManager correlationManager, CqrsSettings settings, ILog log)
         {
+            _correlationManager = correlationManager;
             _settings = settings;
             _log = log;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
@@ -124,7 +127,8 @@ namespace MarginTrading.AccountsManagement.Modules
                 RegisterContext(),
                 Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
                 Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
-            
+            engine.SetReadHeadersAction(_correlationManager.FetchCorrelationIfExists);
+            engine.SetWriteHeadersFunc(_correlationManager.BuildCorrelationHeadersIfExists);
             engine.StartAll();
 
             return engine;

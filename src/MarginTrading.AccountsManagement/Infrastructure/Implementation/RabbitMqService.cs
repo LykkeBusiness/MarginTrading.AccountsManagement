@@ -10,9 +10,14 @@ using Common;
 using Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
+using Lykke.RabbitMqBroker.Publisher.Serializers;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.RabbitMqBroker.Subscriber.Deserializers;
+using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
 using Lykke.SettingsReader;
+using Lykke.Snow.Common.Correlation.RabbitMq;
 using MarginTrading.AccountsManagement.Settings;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -27,17 +32,21 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
         };
 
         private readonly ILog _logger;
+        private readonly ILoggerFactory _loggerFactory;
+        private readonly RabbitMqCorrelationManager _correlationManager;
 
-        private readonly ConcurrentDictionary<string, IStopable> _subscribers =
-            new ConcurrentDictionary<string, IStopable>();
+        private readonly ConcurrentDictionary<string, IStartStop> _subscribers =
+            new ConcurrentDictionary<string, IStartStop>();
 
-        private readonly ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStopable>> _producers =
-            new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStopable>>(
+        private readonly ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStartStop>> _producers =
+            new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStartStop>>(
                 new SubscriptionSettingsEqualityComparer());
 
-        public RabbitMqService(ILog logger)
+        public RabbitMqService(ILog logger, ILoggerFactory loggerFactory, RabbitMqCorrelationManager correlationManager)
         {
             _logger = logger;
+            _loggerFactory = loggerFactory;
+            _correlationManager = correlationManager;
         }
 
         public void Dispose()
@@ -58,7 +67,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
             return new MessagePackMessageSerializer<TMessage>();
         }
 
-        public IMessageProducer<TMessage> GetProducer<TMessage>(IReloadingManager<RabbitConnectionSettings> settings,
+        public Common.IMessageProducer<TMessage> GetProducer<TMessage>(IReloadingManager<RabbitConnectionSettings> settings,
             bool isDurable, IRabbitMqSerializer<TMessage> serializer)
         {
             // on-the fly connection strings switch is not supported currently for rabbitMq
@@ -70,16 +79,20 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 IsDurable = isDurable,
             };
 
-            return (IMessageProducer<TMessage>) _producers.GetOrAdd(subscriptionSettings, CreateProducer).Value;
+            return (Common.IMessageProducer<TMessage>) _producers.GetOrAdd(subscriptionSettings, CreateProducer).Value;
 
-            Lazy<IStopable> CreateProducer(RabbitMqSubscriptionSettings s)
+            Lazy<IStartStop> CreateProducer(RabbitMqSubscriptionSettings s)
             {
                 // Lazy ensures RabbitMqPublisher will be created and started only once
                 // https://andrewlock.net/making-getoradd-on-concurrentdictionary-thread-safe-using-lazy/
-                return new Lazy<IStopable>(() => new RabbitMqPublisher<TMessage>(s).DisableInMemoryQueuePersistence()
-                    .SetSerializer(serializer)
-                    .SetLogger(_logger)
-                    .Start());
+                return new Lazy<IStartStop>(() =>
+                {
+                    var result = new RabbitMqPublisher<TMessage>(_loggerFactory, s).DisableInMemoryQueuePersistence()
+                        .SetSerializer(serializer)
+                        .SetWriteHeadersFunc(_correlationManager.BuildCorrelationHeadersIfExists);
+                    result.Start();
+                    return result;
+                });
             }
         }
 
@@ -97,11 +110,14 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 IsDurable = isDurable,
             };
 
-            var rabbitMqSubscriber = new RabbitMqSubscriber<TMessage>(subscriptionSettings,
-                    new DefaultErrorHandlingStrategy(_logger, subscriptionSettings))
+            var rabbitMqSubscriber = new RabbitMqSubscriber<TMessage>(
+                    _loggerFactory.CreateLogger<RabbitMqSubscriber<TMessage>>(),
+                    subscriptionSettings)
                 .SetMessageDeserializer(new JsonMessageDeserializer<TMessage>(JsonSerializerSettings))
                 .Subscribe(handler)
-                .SetLogger(_logger);
+                .UseMiddleware(new ExceptionSwallowMiddleware<TMessage>(
+                    _loggerFactory.CreateLogger<ExceptionSwallowMiddleware<TMessage>>()))
+                .SetReadHeadersAction(_correlationManager.FetchCorrelationIfExists);
 
             if (!_subscribers.TryAdd(subscriptionSettings.QueueName, rabbitMqSubscriber))
             {

@@ -4,6 +4,10 @@ using Lykke.Common.Log;
 using Lykke.Logs;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.RabbitMqBroker.Subscriber.Deserializers;
+using Lykke.RabbitMqBroker.Subscriber.MessageReadStrategies;
+using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
+using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.Backend.Contracts.Events;
@@ -20,21 +24,17 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
             services.AddHostedService<OrderHistoryListener>();
             
             services.AddSingleton(ctx => new RabbitMqSubscriber<OrderHistoryEvent>(
-                    settings.MarginTradingAccountManagement.RabbitMq.OrderHistory,
-                    BuildErrorHandlingStrategy(ctx, settings.MarginTradingAccountManagement.RabbitMq.OrderHistory))
+                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<OrderHistoryEvent>>(),
+                    settings.MarginTradingAccountManagement.RabbitMq.OrderHistory)
                 .SetMessageDeserializer(new JsonMessageDeserializer<OrderHistoryEvent>())
                 .SetMessageReadStrategy(new MessageReadQueueStrategy())
-                .SetLogger(new LykkeLoggerAdapter<RabbitMqSubscriber<OrderHistoryEvent>>(
-                    ctx.GetRequiredService<ILogger<RabbitMqSubscriber<OrderHistoryEvent>>>()))
+                .UseMiddleware(new ResilientErrorHandlingMiddleware<OrderHistoryEvent>(
+                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<ResilientErrorHandlingMiddleware<OrderHistoryEvent>>(),
+                    TimeSpan.FromSeconds(1)))
+                .UseMiddleware(new ExceptionSwallowMiddleware<OrderHistoryEvent>(
+                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<ExceptionSwallowMiddleware<OrderHistoryEvent>>()))
+                .SetReadHeadersAction(ctx.GetRequiredService<RabbitMqCorrelationManager>().FetchCorrelationIfExists)
                 .CreateDefaultBinding());
-        }
-
-        private static IErrorHandlingStrategy BuildErrorHandlingStrategy(IServiceProvider provider, SubscriptionSettings settings)
-        {
-            var logger = new LykkeLoggerAdapter<RabbitMqSubscriber<OrderHistoryEvent>>(provider.GetRequiredService<ILogger<RabbitMqSubscriber<OrderHistoryEvent>>>());
-            var dlqStrategy = new DeadQueueErrorHandlingStrategy(logger, settings);
-            
-            return new ResilientErrorHandlingStrategy(logger, settings, TimeSpan.FromSeconds(1), next: dlqStrategy);
         }
     }
 }

@@ -48,11 +48,10 @@
     <PackageReference Include="Lykke.AzureStorage" Version="8.13.4" />
     <PackageReference Include="Lykke.Common" Version="7.5.0" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="3.1.1" />
-    <PackageReference Include="Lykke.Cqrs" Version="9.0.1" />
     <PackageReference Include="Lykke.HttpClientGenerator" Version="3.1.1" />
     <PackageReference Include="Lykke.JobTriggers" Version="2.2.0" />
     <PackageReference Include="Lykke.Logs" Version="7.4.0" />
-    <PackageReference Include="Lykke.Logs.MsSql" Version="2.1.0" />
+    <PackageReference Include="Lykke.Logs.MsSql" Version="2.2.0" />
     <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" Version="9.7.6" />
     <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.17.0" />
     <PackageReference Include="Lykke.Logs.Serilog" Version="2.1.0" />
@@ -60,10 +59,12 @@
     <PackageReference Include="Lykke.Messaging" Version="6.3.1" />
     <PackageReference Include="Lykke.Messaging.RabbitMq" Version="2.2.2" />
     <PackageReference Include="Lykke.Middlewares" Version="3.4.3" />
-    <PackageReference Include="Lykke.RabbitMqBroker" Version="7.13.2" />
     <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.29.0" />
     <PackageReference Include="Lykke.Snow.Common.Startup" Version="2.14.1" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.20.0" />
+    <PackageReference Include="LykkeBiz.Cqrs" Version="10.0.0" />
+    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.5" />
     <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.14" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.2" />

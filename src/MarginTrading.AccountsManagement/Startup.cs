@@ -19,6 +19,8 @@ using Lykke.Logs.MsSql;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
+using Lykke.Snow.Common.Correlation;
+using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Common.Startup.Hosting;
@@ -108,6 +110,8 @@ namespace MarginTrading.AccountsManagement
 
                 services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(Log));
 
+                services.AddCorrelation();
+                
                 services.AddFeatureManagement(_mtSettingsManager.CurrentValue.MarginTradingAccountManagement.BrokerId);
                 services.AddProductComplexity(_mtSettingsManager.CurrentValue);
             }
@@ -123,7 +127,10 @@ namespace MarginTrading.AccountsManagement
         {
             builder.RegisterModule(new AccountsManagementModule(_mtSettingsManager, Log));
             builder.RegisterModule(new AccountsManagementExternalServicesModule(_mtSettingsManager));
-            builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAccountManagement.Cqrs, Log));
+            builder.RegisterModule(new CqrsModule(
+                ApplicationContainer.Resolve<CqrsCorrelationManager>(), 
+                _mtSettingsManager.CurrentValue.MarginTradingAccountManagement.Cqrs,
+                Log));
         }
 
         [UsedImplicitly]
@@ -141,7 +148,8 @@ namespace MarginTrading.AccountsManagement
                 {
                     app.UseHsts();
                 }
-                          
+
+                app.UseCorrelation();
 #if DEBUG
                 app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
 #else

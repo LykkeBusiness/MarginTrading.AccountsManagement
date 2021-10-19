@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
@@ -9,12 +10,14 @@ using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
 using Lykke.MarginTrading.BrokerBase.Settings;
 using Lykke.SlackNotifications;
+using Lykke.Snow.Common.Correlation.RabbitMq;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Extensions;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 {
@@ -24,16 +27,20 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         private readonly IAccountsApi _accountsApi;
         private readonly Settings _settings;
         private readonly ILog _log;
+        private readonly RabbitMqCorrelationManager _correlationManager;
 
         public Application(
+            RabbitMqCorrelationManager correlationManager,
+            ILoggerFactory loggerFactory, 
             IAccountHistoryRepository accountHistoryRepository, 
             ILog log,
             Settings settings, 
             CurrentApplicationInfo applicationInfo,
             ISlackNotificationsSender slackNotificationsSender,
             IAccountsApi accountsApi)
-            : base(log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
+            : base(loggerFactory, log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
         {
+            _correlationManager = correlationManager;
             _accountHistoryRepository = accountHistoryRepository;
             _log = log;
             _settings = settings;
@@ -43,6 +50,9 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         protected override BrokerSettingsBase Settings => _settings;
         protected override string ExchangeName => _settings.RabbitMqQueues.AccountHistory.ExchangeName;
         public override string RoutingKey => nameof(AccountChangedEvent);
+
+        protected override Action<IDictionary<string, object>> ReadHeadersAction =>
+            _correlationManager.FetchCorrelationIfExists;
 
         protected override async Task HandleMessage(AccountChangedEvent accountChangedEvent)
         {
