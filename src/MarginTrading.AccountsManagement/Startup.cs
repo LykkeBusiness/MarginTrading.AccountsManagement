@@ -11,7 +11,6 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureStorage.Tables.Entity.Metamodel;
 using Lykke.AzureStorage.Tables.Entity.Metamodel.Providers;
-using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
@@ -20,7 +19,6 @@ using Lykke.Logs.MsSql.Repositories;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation;
-using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Common.Startup.Hosting;
@@ -128,7 +126,6 @@ namespace MarginTrading.AccountsManagement
             builder.RegisterModule(new AccountsManagementModule(_mtSettingsManager, Log));
             builder.RegisterModule(new AccountsManagementExternalServicesModule(_mtSettingsManager));
             builder.RegisterModule(new CqrsModule(
-                ApplicationContainer.Resolve<CqrsCorrelationManager>(), 
                 _mtSettingsManager.CurrentValue.MarginTradingAccountManagement.Cqrs,
                 Log));
         }
