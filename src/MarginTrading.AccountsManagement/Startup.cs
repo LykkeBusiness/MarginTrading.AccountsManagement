@@ -11,6 +11,7 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureStorage.Tables.Entity.Metamodel;
 using Lykke.AzureStorage.Tables.Entity.Metamodel.Providers;
+using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
