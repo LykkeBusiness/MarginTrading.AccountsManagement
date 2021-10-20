@@ -34,7 +34,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
     {
         private readonly IAccountsRepository _accountsRepository;
         private readonly ITradingConditionsService _tradingConditionsService;
-        private readonly ISendBalanceCommandsService _sendBalanceCommandsService;
+        private readonly ISendBalanceCommandsService _sendBalanceCommandsService; 
         private readonly AccountManagementSettings _settings;
         private readonly IEventSender _eventSender;
         private readonly ILog _log;

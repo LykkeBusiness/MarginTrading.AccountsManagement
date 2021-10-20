@@ -16,12 +16,4 @@ IF NOT EXISTS (
     WHERE t.object_id = object_id('MarginTradingClients') AND s.name = 'dbo' AND c.name = 'UserId')
 BEGIN
     ALTER TABLE [dbo].[MarginTradingClients] ADD UserId nvarchar(128) NULL;
-
-    -- Data migration
-    UPDATE c
-        SET c.UserId = u.Username
-    FROM 
-        [dbo].[MarginTradingClients] c
-    INNER JOIN 
-        [bouncer].[AspNetUsers] u ON c.Id = u.Id
 END
