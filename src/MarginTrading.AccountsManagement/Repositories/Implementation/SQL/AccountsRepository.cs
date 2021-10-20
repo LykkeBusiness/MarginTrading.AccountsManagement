@@ -269,37 +269,19 @@ end
             }
         }
 
-        public async Task<PaginatedResponse<IClientSearchResult>> SearchByClientIdAsync(string clientId, int skip, int take)
+        public async Task<PaginatedResponse<IClientSearchResult>> SearchByClientAsync(string query, int skip, int take)
         {
-            var clientsResult = await base.GetAllAsync(_searchClients, skip, take, false,
+            var result = await base.GetAllAsync(_searchClients, skip, take, false,
                 new[]
                 {
-                    new SqlParameter("@Query", clientId.AsSqlParameterValue()),
-                    new SqlParameter("@ByClient", true)
+                    new SqlParameter("@Query", query.AsSqlParameterValue())
                 }, MapClientSearchResult);
             
             return new PaginatedResponse<IClientSearchResult>(
-                clientsResult.Items.ToList(),
+                result.Items.ToList(),
                 skip,
-                clientsResult.Items.Count(),
-                clientsResult.TotalItems
-            );
-        }
-
-        public async Task<PaginatedResponse<IClientSearchResult>> SearchByAccountAsync(string IdOrName, int skip, int take)
-        {
-            var clientsResult = await base.GetAllAsync(_searchClients, skip, take, false,
-                new[]
-                {
-                    new SqlParameter("@Query", IdOrName.AsSqlParameterValue()),
-                    new SqlParameter("@ByClient", false)
-                }, MapClientSearchResult);
-            
-            return new PaginatedResponse<IClientSearchResult>(
-                clientsResult.Items.ToList(),
-                skip,
-                clientsResult.Items.Count(),
-                clientsResult.TotalItems
+                result.Items.Count(),
+                result.TotalItems
             );
         }
 

@@ -15,27 +15,14 @@ namespace MarginTrading.AccountsManagement.Contracts
     public interface IAccountsSearchApi
     {
         /// <summary>
-        /// Search clients by clientId on partial matching
+        /// Search clients by clientId or account name (first) or account id on partial matching
         /// </summary>
         /// <param name="query">The search string</param>
         /// <param name="skip">How many items to skip</param>
         /// <param name="take">How many items to take</param>
         /// <returns>The list of clients with trading condition and account names matching the search criteria</returns>
-        [Get("/api/accounts/client-trading-conditions/search/by-client-id")]
-        Task<PaginatedResponseContract<ClientTradingConditionsSearchResultContract>> SearchByClientIdAsync(
-            [Query] string query,
-            [Query] int? skip = null,
-            [Query] int? take = null);
-
-        /// <summary>
-        /// Search clients by account name first or account id (if name is empty) on partial matching
-        /// </summary>
-        /// <param name="query">The search string</param>
-        /// <param name="skip">How many items to skip</param>
-        /// <param name="take">How many items to take</param>
-        /// <returns>The list of clients with trading condition and account names matching the search criteria</returns>
-        [Get("/api/accounts/client-trading-conditions/search/by-account")]
-        Task<PaginatedResponseContract<ClientTradingConditionsSearchResultContract>> SearchByAccountAsync(
+        [Get("/api/accounts/client-trading-conditions/search/by-client")]
+        Task<PaginatedResponseContract<ClientTradingConditionsSearchResultContract>> SearchByClientAsync(
             [Query] string query,
             [Query] int? skip = null,
             [Query] int? take = null);

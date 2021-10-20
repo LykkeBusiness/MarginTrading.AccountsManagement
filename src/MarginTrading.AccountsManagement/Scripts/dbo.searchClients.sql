@@ -2,12 +2,11 @@
 
 -- exec sp_helptext [dbo.searchClients]
 -- exec sp_help [dbo.searchClients]
--- exec [dbo].[searchClients] 'query', 0/1, 0, 20
+-- exec [dbo].[searchClients] 'query', 0, 20
 
 
 CREATE OR ALTER PROCEDURE [dbo].[searchClients] (
     @Query NVARCHAR(128),
-    @ByClient BIT,
     @Skip INT = 0,
     @Take INT = 20,
     @SortAscending BIT = 1
@@ -38,8 +37,8 @@ BEGIN
                  GROUP by c.Id, c.TradingConditionId
              ) ctc
         WHERE
-            (@ByClient = 0 AND (@query IS NULL OR COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) LIKE CONCAT('%', @query, '%'))) OR
-            (@ByClient = 1 AND (@query IS NULL OR ctc.Id LIKE CONCAT('%', @query, '%')))
+            (@query IS NULL OR COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) LIKE CONCAT('%', @query, '%')) OR
+            (@query IS NULL OR ctc.Id LIKE CONCAT('%', @query, '%'))
     ),
     rowsCount as (
         SELECT 
