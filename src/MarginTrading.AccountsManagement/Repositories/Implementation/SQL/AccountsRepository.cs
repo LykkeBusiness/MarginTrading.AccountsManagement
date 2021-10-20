@@ -31,8 +31,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         private const string DeleteProcName = "DeleteAccountData";
 
         private static Type AccountDataType => typeof(IAccount);
-        private static readonly PropertyInfo[] AccountProperties = AccountDataType.GetProperties()
-            .Where(p => p.Name != nameof(IAccount.TradingConditionId)).ToArray();
+
+        private static readonly PropertyInfo[] AccountProperties = AccountDataType
+            .GetProperties()
+            .Where(p => p.Name != nameof(IAccount.TradingConditionId) && p.Name != nameof(IAccount.UserId))
+            .ToArray();
 
         private static readonly string GetAccountColumns = string.Join(",", AccountProperties.Select(x => x.Name));
         private static readonly string GetAccountFields = string.Join(",", AccountProperties.Select(x => "@" + x.Name));
