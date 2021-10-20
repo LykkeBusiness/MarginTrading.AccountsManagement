@@ -18,6 +18,7 @@ BEGIN
     WITH clients AS (
         SELECT ctc.Id,
                ctc.TradingConditionId,
+               ctc.UserId,
                COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) as AccountIdentityCommaSeparatedList
         FROM (
                  SELECT c.Id,
