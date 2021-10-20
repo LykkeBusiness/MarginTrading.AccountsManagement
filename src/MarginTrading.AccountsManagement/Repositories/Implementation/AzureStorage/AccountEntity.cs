@@ -30,7 +30,9 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
             get => PartitionKey;
             set => PartitionKey = value;
         }
-        
+
+        public string UserId { get; }
+
         public string TradingConditionId { get; set; }
         
         public string BaseAssetId { get; set; }

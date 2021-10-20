@@ -284,7 +284,8 @@ namespace MarginTrading.AccountsManagement.Controllers
                         request.AccountId.RequiredNotNullOrWhiteSpace(nameof(request.AccountId)),
                         request.TradingConditionId,
                         request.BaseAssetId.RequiredNotNullOrWhiteSpace(nameof(request.BaseAssetId)),
-                        request.AccountName));
+                        request.AccountName,
+                        request.UserId));
                 
                 return StatusCode((int) HttpStatusCode.Created, account);
             }

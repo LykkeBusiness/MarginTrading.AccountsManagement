@@ -87,7 +87,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                                   + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
                                   + (showDeleted ? "" : " AND a.IsDeleted = 0");
                 var accounts = await conn.QueryAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId FROM {AccountsTableName} a join {ClientsTableName} c on c.Id = a.ClientId {whereClause}", 
+                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on c.Id = a.ClientId {whereClause}", 
                     new { clientId, search });
                 
                 return accounts.ToList();
@@ -105,12 +105,12 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             using (var conn = new SqlConnection(ConnectionString))
             {
                 var whereClause = "WHERE a.ClientId=c.Id"
-                                  + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
+                                  + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search OR c.Id LIKE @search OR c.UserId LIKE @search)")
                                   + (showDeleted ? "" : " AND a.IsDeleted = 0");
 
                 var paginationClause = $" ORDER BY [Id] {(isAscendingOrder ? "ASC" : "DESC")} OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
                 var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT a.*, c.TradingConditionId FROM {AccountsTableName} a, {ClientsTableName} c {whereClause} {paginationClause}; " +
+                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a, {ClientsTableName} c {whereClause} {paginationClause}; " +
                     $"SELECT COUNT(*) FROM {AccountsTableName} a, {ClientsTableName} c {whereClause}",
                     new {search});
                 var accounts = (await gridReader.ReadAsync<AccountEntity>()).ToList();
@@ -132,7 +132,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                 var whereClause = "WHERE 1=1 "
                                   + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId");
                 var accounts = await conn.QueryAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
+                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
                     new { accountId });
                 
                 return accounts.FirstOrDefault();
@@ -241,7 +241,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 begin
    if not exists (select 1 from {ClientsTableName} where Id = @{nameof(ClientEntity.Id)})
    begin
-       insert into {ClientsTableName} (Id, TradingConditionId) values (@{nameof(ClientEntity.Id)}, @{nameof(ClientEntity.TradingConditionId)}) 
+       insert into {ClientsTableName} (Id, TradingConditionId, UserId) values (@{nameof(ClientEntity.Id)}, @{nameof(ClientEntity.TradingConditionId)}, @{nameof(ClientEntity.UserId)}) 
    end
 end
 ";
@@ -339,7 +339,8 @@ end
             {
                 Id = reader[nameof(ClientSearchResultEntity.Id)] as string,
                 TradingConditionId = reader[nameof(ClientSearchResultEntity.TradingConditionId)] as string,
-                AccountIdentityCommaSeparatedList = reader[nameof(ClientSearchResultEntity.AccountIdentityCommaSeparatedList)] as string
+                AccountIdentityCommaSeparatedList = reader[nameof(ClientSearchResultEntity.AccountIdentityCommaSeparatedList)] as string,
+                UserId = reader[nameof(ClientSearchResultEntity.UserId)] as string
             };
         }
 
@@ -374,7 +375,7 @@ end
                 try
                 {
                     var account = await conn.QuerySingleOrDefaultAsync<AccountEntity>(
-                        $"SELECT a.*, c.TradingConditionId FROM {AccountsTableName} a WITH (UPDLOCK) join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
+                        $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a WITH (UPDLOCK) join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
 
                     if (account == null)
                     {
@@ -434,7 +435,8 @@ end
                 TemporaryCapital = account.TemporaryCapital.ToJson(),
                 LastExecutedOperations = account.LastExecutedOperations.ToJson(),
                 AccountName = account.AccountName,
-                AdditionalInfo = account.AdditionalInfo.ToJson(true)
+                AdditionalInfo = account.AdditionalInfo.ToJson(true),
+                UserId = account.UserId,
             };
         }
         

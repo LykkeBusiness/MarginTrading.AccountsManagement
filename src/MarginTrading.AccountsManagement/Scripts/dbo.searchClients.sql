@@ -21,6 +21,7 @@ BEGIN
                COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) as AccountIdentityCommaSeparatedList
         FROM (
                  SELECT c.Id,
+                        c.UserId,
                         c.TradingConditionId,
                         STUFF((SELECT ',' + acc.AccountName
                                FROM MarginTradingAccounts acc
@@ -32,13 +33,14 @@ BEGIN
                             FOR XML PATH ('')),
                               1, 1, '') AS AccountIdCommaSeparatedList
                  FROM MarginTradingClients c
-                          INNER JOIN
+                 INNER JOIN
                       MarginTradingAccounts a on c.Id = a.ClientId
-                 GROUP by c.Id, c.TradingConditionId
+                 GROUP by c.Id, c.UserId, c.TradingConditionId
              ) ctc
         WHERE
             (@query IS NULL OR COALESCE(ctc.AccountNameCommaSeparatedList, ctc.AccountIdCommaSeparatedList) LIKE CONCAT('%', @query, '%')) OR
-            (@query IS NULL OR ctc.Id LIKE CONCAT('%', @query, '%'))
+            (@query IS NULL OR ctc.Id LIKE CONCAT('%', @query, '%')) OR 
+            (@query IS NULL OR ctc.UserId LIKE CONCAT('%', @query, '%'))
     ),
     rowsCount as (
         SELECT 
@@ -49,6 +51,7 @@ BEGIN
     SELECT
         Id,
         TradingConditionId,
+        UserId,
         AccountIdentityCommaSeparatedList,
         CONVERT(INT, rowsCount.Total) AS TotalRows
     FROM

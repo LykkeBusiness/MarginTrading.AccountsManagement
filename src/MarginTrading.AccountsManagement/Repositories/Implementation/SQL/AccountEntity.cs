@@ -18,6 +18,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         
         public string TradingConditionId { get; set; }
         
+        public string UserId { get; set; }
+        
         public string BaseAssetId { get; set; }
 
         public decimal Balance { get; set; }
