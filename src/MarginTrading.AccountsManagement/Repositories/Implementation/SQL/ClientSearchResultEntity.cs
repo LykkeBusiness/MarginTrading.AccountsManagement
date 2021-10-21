@@ -10,5 +10,6 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public string Id { get; set; }
         public string TradingConditionId { get; set; }
         public string AccountIdentityCommaSeparatedList { get; set; }
+        public string UserId { get; set; }
     }
 }

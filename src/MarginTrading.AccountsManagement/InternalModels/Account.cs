@@ -12,12 +12,24 @@ namespace MarginTrading.AccountsManagement.InternalModels
 {
     public class Account : IAccount
     {
-        public Account([NotNull] string id, [NotNull] string clientId, [NotNull] string tradingConditionId, 
-            [NotNull] string baseAssetId, decimal balance, decimal withdrawTransferLimit, [NotNull] string legalEntity, 
-            bool isDisabled, bool isWithdrawalDisabled, bool isDeleted, DateTime modificationTimestamp, string accountName, AccountAdditionalInfo additionalInfo)
+        public Account([NotNull] string id,
+            [NotNull] string clientId,
+            [NotNull] string tradingConditionId,
+            [NotNull] string baseAssetId,
+            decimal balance,
+            decimal withdrawTransferLimit,
+            [NotNull] string legalEntity,
+            bool isDisabled,
+            bool isWithdrawalDisabled,
+            bool isDeleted,
+            DateTime modificationTimestamp,
+            string accountName,
+            string userId,
+            AccountAdditionalInfo additionalInfo)
         {
             Id = id.RequiredNotNullOrWhiteSpace(nameof(id));
             ClientId = clientId.RequiredNotNullOrWhiteSpace(nameof(clientId));
+            UserId = userId;
             TradingConditionId = tradingConditionId.RequiredNotNullOrWhiteSpace(nameof(tradingConditionId));
             BaseAssetId = baseAssetId.RequiredNotNullOrWhiteSpace(nameof(baseAssetId));
             Balance = balance;
@@ -34,6 +46,8 @@ namespace MarginTrading.AccountsManagement.InternalModels
         public string Id { get; }
         
         public string ClientId { get; }
+        
+        public string UserId { get; }
         
         public string TradingConditionId { get; }
         

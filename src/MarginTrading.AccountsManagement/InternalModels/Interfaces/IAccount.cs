@@ -13,6 +13,8 @@ namespace MarginTrading.AccountsManagement.InternalModels.Interfaces
         
         string ClientId { get; }
         
+        string UserId { get; }
+        
         string TradingConditionId { get; }
         
         string BaseAssetId { get; }
