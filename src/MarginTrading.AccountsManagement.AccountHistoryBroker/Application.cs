@@ -10,6 +10,7 @@ using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
 using Lykke.MarginTrading.BrokerBase.Settings;
 using Lykke.SlackNotifications;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Extensions;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
@@ -28,8 +29,10 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         private readonly Settings _settings;
         private readonly ILog _log;
         private readonly RabbitMqCorrelationManager _correlationManager;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
 
         public Application(
+            CorrelationContextAccessor correlationContextAccessor,
             RabbitMqCorrelationManager correlationManager,
             ILoggerFactory loggerFactory, 
             IAccountHistoryRepository accountHistoryRepository, 
@@ -40,6 +43,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             IAccountsApi accountsApi)
             : base(loggerFactory, log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
         {
+            _correlationContextAccessor = correlationContextAccessor;
             _correlationManager = correlationManager;
             _accountHistoryRepository = accountHistoryRepository;
             _log = log;
@@ -56,6 +60,15 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 
         protected override async Task HandleMessage(AccountChangedEvent accountChangedEvent)
         {
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId;
+            if (string.IsNullOrWhiteSpace(correlationId))
+            {
+                await _log.WriteMonitorAsync(
+                    nameof(HandleMessage), 
+                    nameof(AccountChangedEvent),
+                    $"Correlation id is empty for account {accountChangedEvent.Account.Id}. OperationId: {accountChangedEvent.OperationId}");
+            }
+                    
             try
             {
                 if (accountChangedEvent.BalanceChange == null)
@@ -66,7 +79,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                     return;
                 }
                 
-                var accountHistory = Map(accountChangedEvent.BalanceChange);
+                var accountHistory = Map(accountChangedEvent.BalanceChange, correlationId);
 
                 if (accountHistory.ChangeAmount != 0)
                 {
@@ -97,7 +110,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
         }
 
-        private static AccountHistory Map(AccountBalanceChangeContract accountBalanceChangeContract)
+        private static AccountHistory Map(AccountBalanceChangeContract accountBalanceChangeContract, string correlationId)
         {
             return new AccountHistory(
                 accountBalanceChangeContract.Id,
@@ -113,7 +126,8 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                 legalEntity: accountBalanceChangeContract.LegalEntity,
                 auditLog: accountBalanceChangeContract.AuditLog,
                 instrument: accountBalanceChangeContract.Instrument,
-                tradingDate: accountBalanceChangeContract.TradingDate);
+                tradingDate: accountBalanceChangeContract.TradingDate,
+                correlationId: correlationId);
         }
     }
 }
