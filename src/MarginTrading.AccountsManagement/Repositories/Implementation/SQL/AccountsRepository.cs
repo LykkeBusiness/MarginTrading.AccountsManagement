@@ -146,11 +146,10 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         {
             using (var conn = new SqlConnection(ConnectionString))
             {
-                var whereClause = "WHERE 1=1 "
-                                  + (string.IsNullOrWhiteSpace(accountName) ? "" : " AND a.AccountName = @accountName");
                 var accounts = await conn.QueryAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
-                    new { accountName });
+                    "SELECT a.*, c.TradingConditionId, c.UserId " +
+                    $"FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id " +
+                    "WHERE a.AccountName = @accountName", new { accountName });
                 
                 return accounts.FirstOrDefault();
             }
