@@ -142,6 +142,20 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             }
         }
 
+        public async Task<IAccount> GetByNameAsync(string accountName)
+        {
+            using (var conn = new SqlConnection(ConnectionString))
+            {
+                var whereClause = "WHERE 1=1 "
+                                  + (string.IsNullOrWhiteSpace(accountName) ? "" : " AND a.AccountName = @accountName");
+                var accounts = await conn.QueryAsync<AccountEntity>(
+                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
+                    new { accountName });
+                
+                return accounts.FirstOrDefault();
+            }
+        }
+
         public async Task<IAccount> UpdateBalanceAsync(string operationId, string accountId,
             decimal amountDelta, bool changeLimit)
         {
