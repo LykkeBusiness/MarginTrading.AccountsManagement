@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Autofac;
@@ -20,6 +21,7 @@ using Lykke.Logs.MsSql.Repositories;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation;
+using Lykke.Snow.Common.Correlation.Serilog;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Common.Startup.Hosting;
@@ -41,6 +43,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Serilog.Core;
 using IApplicationLifetime = Microsoft.AspNetCore.Hosting.IApplicationLifetime;
 
 namespace MarginTrading.AccountsManagement
@@ -104,12 +107,12 @@ namespace MarginTrading.AccountsManagement
                 });
 
                 services.AddSingleton<AccountsCache>();
-                
-                Log = CreateLog(Configuration, _mtSettingsManager);
-
-                services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(Log));
 
                 services.AddCorrelation();
+                
+                Log = CreateLog(Configuration, _mtSettingsManager, services);
+
+                services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(Log));
                 
                 services.AddFeatureManagement(_mtSettingsManager.CurrentValue.MarginTradingAccountManagement.BrokerId);
                 services.AddProductComplexity(_mtSettingsManager.CurrentValue);
@@ -240,7 +243,7 @@ namespace MarginTrading.AccountsManagement
             }
         }
 
-        private static ILog CreateLog(IConfiguration configuration, IReloadingManager<AppSettings> settings)
+        private static ILog CreateLog(IConfiguration configuration, IReloadingManager<AppSettings> settings, IServiceCollection services)
         {
             var aggregateLogger = new AggregateLogger();
             var consoleLogger = new LogToConsole();
@@ -249,7 +252,11 @@ namespace MarginTrading.AccountsManagement
 
             if (settings.CurrentValue.MarginTradingAccountManagement.UseSerilog)
             {
-                aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, configuration));
+                var correlationContextAccessor = services.BuildServiceProvider().GetService<CorrelationContextAccessor>();
+                aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, configuration, new List<ILogEventEnricher>
+                {
+                    new CorrelationLogEventEnricher("CorrelationId", correlationContextAccessor)
+                }));
             }
             else if (settings.CurrentValue.MarginTradingAccountManagement.Db.StorageMode == StorageMode.SqlServer.ToString())
             {

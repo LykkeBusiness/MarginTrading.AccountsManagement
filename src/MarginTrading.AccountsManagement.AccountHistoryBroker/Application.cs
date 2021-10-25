@@ -28,7 +28,6 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         private readonly IAccountsApi _accountsApi;
         private readonly Settings _settings;
         private readonly ILog _log;
-        private readonly RabbitMqCorrelationManager _correlationManager;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
 
         public Application(
@@ -41,10 +40,9 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             CurrentApplicationInfo applicationInfo,
             ISlackNotificationsSender slackNotificationsSender,
             IAccountsApi accountsApi)
-            : base(loggerFactory, log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
+            : base(correlationManager, loggerFactory, log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
         {
             _correlationContextAccessor = correlationContextAccessor;
-            _correlationManager = correlationManager;
             _accountHistoryRepository = accountHistoryRepository;
             _log = log;
             _settings = settings;
@@ -54,9 +52,6 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         protected override BrokerSettingsBase Settings => _settings;
         protected override string ExchangeName => _settings.RabbitMqQueues.AccountHistory.ExchangeName;
         public override string RoutingKey => nameof(AccountChangedEvent);
-
-        protected override Action<IDictionary<string, object>> ReadHeadersAction =>
-            _correlationManager.FetchCorrelationIfExists;
 
         protected override async Task HandleMessage(AccountChangedEvent accountChangedEvent)
         {
