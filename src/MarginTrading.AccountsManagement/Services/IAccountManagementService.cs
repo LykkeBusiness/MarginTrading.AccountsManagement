@@ -43,6 +43,9 @@ namespace MarginTrading.AccountsManagement.Services
         [ItemCanBeNull]
         Task<IAccount> GetByIdAsync(string accountId);
 
+        [ItemCanBeNull]
+        Task<IAccount> GetByNameAsync(string accountName);
+
         ValueTask<AccountStat> GetCachedAccountStatistics(string accountId);
 
         Task<IAccount> EnsureAccountValidAsync(string accountId, bool skipDeleteValidation = false);

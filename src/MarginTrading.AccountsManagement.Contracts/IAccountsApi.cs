@@ -51,6 +51,13 @@ namespace MarginTrading.AccountsManagement.Contracts
         [Get("/api/accounts/by-id/{accountId}")]
         [ItemCanBeNull]
         Task<AccountContract> GetById(string accountId);
+        
+        /// <summary>
+        /// Gets account by accountName
+        /// </summary>
+        [Get("/api/accounts/by-name/{accountName}")]
+        [ItemCanBeNull]
+        Task<AccountContract> GetByName(string accountName);
 
         /// <summary>
         /// Creates an account

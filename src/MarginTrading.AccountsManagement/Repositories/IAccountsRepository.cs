@@ -37,6 +37,9 @@ namespace MarginTrading.AccountsManagement.Repositories
         [ItemCanBeNull]
         Task<IAccount> GetAsync(string accountId);
 
+        [ItemCanBeNull]
+        Task<IAccount> GetByNameAsync(string accountName);
+
         Task EraseAsync(string accountId);
 
         /// <summary>

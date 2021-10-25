@@ -138,6 +138,19 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
 
         /// <summary>
+        /// Returns account by accountName
+        /// </summary>
+        [HttpGet]
+        [Route("by-name/{accountName}")]
+        public Task<AccountContract> GetByName([NotNull] string accountName)
+        {
+            var account =
+                _accountManagementService.GetByNameAsync(accountName.RequiredNotNullOrWhiteSpace(nameof(accountName)));
+
+            return Convert(account);
+        }
+
+        /// <summary>
         /// Search clients by clientId, account name (first) or account (second) id on partial matching
         /// </summary>
         /// <param name="query">The search string</param>

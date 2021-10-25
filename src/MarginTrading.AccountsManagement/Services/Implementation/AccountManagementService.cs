@@ -223,6 +223,11 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return _accountsRepository.GetAsync(accountId);
         }
 
+        public Task<IAccount> GetByNameAsync(string accountName)
+        {
+            return _accountsRepository.GetByNameAsync(accountName);
+        }
+
         public async ValueTask<AccountStat> GetCachedAccountStatistics(string accountId)
         {
             if (string.IsNullOrEmpty(accountId))
