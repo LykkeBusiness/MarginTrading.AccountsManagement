@@ -21,6 +21,9 @@ using Lykke.Logs.MsSql.Repositories;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation;
+using Lykke.Snow.Common.Correlation.Cqrs;
+using Lykke.Snow.Common.Correlation.Http;
+using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Correlation.Serilog;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
@@ -108,9 +111,13 @@ namespace MarginTrading.AccountsManagement
 
                 services.AddSingleton<AccountsCache>();
 
-                services.AddCorrelation();
+                var correlationContextAccessor = new CorrelationContextAccessor();
+                services.AddSingleton(correlationContextAccessor);
+                services.AddSingleton<RabbitMqCorrelationManager>();
+                services.AddSingleton<CqrsCorrelationManager>();
+                services.AddTransient<HttpCorrelationHandler>();
                 
-                Log = CreateLog(Configuration, _mtSettingsManager, services);
+                Log = CreateLog(Configuration, _mtSettingsManager, services, correlationContextAccessor);
 
                 services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(Log));
                 
@@ -243,7 +250,11 @@ namespace MarginTrading.AccountsManagement
             }
         }
 
-        private static ILog CreateLog(IConfiguration configuration, IReloadingManager<AppSettings> settings, IServiceCollection services)
+        private static ILog CreateLog(
+            IConfiguration configuration,
+            IReloadingManager<AppSettings> settings,
+            IServiceCollection services,
+            CorrelationContextAccessor correlationContextAccessor)
         {
             var aggregateLogger = new AggregateLogger();
             var consoleLogger = new LogToConsole();
@@ -252,7 +263,6 @@ namespace MarginTrading.AccountsManagement
 
             if (settings.CurrentValue.MarginTradingAccountManagement.UseSerilog)
             {
-                var correlationContextAccessor = services.BuildServiceProvider().GetService<CorrelationContextAccessor>();
                 aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, configuration, new List<ILogEventEnricher>
                 {
                     new CorrelationLogEventEnricher("CorrelationId", correlationContextAccessor)
