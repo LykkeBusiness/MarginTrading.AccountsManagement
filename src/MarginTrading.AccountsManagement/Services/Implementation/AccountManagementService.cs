@@ -34,7 +34,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
     {
         private readonly IAccountsRepository _accountsRepository;
         private readonly ITradingConditionsService _tradingConditionsService;
-        private readonly ISendBalanceCommandsService _sendBalanceCommandsService;
+        private readonly ISendBalanceCommandsService _sendBalanceCommandsService; 
         private readonly AccountManagementSettings _settings;
         private readonly IEventSender _eventSender;
         private readonly ILog _log;
@@ -87,8 +87,12 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
         #region Create 
 
-        public async Task<IAccount> CreateAsync(string clientId, string accountId, string tradingConditionId,
-            string baseAssetId, string accountName)
+        public async Task<IAccount> CreateAsync(string clientId, 
+            string accountId, 
+            string tradingConditionId,
+            string baseAssetId, 
+            string accountName, 
+            string userId)
         {
             #region Validations
 
@@ -117,7 +121,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var legalEntity = await _tradingConditionsService.GetLegalEntityAsync(tradingConditionId);
 
-            var account = await CreateAccount(clientId, baseAssetId, tradingConditionId, legalEntity, accountId, accountName);
+            var account = await CreateAccount(clientId, baseAssetId, tradingConditionId, legalEntity, accountId, accountName, userId);
 
             _log.WriteInfo(nameof(AccountManagementService), nameof(CreateAsync),
                 $"{baseAssetId} account {accountId} created for client {clientId} on trading condition {tradingConditionId}");
@@ -323,15 +327,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return _accountsRepository.GetClientsByPagesAsync(tradingConditionId, skip, take);
         }
 
-        public Task<PaginatedResponse<IClientSearchResult>> SearchByClientIdAsync(string clientId, int skip, int take)
-        {
-            return _accountsRepository.SearchByClientIdAsync(clientId, skip, take);
-        }
-
-        public Task<PaginatedResponse<IClientSearchResult>> SearchByAccountAsync(string IdOrName, int skip, int take)
-        {
-            return _accountsRepository.SearchByAccountAsync(IdOrName, skip, take);
-        }
+        public Task<PaginatedResponse<IClientSearchResult>> SearchByClientAsync(string query, int skip, int take) =>
+            _accountsRepository.SearchByClientAsync(query, skip, take);
 
         public Task<IEnumerable<IClient>> GetAllClients()
         {
@@ -552,8 +549,13 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
         #region Helpers
 
-        private async Task<IAccount> CreateAccount(string clientId, string baseAssetId, string tradingConditionId,
-            string legalEntityId, string accountId = null, string accountName = null)
+        private async Task<IAccount> CreateAccount(string clientId, 
+            string baseAssetId, 
+            string tradingConditionId,
+            string legalEntityId, 
+            string accountId = null, 
+            string accountName = null, 
+            string userId = null)
         {
             var id = string.IsNullOrEmpty(accountId)
                 ? $"{_settings.Behavior?.AccountIdPrefix}{Guid.NewGuid():N}"
@@ -574,6 +576,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 false,
                 DateTime.UtcNow,
                 accountName,
+                userId,
                 new AccountAdditionalInfo
                 {
                     ShouldShowProductComplexityWarning = shouldShowProductComplexityWarning

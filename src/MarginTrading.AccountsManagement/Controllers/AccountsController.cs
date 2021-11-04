@@ -138,51 +138,24 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
 
         /// <summary>
-        /// Search clients by clientId on partial matching
+        /// Search clients by clientId, account name (first) or account (second) id on partial matching
         /// </summary>
         /// <param name="query">The search string</param>
         /// <param name="skip">How many items to skip</param>
         /// <param name="take">How many items to take</param>
         /// <returns>The list of clients with trading condition and account names matching the search criteria</returns>
         [HttpGet]
-        [Route("client-trading-conditions/search/by-client-id")]
+        [Route("client-trading-conditions/search/by-client")]
         public async Task<Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>>
-            SearchByClientId([FromQuery] string query, [FromQuery] int skip = 0, [FromQuery] int take = 20)
+            SearchByClient([FromQuery] string query, [FromQuery] int skip = 0, [FromQuery] int take = 20)
         {
             if (take <= 0 || skip < 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(skip), "Skip must be >= 0, take must be > 0");
             }
             
-            var result = await _accountManagementService.SearchByClientIdAsync(query, skip, take);
+            var result = await _accountManagementService.SearchByClientAsync(query, skip, take);
 
-            return new Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>(
-                result.Contents.Select(x => _convertService.Convert<IClientSearchResult, ClientTradingConditionsSearchResultContract>(x)).ToList(),
-                result.Start,
-                result.Size,
-                result.TotalSize
-            );
-        }
-
-        /// <summary>
-        /// Search clients by account name first or account id (if name is empty) on partial matching
-        /// </summary>
-        /// <param name="query">The search string</param>
-        /// <param name="skip">How many items to skip</param>
-        /// <param name="take">How many items to take</param>
-        /// <returns>The list of clients with trading condition and account names matching the search criteria</returns>
-        [HttpGet]
-        [Route("client-trading-conditions/search/by-account")]
-        public async Task<Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>>
-            SearchByAccount([FromQuery] string query, [FromQuery] int skip = 0, [FromQuery] int take = 20)
-        {
-            if (take <= 0 || skip < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(skip), "Skip must be >= 0, take must be > 0");
-            }
-            
-            var result = await _accountManagementService.SearchByAccountAsync(query, skip, take);
-            
             return new Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>(
                 result.Contents.Select(x => _convertService.Convert<IClientSearchResult, ClientTradingConditionsSearchResultContract>(x)).ToList(),
                 result.Start,
@@ -311,7 +284,8 @@ namespace MarginTrading.AccountsManagement.Controllers
                         request.AccountId.RequiredNotNullOrWhiteSpace(nameof(request.AccountId)),
                         request.TradingConditionId,
                         request.BaseAssetId.RequiredNotNullOrWhiteSpace(nameof(request.BaseAssetId)),
-                        request.AccountName));
+                        request.AccountName,
+                        request.UserId));
                 
                 return StatusCode((int) HttpStatusCode.Created, account);
             }

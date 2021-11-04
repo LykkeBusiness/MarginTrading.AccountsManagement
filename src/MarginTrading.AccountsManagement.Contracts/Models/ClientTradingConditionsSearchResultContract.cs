@@ -21,6 +21,11 @@ namespace MarginTrading.AccountsManagement.Contracts.Models
         public string TradingConditionId { get; set; }
         
         /// <summary>
+        /// The broker-provided user identifier
+        /// </summary>
+        public string UserId { get; set; }
+        
+        /// <summary>
         /// The list of account names or id's (if name is empty)
         /// </summary>
         public List<string> AccountIdentities { get; set; }

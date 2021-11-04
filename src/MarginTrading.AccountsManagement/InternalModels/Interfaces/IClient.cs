@@ -2,7 +2,8 @@
 {
     public interface IClient
     {
-        public string Id { get;  }
-        public string TradingConditionId { get;  }
+        string Id { get;  }
+        string TradingConditionId { get;  }
+        string UserId { get; }
     }
 }
