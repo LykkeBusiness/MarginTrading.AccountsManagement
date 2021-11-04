@@ -28,11 +28,11 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
                     settings.MarginTradingAccountManagement.RabbitMq.OrderHistory)
                 .SetMessageDeserializer(new JsonMessageDeserializer<OrderHistoryEvent>())
                 .SetMessageReadStrategy(new MessageReadQueueStrategy())
+                .UseMiddleware(new ExceptionSwallowMiddleware<OrderHistoryEvent>(
+                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<ExceptionSwallowMiddleware<OrderHistoryEvent>>()))
                 .UseMiddleware(new ResilientErrorHandlingMiddleware<OrderHistoryEvent>(
                     ctx.GetRequiredService<ILoggerFactory>().CreateLogger<ResilientErrorHandlingMiddleware<OrderHistoryEvent>>(),
                     TimeSpan.FromSeconds(1)))
-                .UseMiddleware(new ExceptionSwallowMiddleware<OrderHistoryEvent>(
-                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<ExceptionSwallowMiddleware<OrderHistoryEvent>>()))
                 .SetReadHeadersAction(ctx.GetRequiredService<RabbitMqCorrelationManager>().FetchCorrelationIfExists)
                 .CreateDefaultBinding());
         }
