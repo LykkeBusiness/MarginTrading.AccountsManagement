@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
@@ -9,12 +10,15 @@ using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
 using Lykke.MarginTrading.BrokerBase.Settings;
 using Lykke.SlackNotifications;
+using Lykke.Snow.Common.Correlation;
+using Lykke.Snow.Common.Correlation.RabbitMq;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Extensions;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 {
@@ -24,16 +28,21 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         private readonly IAccountsApi _accountsApi;
         private readonly Settings _settings;
         private readonly ILog _log;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
 
         public Application(
+            CorrelationContextAccessor correlationContextAccessor,
+            RabbitMqCorrelationManager correlationManager,
+            ILoggerFactory loggerFactory, 
             IAccountHistoryRepository accountHistoryRepository, 
             ILog log,
             Settings settings, 
             CurrentApplicationInfo applicationInfo,
             ISlackNotificationsSender slackNotificationsSender,
             IAccountsApi accountsApi)
-            : base(log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
+            : base(correlationManager, loggerFactory, log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
         {
+            _correlationContextAccessor = correlationContextAccessor;
             _accountHistoryRepository = accountHistoryRepository;
             _log = log;
             _settings = settings;
@@ -46,6 +55,15 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 
         protected override async Task HandleMessage(AccountChangedEvent accountChangedEvent)
         {
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId;
+            if (string.IsNullOrWhiteSpace(correlationId))
+            {
+                await _log.WriteMonitorAsync(
+                    nameof(HandleMessage), 
+                    nameof(AccountChangedEvent),
+                    $"Correlation id is empty for account {accountChangedEvent.Account.Id}. OperationId: {accountChangedEvent.OperationId}");
+            }
+                    
             try
             {
                 if (accountChangedEvent.BalanceChange == null)
@@ -56,7 +74,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                     return;
                 }
                 
-                var accountHistory = Map(accountChangedEvent.BalanceChange);
+                var accountHistory = Map(accountChangedEvent.BalanceChange, correlationId);
 
                 if (accountHistory.ChangeAmount != 0)
                 {
@@ -87,7 +105,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
         }
 
-        private static AccountHistory Map(AccountBalanceChangeContract accountBalanceChangeContract)
+        private static AccountHistory Map(AccountBalanceChangeContract accountBalanceChangeContract, string correlationId)
         {
             return new AccountHistory(
                 accountBalanceChangeContract.Id,
@@ -103,7 +121,8 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                 legalEntity: accountBalanceChangeContract.LegalEntity,
                 auditLog: accountBalanceChangeContract.AuditLog,
                 instrument: accountBalanceChangeContract.Instrument,
-                tradingDate: accountBalanceChangeContract.TradingDate);
+                tradingDate: accountBalanceChangeContract.TradingDate,
+                correlationId: correlationId);
         }
     }
 }

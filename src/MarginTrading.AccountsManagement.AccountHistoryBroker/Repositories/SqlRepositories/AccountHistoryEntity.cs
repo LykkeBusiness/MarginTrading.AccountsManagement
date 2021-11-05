@@ -21,5 +21,6 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.Sql
         public string AuditLog { get; set; }
         public string Instrument { get; set; }
         public DateTime TradingDate { get; set; }
+        public string CorrelationId { get; set; }
     }
 }

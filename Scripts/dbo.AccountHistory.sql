@@ -25,6 +25,17 @@ IF NOT EXISTS(SELECT 'X'
         );
     END;
 
+IF NOT EXISTS (
+  SELECT * 
+  FROM   sys.columns 
+  WHERE  object_id = OBJECT_ID(N'[dbo].[AccountHistory]') 
+         AND name = 'CorrelationId'
+)
+BEGIN
+ALTER TABLE [dbo].[AccountHistory]
+    ADD CorrelationId nvarchar(250) NULL;
+END
+
 IF NOT EXISTS(
         SELECT 'X'
         FROM sys.indexes

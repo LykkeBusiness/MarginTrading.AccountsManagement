@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Common;
 using Lykke.RabbitMqBroker.Publisher;
+using Lykke.RabbitMqBroker.Publisher.Serializers;
 using Lykke.SettingsReader;
 using MarginTrading.AccountsManagement.Settings;
 
@@ -12,7 +13,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure
 {
     public interface IRabbitMqService
     {
-        IMessageProducer<TMessage> GetProducer<TMessage>(IReloadingManager<RabbitConnectionSettings> settings,
+        Common.IMessageProducer<TMessage> GetProducer<TMessage>(IReloadingManager<RabbitConnectionSettings> settings,
             bool isDurable, IRabbitMqSerializer<TMessage> serializer);
 
         void Subscribe<TMessage>(IReloadingManager<RabbitConnectionSettings> settings, bool isDurable,

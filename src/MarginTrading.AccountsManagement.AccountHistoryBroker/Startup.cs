@@ -12,6 +12,8 @@ using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Services;
 using MarginTrading.AccountsManagement.Contracts;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using AzureRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.AzureRepositories;
 using SqlRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.SqlRepositories;
 using Microsoft.Extensions.Hosting;
