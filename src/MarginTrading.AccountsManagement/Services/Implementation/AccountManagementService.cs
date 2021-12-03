@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 using MarginTrading.AccountsManagement.Contracts.Models;
@@ -48,6 +50,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly AccountsCache _cache;
         private readonly IFeatureManager _featureManager;
         private readonly IAuditService _auditService;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
 
         public AccountManagementService(IAccountsRepository accountsRepository,
             ITradingConditionsService tradingConditionsService,
@@ -64,7 +67,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IPositionsApi positionsApi, 
             ITradingInstrumentsApi tradingInstrumentsApi,
             IFeatureManager featureManager,
-            IAuditService auditService)
+            IAuditService auditService,
+            CorrelationContextAccessor correlationContextAccessor)
         {
             _accountsRepository = accountsRepository;
             _tradingConditionsService = tradingConditionsService;
@@ -82,6 +86,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _tradingInstrumentsApi = tradingInstrumentsApi;
             _featureManager = featureManager;
             _auditService = auditService;
+            _correlationContextAccessor = correlationContextAccessor;
         }
 
 
@@ -437,7 +442,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return _cache.Invalidate(accountId);
         }
 
-        public async Task<Result<TradingConditionErrorCodes>> UpdateClientTradingCondition(string clientId, string tradingConditionId, string username, string correlationId)
+        public async Task<Result<TradingConditionErrorCodes>> UpdateClientTradingCondition(string clientId, string tradingConditionId, string username)
         {
             if (!await _tradingConditionsService.IsTradingConditionExistsAsync(tradingConditionId))
             {
@@ -482,7 +487,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     Guid.NewGuid().ToString("N"),
                     previousSnapshot: beforeUpdate[account.Id]);
             }
-            
+
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
             await _auditService.TryAuditTradingConditionUpdate(correlationId,
                 username,
                 clientId,
@@ -492,7 +499,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return new Result<TradingConditionErrorCodes>();
         }
 
-        public async Task<Result<TradingConditionErrorCodes>> UpdateClientTradingConditions(IReadOnlyList<(string clientId, string tradingConditionId)> updates, string username, string correlationId)
+        public async Task<Result<TradingConditionErrorCodes>> UpdateClientTradingConditions(IReadOnlyList<(string clientId, string tradingConditionId)> updates, string username)
         {
             var clientsInDb =  (await _accountsRepository.GetClients(updates.Select(p => p.clientId)))
                 .ToDictionary(p => p.Id);
@@ -512,7 +519,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     continue;
                 }
 
-                var tradingConditionUpdateResult = await UpdateClientTradingCondition(clientId, tradingConditionId, username, correlationId);
+                var tradingConditionUpdateResult = await UpdateClientTradingCondition(clientId, tradingConditionId, username);
                 if (tradingConditionUpdateResult.IsFailed)
                     return tradingConditionUpdateResult;
             }
