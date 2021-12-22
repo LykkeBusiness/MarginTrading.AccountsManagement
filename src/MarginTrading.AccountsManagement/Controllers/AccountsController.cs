@@ -217,8 +217,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         {
             var result = await _accountManagementService.UpdateClientTradingCondition(request.ClientId,
                 request.TradingConditionId,
-                request.Username,
-                this.TryGetCorrelationId());
+                request.Username);
 
             var response = new ErrorCodeResponse<TradingConditionErrorCodesContract>();
             if (result.IsFailed)
@@ -238,8 +237,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         {
             var updates = request.Updates.Select(p => (p.ClientId, p.TradingConditionId)).ToList();
             var result = await _accountManagementService.UpdateClientTradingConditions(updates, 
-                request.Username, 
-                this.TryGetCorrelationId());
+                request.Username);
 
             var response = new ErrorCodeResponse<TradingConditionErrorCodesContract>();
             if (result.IsFailed)
