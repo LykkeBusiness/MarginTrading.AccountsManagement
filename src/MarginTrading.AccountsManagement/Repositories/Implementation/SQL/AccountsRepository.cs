@@ -130,10 +130,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task<IAccount> GetAsync(string accountId)
         {
+            return await GetAsync(accountId, true);
+        }
+
+        public async Task<IAccount> GetAsync(string accountId, bool includeDeleted)
+        {
             using (var conn = new SqlConnection(ConnectionString))
             {
                 var whereClause = "WHERE 1=1 "
-                                  + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId");
+                                  + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId")
+                                  + (includeDeleted ? "" : " and a.IsDeleted = 0");
                 var accounts = await conn.QueryAsync<AccountEntity>(
                     $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
                     new { accountId });

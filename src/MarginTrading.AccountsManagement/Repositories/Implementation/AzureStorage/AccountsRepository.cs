@@ -117,7 +117,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
 
         public async Task<IAccount> GetAsync(string accountId)
         {
-            var account = (await _tableStorage.GetDataAsync(x => x.RowKey == accountId)).SingleOrDefault();
+            return await GetAsync(accountId, true);
+        }
+
+        public async Task<IAccount> GetAsync(string accountId, bool includeDeleted)
+        {
+            var account = (await _tableStorage
+                .GetDataAsync(x =>
+                    x.RowKey == accountId &&
+                    (includeDeleted || !x.IsDeleted)))
+                .SingleOrDefault();
 
             return account;
         }

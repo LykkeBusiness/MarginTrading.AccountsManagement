@@ -237,7 +237,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var account = await _cache.Get(accountId, AccountsCache.Category.GetAccount, async() =>
             {
-                var accfromDb = await _accountsRepository.GetAsync(accountId);
+                var accfromDb = await _accountsRepository.GetAsync(accountId, false);
 
                 return (value: accfromDb, shouldCache: accfromDb != null);
             });
