@@ -16,6 +16,8 @@ namespace MarginTrading.AccountsManagement.Repositories
         void Initialize();
         
         Task AddAsync(IAccount account);
+
+        Task<IReadOnlyList<IAccountSuggested>> GetSuggestedListAsync(string query, int limit);
         
         Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null,
             bool showDeleted = false);

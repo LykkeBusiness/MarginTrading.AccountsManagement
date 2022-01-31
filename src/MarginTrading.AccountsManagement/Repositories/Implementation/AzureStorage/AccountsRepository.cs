@@ -43,6 +43,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
             await _tableStorage.InsertAsync(Convert(account));
         }
 
+        public Task<IReadOnlyList<IAccountSuggested>> GetSuggestedListAsync(string query, int limit)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null,
             bool showDeleted = false)
         {

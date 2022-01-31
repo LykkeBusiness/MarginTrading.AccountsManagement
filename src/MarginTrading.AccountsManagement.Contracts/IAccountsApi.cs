@@ -19,6 +19,12 @@ namespace MarginTrading.AccountsManagement.Contracts
     public interface IAccountsApi
     {
         /// <summary>
+        /// Gets suggested accounts
+        /// </summary>
+        [Get("/api/accounts/suggested")]
+        Task<List<AccountSuggestedContract>> SuggestedList([Query, NotNull] string query, [Query] int limit);
+        
+        /// <summary>
         /// Gets all accounts
         /// </summary>
         [Get("/api/accounts/")]
