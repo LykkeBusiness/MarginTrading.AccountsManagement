@@ -48,7 +48,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         public async Task<T> Get<T>(string accountId, Category category, Func<Task<(T value, bool shouldCache)>> getValue)
         {
             var cacheKey = BuildCacheKey(accountId, category);
-            var cached = await _cache.GetStringAsync(BuildCacheKey(accountId, category));
+            var cached = await _cache.GetStringAsync(cacheKey);
 
             if (cached != null)
             {

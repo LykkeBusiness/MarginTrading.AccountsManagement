@@ -251,7 +251,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var accountHistory = await _cache.Get(accountId, AccountsCache.Category.GetAccountBalanceChanges, () => _accountBalanceChangesRepository.GetAsync(accountId, onDate));
 
-            var firstEvent = accountHistory.OrderByDescending(x => x.ChangeTimestamp).LastOrDefault();
+            var firstEvent = accountHistory.OrderBy(x => x.ChangeTimestamp).FirstOrDefault();
+            var lastEvent = accountHistory.OrderBy(x => x.ChangeTimestamp).LastOrDefault();
 
             var accountCapital = await GetAccountCapitalAsync(account, mtCoreAccountStats, useCache: true); 
             
@@ -291,7 +292,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 currentlyUsedMargin: mtCoreAccountStats.CurrentlyUsedMargin,
                 initiallyUsedMargin: mtCoreAccountStats.InitiallyUsedMargin,
                 openPositionsCount: mtCoreAccountStats.OpenPositionsCount,
-                lastBalanceChangeTime: mtCoreAccountStats.LastBalanceChangeTime,
+                lastBalanceChangeTime: lastEvent?.ChangeTimestamp ?? mtCoreAccountStats.LastBalanceChangeTime,
                 additionalInfo: account.AdditionalInfo.Serialize()
             );
 
