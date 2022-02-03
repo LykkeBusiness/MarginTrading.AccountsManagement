@@ -252,13 +252,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 mtCoreAccountStats.Balance,
                 mtCoreAccountStats.TotalCapital,
                 mtCoreAccountStats.UsedMargin,
-                useCache: true); 
-            
-            var marginPercent = 0m;
-            if (mtCoreAccountStats.TotalCapital != 0)
-            {
-                marginPercent = mtCoreAccountStats.UsedMargin / mtCoreAccountStats.TotalCapital * 100;
-            }
+                useCache: true);
 
             var result = new AccountStat(
                 mtCoreAccountStats.TodayRealizedPnL,
@@ -271,7 +265,6 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 disposableCapital: accountCapital.Disposable,
                 totalCapital: mtCoreAccountStats.TotalCapital,
                 usedMargin: mtCoreAccountStats.UsedMargin,
-                usedMarginPercent: marginPercent,
                 freeMargin: mtCoreAccountStats.FreeMargin,
                 pnl: mtCoreAccountStats.PnL,
                 balance: mtCoreAccountStats.Balance,
