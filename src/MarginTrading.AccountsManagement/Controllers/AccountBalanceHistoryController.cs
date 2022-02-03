@@ -130,7 +130,8 @@ namespace MarginTrading.AccountsManagement.Controllers
             return new AccountBalanceChangeLightContract(
                 arg.ChangeAmount,
                 arg.Balance,
-                arg.ReasonType.ToType<AccountBalanceChangeReasonTypeContract>());
+                arg.ReasonType.ToType<AccountBalanceChangeReasonTypeContract>(),
+                arg.ChangeTimestamp);
         }
 
         private AccountBalanceChangeContract Convert(IAccountBalanceChange arg)

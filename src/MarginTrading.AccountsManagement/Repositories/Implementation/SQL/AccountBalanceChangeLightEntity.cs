@@ -17,5 +17,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         AccountBalanceChangeReasonType IAccountBalanceChangeLight.ReasonType => Enum.Parse<AccountBalanceChangeReasonType>(ReasonType); 
         public string ReasonType { get; set; }
+        
+        public DateTime ChangeTimestamp { get; set; }
     }
 }
