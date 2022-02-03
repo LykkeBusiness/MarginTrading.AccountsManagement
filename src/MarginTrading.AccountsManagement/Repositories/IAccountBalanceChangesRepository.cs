@@ -15,6 +15,8 @@ namespace MarginTrading.AccountsManagement.Repositories
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType[] reasonTypes = null, 
             string assetPairId = null, int? skip = null, int? take = null, bool isAscendingOrder = true);
 
+        Task<IReadOnlyList<IAccountBalanceChangeLight>> GetLightAsync(DateTime? @from = null, DateTime? to = null);
+
         Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId,
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType? reasonType = null,
             bool filterByTradingDay = false);

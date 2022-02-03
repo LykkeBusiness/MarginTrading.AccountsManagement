@@ -16,6 +16,12 @@ namespace MarginTrading.AccountsManagement.Contracts
     public interface IAccountBalanceHistoryApi
     {
         /// <summary>
+        /// Get balance change history by date grouped by account
+        /// </summary>
+        [Get("/api/balance-history/by-date")]
+        Task<Dictionary<string, AccountBalanceChangeLightContract[]>> ByDate([Query] DateTime? from, [Query] DateTime? to);
+        
+        /// <summary>
         /// Get account balance change history paginated, by account Id, and optionally by dates and asset pair
         /// </summary>
         [Get("/api/balance-history/by-pages/{accountId}")]

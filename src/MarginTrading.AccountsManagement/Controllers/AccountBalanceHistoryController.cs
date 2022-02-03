@@ -32,6 +32,22 @@ namespace MarginTrading.AccountsManagement.Controllers
             _accountBalanceChangesRepository = accountBalanceChangesRepository;
             _systemClock = systemClock;
         }
+        
+        /// <summary>
+        /// Get balance change history by date grouped by account
+        /// </summary>
+        [Route("by-date")]
+        [HttpGet]
+        public async Task<Dictionary<string, AccountBalanceChangeLightContract[]>> ByDate([FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        {
+            var data = await _accountBalanceChangesRepository.GetLightAsync(from, to);
+            
+            return data
+                .GroupBy(i => i.AccountId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(ConvertToLight).ToArray());
+        }
 
         /// <summary>
         /// Get account balance change history paginated, by account Id, and optionally by dates and asset pair
@@ -107,6 +123,14 @@ namespace MarginTrading.AccountsManagement.Controllers
             var targetDate = date ?? _systemClock.UtcNow.UtcDateTime.Date;
             
             return await _accountBalanceChangesRepository.GetBalanceAsync(accountId, targetDate);
+        }
+
+        private AccountBalanceChangeLightContract ConvertToLight(IAccountBalanceChangeLight arg)
+        {
+            return new AccountBalanceChangeLightContract(
+                arg.ChangeAmount,
+                arg.Balance,
+                arg.ReasonType.ToType<AccountBalanceChangeReasonTypeContract>());
         }
 
         private AccountBalanceChangeContract Convert(IAccountBalanceChange arg)

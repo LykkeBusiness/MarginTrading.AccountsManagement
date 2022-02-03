@@ -40,6 +40,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                                                  "INDEX IX_{0}_Base (Id, AccountId, ChangeTimestamp, EventSourceId, ReasonType)" +
                                                  ");";
         
+        private static Type DataTypeLight => typeof(IAccountBalanceChangeLight);
+        private static readonly string GetColumnsLight = string.Join(",", DataTypeLight.GetProperties().Select(x => x.Name));
         private static Type DataType => typeof(IAccountBalanceChange);
         private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
@@ -111,7 +113,26 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                 );
             }
         }
-        
+
+        public async Task<IReadOnlyList<IAccountBalanceChangeLight>> GetLightAsync(DateTime? @from = null, DateTime? to = null)
+        {
+            var whereClause = "WHERE 1=1 "
+                              + (from != null ? $" AND ChangeTimestamp >= @from" : "")
+                              + (to != null ? $" AND ChangeTimestamp < @to" : "");
+            
+            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
+            {
+                var data = await conn.QueryAsync<AccountBalanceChangeLightEntity>(
+                    $"SELECT {GetColumnsLight} FROM {TableName} WITH (NOLOCK) {whereClause}", new
+                    {
+                        from, 
+                        to, 
+                    });
+
+                return data.ToList();
+            }
+        }
+
         public async Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, DateTime? @from = null,
             DateTime? to = null, AccountBalanceChangeReasonType? reasonType = null, bool filterByTradingDay = false)
         {
