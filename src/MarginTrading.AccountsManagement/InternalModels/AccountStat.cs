@@ -8,10 +8,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
 {
     public class AccountStat
     {
-        [NotNull] public string AccountId { get; }
-        
-        public DateTime Created { get; }
-        
         public decimal RealisedPnl { get; }
         
         public decimal DepositAmount { get; }
@@ -22,15 +18,11 @@ namespace MarginTrading.AccountsManagement.InternalModels
         
         public decimal OtherAmount { get; }
         
-        public decimal AccountBalance { get; }
-        
         public decimal PrevEodAccountBalance { get; }
         
         public decimal DisposableCapital { get; }
         
         public decimal UnRealisedPnl { get; }
-        
-        public AccountCapital AccountCapitalDetails { get; }
 
         public decimal TotalCapital { get; }
 
@@ -56,25 +48,21 @@ namespace MarginTrading.AccountsManagement.InternalModels
 
         public string AdditionalInfo { get; set; }
 
-        public AccountStat([NotNull] string accountId, DateTime created, decimal realisedPnl, decimal depositAmount,
-            decimal withdrawalAmount, decimal commissionAmount, decimal otherAmount, decimal accountBalance,
+        public AccountStat(decimal realisedPnl, decimal depositAmount,
+            decimal withdrawalAmount, decimal commissionAmount, decimal otherAmount,
             decimal prevEodAccountBalance, decimal disposableCapital, decimal unRealisedPnl, 
-            AccountCapital accountCapitalDetails, decimal totalCapital, decimal usedMargin, decimal usedMarginPercent, 
+            decimal totalCapital, decimal usedMargin, decimal usedMarginPercent, 
             decimal freeMargin, decimal pnl, decimal balance, decimal unrealizedPnlDaily, decimal currentlyUsedMargin, 
             decimal initiallyUsedMargin, int openPositionsCount, DateTime lastBalanceChangeTime, string additionalInfo)
         {
-            AccountId = accountId ?? throw new ArgumentNullException(nameof(accountId));
-            Created = created;
             RealisedPnl = realisedPnl;
             DepositAmount = depositAmount;
             WithdrawalAmount = withdrawalAmount;
             CommissionAmount = commissionAmount;
             OtherAmount = otherAmount;
-            AccountBalance = accountBalance;
             PrevEodAccountBalance = prevEodAccountBalance;
             DisposableCapital = disposableCapital;
             UnRealisedPnl = unRealisedPnl;
-            AccountCapitalDetails = accountCapitalDetails;
             TotalCapital = totalCapital;
             UsedMargin = usedMargin;
             UsedMarginPercent = usedMarginPercent;

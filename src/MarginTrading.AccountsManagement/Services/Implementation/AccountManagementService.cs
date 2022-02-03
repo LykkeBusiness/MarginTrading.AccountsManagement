@@ -261,18 +261,14 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             }
 
             var result = new AccountStat(
-                accountId,
-                _systemClock.UtcNow.UtcDateTime,
                 mtCoreAccountStats.TodayRealizedPnL,
                 unRealisedPnl: mtCoreAccountStats.TodayUnrealizedPnL,
                 depositAmount: mtCoreAccountStats.TodayDepositAmount,
                 withdrawalAmount: mtCoreAccountStats.TodayWithdrawAmount,
                 commissionAmount: mtCoreAccountStats.TodayCommissionAmount,
                 otherAmount: mtCoreAccountStats.TodaOtherAmount,
-                accountBalance: mtCoreAccountStats.Balance,
                 prevEodAccountBalance: mtCoreAccountStats.TodayStartBalance,
                 disposableCapital: accountCapital.Disposable,
-                accountCapitalDetails: accountCapital,
                 totalCapital: mtCoreAccountStats.TotalCapital,
                 usedMargin: mtCoreAccountStats.UsedMargin,
                 usedMarginPercent: marginPercent,
