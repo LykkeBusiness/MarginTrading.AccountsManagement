@@ -39,6 +39,8 @@ namespace MarginTrading.AccountsManagement.Repositories
 
         [ItemCanBeNull]
         Task<IAccount> GetAsync(string accountId, bool includeDeleted);
+        
+        Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(string accountId);
 
         Task EraseAsync(string accountId);
 

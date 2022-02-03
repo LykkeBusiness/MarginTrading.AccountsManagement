@@ -29,8 +29,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
         public decimal DisposableCapital { get; }
         
         public decimal UnRealisedPnl { get; }
-
-        public string AccountName { get; }
         
         public AccountCapital AccountCapitalDetails { get; }
 
@@ -60,7 +58,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
 
         public AccountStat([NotNull] string accountId, DateTime created, decimal realisedPnl, decimal depositAmount,
             decimal withdrawalAmount, decimal commissionAmount, decimal otherAmount, decimal accountBalance,
-            decimal prevEodAccountBalance, decimal disposableCapital, decimal unRealisedPnl, string accountName, 
+            decimal prevEodAccountBalance, decimal disposableCapital, decimal unRealisedPnl, 
             AccountCapital accountCapitalDetails, decimal totalCapital, decimal usedMargin, decimal usedMarginPercent, 
             decimal freeMargin, decimal pnl, decimal balance, decimal unrealizedPnlDaily, decimal currentlyUsedMargin, 
             decimal initiallyUsedMargin, int openPositionsCount, DateTime lastBalanceChangeTime, string additionalInfo)
@@ -76,7 +74,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
             PrevEodAccountBalance = prevEodAccountBalance;
             DisposableCapital = disposableCapital;
             UnRealisedPnl = unRealisedPnl;
-            AccountName = accountName;
             AccountCapitalDetails = accountCapitalDetails;
             TotalCapital = totalCapital;
             UsedMargin = usedMargin;
