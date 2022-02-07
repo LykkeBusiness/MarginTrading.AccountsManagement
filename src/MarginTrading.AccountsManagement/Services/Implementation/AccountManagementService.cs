@@ -338,9 +338,14 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             if (string.IsNullOrWhiteSpace((accountId)))
                 throw new ArgumentNullException(nameof(accountId));
-            
-            var realizedProfit = await GetRealizedProfit(accountId, useCache);
-            var unRealizedProfit = await GetUnrealizedProfit(accountId);
+                
+            var realizedProfitTask = GetRealizedProfit(accountId, useCache);
+            var unRealizedProfitTask = GetUnrealizedProfit(accountId);
+
+            await Task.WhenAll(realizedProfitTask, unRealizedProfitTask);
+
+            var realizedProfit = await realizedProfitTask;
+            var unRealizedProfit = await unRealizedProfitTask;
             
             return new AccountCapital(
                 balance, 
