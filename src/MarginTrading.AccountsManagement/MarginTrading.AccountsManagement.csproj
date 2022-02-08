@@ -53,7 +53,7 @@
     <PackageReference Include="Lykke.Logs" Version="7.4.0" />
     <PackageReference Include="Lykke.Logs.MsSql" Version="2.2.0" />
     <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" Version="9.7.6" />
-    <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.28.1" />
+    <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.28.2" />
     <PackageReference Include="Lykke.Logs.Serilog" Version="2.3.0" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
     <PackageReference Include="Lykke.Messaging" Version="6.3.1" />

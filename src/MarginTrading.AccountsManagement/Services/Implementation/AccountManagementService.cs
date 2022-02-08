@@ -260,7 +260,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 depositAmount: mtCoreAccountStats.TodayDepositAmount,
                 withdrawalAmount: mtCoreAccountStats.TodayWithdrawAmount,
                 commissionAmount: mtCoreAccountStats.TodayCommissionAmount,
-                otherAmount: mtCoreAccountStats.TodaOtherAmount,
+                otherAmount: mtCoreAccountStats.TodayOtherAmount,
                 prevEodAccountBalance: mtCoreAccountStats.TodayStartBalance,
                 disposableCapital: accountCapital.Disposable,
                 totalCapital: mtCoreAccountStats.TotalCapital,
