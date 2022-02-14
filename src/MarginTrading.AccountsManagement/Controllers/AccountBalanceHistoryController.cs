@@ -50,8 +50,8 @@ namespace MarginTrading.AccountsManagement.Controllers
         {
             var data = await _accountBalanceChangesRepository.GetByPagesAsync(
                 accountId, 
-                @from?.ToUniversalTime(),
-                to?.ToUniversalTime(),
+                @from?.AssumeUtcIfUnspecified().ToUniversalTime(),
+                to?.AssumeUtcIfUnspecified().ToUniversalTime(),
                 reasonTypes?.Select(x => x.ToType<AccountBalanceChangeReasonType>()).ToArray(),
                 assetPairId,
                 skip,
@@ -75,8 +75,8 @@ namespace MarginTrading.AccountsManagement.Controllers
         {
             var data = await _accountBalanceChangesRepository.GetAsync(
                 accountId, 
-                @from?.ToUniversalTime(),
-                to?.ToUniversalTime(),
+                @from?.AssumeUtcIfUnspecified().ToUniversalTime(),
+                to?.AssumeUtcIfUnspecified().ToUniversalTime(),
                 reasonType?.ToType<AccountBalanceChangeReasonType>(), 
                 filterByTradingDay);
             
