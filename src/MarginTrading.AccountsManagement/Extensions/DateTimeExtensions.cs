@@ -14,7 +14,7 @@ namespace MarginTrading.AccountsManagement.Extensions
                 case DateTimeKind.Unspecified:
                     return DateTime.SpecifyKind(dateTime, DateTimeKind.Utc);
                 default:
-                    return dateTime;
+                    return dateTime.ToUniversalTime();
             }
         }
     }
