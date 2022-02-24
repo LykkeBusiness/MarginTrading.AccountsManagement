@@ -8,10 +8,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
 {
     public class AccountStat
     {
-        [NotNull] public string AccountId { get; }
-        
-        public DateTime Created { get; }
-        
         public decimal RealisedPnl { get; }
         
         public decimal DepositAmount { get; }
@@ -22,23 +18,15 @@ namespace MarginTrading.AccountsManagement.InternalModels
         
         public decimal OtherAmount { get; }
         
-        public decimal AccountBalance { get; }
-        
         public decimal PrevEodAccountBalance { get; }
         
         public decimal DisposableCapital { get; }
         
         public decimal UnRealisedPnl { get; }
 
-        public string AccountName { get; }
-        
-        public AccountCapital AccountCapitalDetails { get; }
-
         public decimal TotalCapital { get; }
 
         public decimal UsedMargin { get; }
-
-        public decimal UsedMarginPercent { get; }
 
         public decimal FreeMargin { get; }
 
@@ -56,31 +44,25 @@ namespace MarginTrading.AccountsManagement.InternalModels
 
         public DateTime LastBalanceChangeTime { get; }
 
-        public string AdditionalInfo { get; set; }
+        public string AdditionalInfo { get; }
 
-        public AccountStat([NotNull] string accountId, DateTime created, decimal realisedPnl, decimal depositAmount,
-            decimal withdrawalAmount, decimal commissionAmount, decimal otherAmount, decimal accountBalance,
-            decimal prevEodAccountBalance, decimal disposableCapital, decimal unRealisedPnl, string accountName, 
-            AccountCapital accountCapitalDetails, decimal totalCapital, decimal usedMargin, decimal usedMarginPercent, 
+        public AccountStat(decimal realisedPnl, decimal depositAmount,
+            decimal withdrawalAmount, decimal commissionAmount, decimal otherAmount,
+            decimal prevEodAccountBalance, decimal disposableCapital, decimal unRealisedPnl, 
+            decimal totalCapital, decimal usedMargin, 
             decimal freeMargin, decimal pnl, decimal balance, decimal unrealizedPnlDaily, decimal currentlyUsedMargin, 
             decimal initiallyUsedMargin, int openPositionsCount, DateTime lastBalanceChangeTime, string additionalInfo)
         {
-            AccountId = accountId ?? throw new ArgumentNullException(nameof(accountId));
-            Created = created;
             RealisedPnl = realisedPnl;
             DepositAmount = depositAmount;
             WithdrawalAmount = withdrawalAmount;
             CommissionAmount = commissionAmount;
             OtherAmount = otherAmount;
-            AccountBalance = accountBalance;
             PrevEodAccountBalance = prevEodAccountBalance;
             DisposableCapital = disposableCapital;
             UnRealisedPnl = unRealisedPnl;
-            AccountName = accountName;
-            AccountCapitalDetails = accountCapitalDetails;
             TotalCapital = totalCapital;
             UsedMargin = usedMargin;
-            UsedMarginPercent = usedMarginPercent;
             FreeMargin = freeMargin;
             Pnl = pnl;
             Balance = balance;

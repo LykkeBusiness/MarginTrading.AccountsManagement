@@ -136,6 +136,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
             return account;
         }
 
+        public Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(string accountId)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task EraseAsync(string accountId)
         {
             throw new NotImplementedException();

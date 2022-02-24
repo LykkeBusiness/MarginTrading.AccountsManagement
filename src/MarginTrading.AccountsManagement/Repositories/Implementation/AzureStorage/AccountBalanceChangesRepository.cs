@@ -67,6 +67,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
             );
         }
 
+        public Task<IReadOnlyList<IAccountBalanceChangeLight>> GetLightAsync(DateTime? @from = null, DateTime? to = null)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, DateTime? @from = null,
             DateTime? to = null, AccountBalanceChangeReasonType? reasonType = null, bool filterByTradingDay = false)
         {

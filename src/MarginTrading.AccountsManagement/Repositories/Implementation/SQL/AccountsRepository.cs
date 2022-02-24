@@ -20,6 +20,7 @@ using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using Microsoft.Extensions.Internal;
+using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
@@ -154,6 +155,23 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                     new { accountId });
                 
                 return accounts.FirstOrDefault();
+            }
+        }
+
+        public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
+            string accountId)
+        {
+            using (var conn = new SqlConnection(ConnectionString))
+            {
+                var whereClause = "WHERE 1=1 " + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND Id = @accountId");
+                var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>(
+                    $"SELECT TOP 1 {nameof(AccountEntity.BaseAssetId)}, {nameof(AccountEntity.TemporaryCapital)} FROM {AccountsTableName} {whereClause}", 
+                    new { accountId });
+
+                var baseAssetId = account?.BaseAssetId;
+                var temporaryCapital = JsonConvert.DeserializeObject<List<TemporaryCapital>>(account?.TemporaryCapital)
+                    ?.Sum(x => x.Amount) ?? default;
+                return (baseAssetId, temporaryCapital);
             }
         }
 

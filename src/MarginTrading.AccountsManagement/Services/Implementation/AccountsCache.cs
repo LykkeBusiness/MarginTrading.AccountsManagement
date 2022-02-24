@@ -13,8 +13,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
     {
         public enum Category
         {
-            GetAccount,
-            GetAccountBalanceChanges,
+            GetBaseAssetIdAndTemporaryCapital,
             GetCompensations,
             GetDividends,
             GetTaxFileMissingDays,
