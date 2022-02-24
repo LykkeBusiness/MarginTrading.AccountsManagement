@@ -75,6 +75,15 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             await conn.ExecuteAsync($"insert into {AccountsTableName} ({GetAccountColumns}) values ({GetAccountFields})", Convert(account));
         }
         
+        public async Task<IReadOnlyList<IAccountSuggested>> GetSuggestedListAsync(string query, int limit)
+        {
+            using (var conn = new SqlConnection(ConnectionString))
+            {
+                var sql = $"SELECT TOP {limit} Id, AccountName FROM {AccountsTableName} WHERE Id LIKE @query OR AccountName LIKE @query ORDER BY Id";
+                return (await conn.QueryAsync<AccountSuggestedEntity>(sql, new { query = $"{query}%" })).ToList();
+            }
+        }
+        
         public async Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null,
             bool showDeleted = false)
         {

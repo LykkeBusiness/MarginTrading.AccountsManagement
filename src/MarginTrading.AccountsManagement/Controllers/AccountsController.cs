@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -72,6 +73,14 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
 
         #region CRUD
+        
+        [HttpGet]
+        [Route("suggested")]
+        public async Task<List<AccountSuggestedContract>> SuggestedList([FromQuery, Required, MinLength(2)] string query, [FromQuery] int limit)
+        {
+            var items = await _accountManagementService.SuggestedListAsync(query, limit);
+            return items.Select(Convert).ToList();
+        }
 
         /// <summary>
         /// Gets all accounts
@@ -85,7 +94,7 @@ namespace MarginTrading.AccountsManagement.Controllers
 
         /// <summary>
         /// Gets all accounts, optionally paginated. Both skip and take must be set or unset.
-        /// </summary>
+        /// </summary>ListByPages
         [HttpGet]
         [Route("by-pages")]
         [Obsolete("Consider using search API")]
@@ -675,6 +684,11 @@ namespace MarginTrading.AccountsManagement.Controllers
         private AccountContract Convert(IAccount account)
         {
             return _convertService.Convert<IAccount, AccountContract>(account);
+        }
+
+        private AccountSuggestedContract Convert(IAccountSuggested item)
+        {
+            return _convertService.Convert<IAccountSuggested, AccountSuggestedContract>(item);
         }
     }
 }

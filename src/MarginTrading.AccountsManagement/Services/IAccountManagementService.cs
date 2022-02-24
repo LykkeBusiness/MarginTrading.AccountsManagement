@@ -32,6 +32,8 @@ namespace MarginTrading.AccountsManagement.Services
         #endregion
 
         #region Get
+
+        Task<IReadOnlyList<IAccountSuggested>> SuggestedListAsync(string query, int limit);
         
         Task<IReadOnlyList<IAccount>> ListAsync(string search, bool showDeleted = false);
 
