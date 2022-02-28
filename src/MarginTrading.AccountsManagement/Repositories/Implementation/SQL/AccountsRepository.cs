@@ -67,8 +67,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             ConnectionString.InitializeSqlObject("dbo.MarginTradingClients.sql", _log);
             ConnectionString.InitializeSqlObject("dbo.MarginTradingAccounts.sql", _log);
             ExecCreateOrAlter("dbo.searchClients.sql");
+            ExecCreateOrAlter("dbo.getAllClients.sql");
             ExecCreateOrAlter("dbo.DeleteAccountData.sql");
-            ExecCreateOrAlter(_getAllClients.FileName);
         }
 
         public async Task AddAsync(IAccount account)
