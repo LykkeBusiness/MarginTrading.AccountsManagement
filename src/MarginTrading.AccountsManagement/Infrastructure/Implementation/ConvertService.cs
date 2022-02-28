@@ -39,6 +39,11 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                     .ForMember(x => x.AccountIdentities,
                         o => o.ResolveUsing((src, dest, destMember, resContext) =>
                             dest.AccountIdentities = src.AccountIdentityCommaSeparatedList.Split(',').ToList()));
+                cfg.CreateMap<IClientWithAccounts, ClientTradingConditionsWithAccountsContract>()
+                    .ForMember(x => x.ClientId, o => o.MapFrom(s => s.Id))
+                    .ForMember(x => x.AccountIdentities,
+                        o => o.ResolveUsing((src, dest, destMember, resContext) =>
+                            dest.AccountIdentities = src.AccountIdentityCommaSeparatedList.Split(',').ToList()));
                 cfg.CreateMap<IAccountSuggested, AccountSuggestedContract>()
                     .ForMember(d => d.Name,
                         o => o.MapFrom(s => s.AccountName));

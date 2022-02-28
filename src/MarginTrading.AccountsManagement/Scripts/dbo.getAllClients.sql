@@ -8,7 +8,7 @@ BEGIN
               FROM MarginTradingAccounts acc
               WHERE acc.ClientId = c.Id
            FOR XML PATH ('')),
-            1, 1, '') AS AccountIdCommaSeparatedList
+            1, 1, '') AS AccountIdentityCommaSeparatedList
     FROM MarginTradingClients c
     LEFT JOIN MarginTradingAccounts a ON c.Id = a.ClientId
     GROUP BY c.Id, c.UserId, c.TradingConditionId
