@@ -53,9 +53,11 @@ namespace MarginTrading.AccountsManagement.Services
         
         Task<PaginatedResponse<IClient>> ListClientsByPagesAsync(string tradingConditionId, int skip, int take);
         
-        Task<PaginatedResponse<IClientSearchResult>> SearchByClientAsync(string query, int skip, int take);
+        Task<PaginatedResponse<IClientWithAccounts>> SearchByClientAsync(string query, int skip, int take);
         
         Task<IEnumerable<IClient>> GetAllClients();
+        
+        Task<IEnumerable<IClientWithAccounts>> GetAllClientsWithAccounts();
 
         Task<IClient> GetClient(string clientId);
 

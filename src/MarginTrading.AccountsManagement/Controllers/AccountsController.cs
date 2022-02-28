@@ -28,6 +28,7 @@ using Microsoft.Extensions.Internal;
 using Refit;
 using MarginTrading.AccountsManagement.Exceptions;
 using MarginTrading.AccountsManagement.Contracts.ErrorCodes;
+using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels.ErrorCodes;
 
@@ -166,7 +167,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             var result = await _accountManagementService.SearchByClientAsync(query, skip, take);
 
             return new Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>(
-                result.Contents.Select(x => _convertService.Convert<IClientSearchResult, ClientTradingConditionsSearchResultContract>(x)).ToList(),
+                result.Contents.Select(x => _convertService.Convert<IClientWithAccounts, ClientTradingConditionsSearchResultContract>(x)).ToList(),
                 result.Start,
                 result.Size,
                 result.TotalSize
@@ -213,6 +214,15 @@ namespace MarginTrading.AccountsManagement.Controllers
             var result = await _accountManagementService.GetAllClients();
 
             return result.Select(x => _convertService.Convert<IClient, ClientTradingConditionsContract>(x)).ToList();
+        }
+        
+        [HttpGet]
+        [Route("client-trading-conditions/all-with-accounts")]
+        public async Task<IEnumerable<ClientTradingConditionsWithAccountsContract>> GetAllClientTradingConditionsWithAccounts()
+        {
+            var result = await _accountManagementService.GetAllClientsWithAccounts();
+
+            return result.Select(x => _convertService.Convert<IClientWithAccounts, ClientTradingConditionsWithAccountsContract>(x)).ToList();
         }
 
         /// <summary>

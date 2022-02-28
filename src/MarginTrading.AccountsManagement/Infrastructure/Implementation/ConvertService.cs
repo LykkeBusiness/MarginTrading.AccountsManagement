@@ -34,7 +34,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                         s => s.ResolveUsing(x => x.AdditionalInfo.Serialize()));
                 cfg.CreateMap<IClient, ClientTradingConditionsContract>()
                     .ForMember(x => x.ClientId, o => o.MapFrom(s=> s.Id));
-                cfg.CreateMap<IClientSearchResult, ClientTradingConditionsSearchResultContract>()
+                cfg.CreateMap<IClientWithAccounts, ClientTradingConditionsSearchResultContract>()
                     .ForMember(x => x.ClientId, o => o.MapFrom(s => s.Id))
                     .ForMember(x => x.AccountIdentities,
                         o => o.ResolveUsing((src, dest, destMember, resContext) =>

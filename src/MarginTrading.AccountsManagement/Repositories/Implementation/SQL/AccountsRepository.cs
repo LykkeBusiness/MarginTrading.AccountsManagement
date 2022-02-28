@@ -43,6 +43,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         private static readonly string GetAccountUpdateClause = string.Join(",", AccountProperties.Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly StoredProcedure _searchClients = new StoredProcedure("searchClients", "AccountsManagement", "dbo", null);
+        private readonly StoredProcedure _getAllClients = new StoredProcedure("getAllClients", "AccountsManagement", "dbo", null);
         private readonly IConvertService _convertService;
         private readonly ISystemClock _systemClock;
         private readonly int _longRunningSqlTimeoutSec;
@@ -67,6 +68,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             ConnectionString.InitializeSqlObject("dbo.MarginTradingAccounts.sql", _log);
             ExecCreateOrAlter("dbo.searchClients.sql");
             ExecCreateOrAlter("dbo.DeleteAccountData.sql");
+            ExecCreateOrAlter(_getAllClients.FileName);
         }
 
         public async Task AddAsync(IAccount account)
@@ -305,7 +307,7 @@ end
             }
         }
 
-        public async Task<PaginatedResponse<IClientSearchResult>> SearchByClientAsync(string query, int skip, int take)
+        public async Task<PaginatedResponse<IClientWithAccounts>> SearchByClientAsync(string query, int skip, int take)
         {
             var result = await base.GetAllAsync(_searchClients, skip, take, false,
                 new[]
@@ -313,7 +315,7 @@ end
                     new SqlParameter("@Query", query.AsSqlParameterValue())
                 }, MapClientSearchResult);
             
-            return new PaginatedResponse<IClientSearchResult>(
+            return new PaginatedResponse<IClientWithAccounts>(
                 result.Items.ToList(),
                 skip,
                 result.Items.Count(),
@@ -332,6 +334,11 @@ end
         {
             await using var conn = new SqlConnection(ConnectionString);
             return await conn.QueryAsync<ClientEntity>($"select * from {ClientsTableName}");
+        }
+
+        public async Task<IEnumerable<IClientWithAccounts>> GetAllClientsWithAccounts()
+        {
+            return await base.GetAllAsync(_getAllClients, null, MapClientSearchResult);
         }
 
         public async Task<IClient> GetClient(string clientId, bool includeDeleted)
@@ -369,14 +376,14 @@ end
 
         #region Private Methods
         
-        private ClientSearchResultEntity MapClientSearchResult(SqlDataReader reader)
+        private ClientWithAccountsEntity MapClientSearchResult(SqlDataReader reader)
         {
-            return new ClientSearchResultEntity
+            return new ClientWithAccountsEntity
             {
-                Id = reader[nameof(ClientSearchResultEntity.Id)] as string,
-                TradingConditionId = reader[nameof(ClientSearchResultEntity.TradingConditionId)] as string,
-                AccountIdentityCommaSeparatedList = reader[nameof(ClientSearchResultEntity.AccountIdentityCommaSeparatedList)] as string,
-                UserId = reader[nameof(ClientSearchResultEntity.UserId)] as string
+                Id = reader[nameof(ClientWithAccountsEntity.Id)] as string,
+                TradingConditionId = reader[nameof(ClientWithAccountsEntity.TradingConditionId)] as string,
+                AccountIdentityCommaSeparatedList = reader[nameof(ClientWithAccountsEntity.AccountIdentityCommaSeparatedList)] as string,
+                UserId = reader[nameof(ClientWithAccountsEntity.UserId)] as string
             };
         }
 
