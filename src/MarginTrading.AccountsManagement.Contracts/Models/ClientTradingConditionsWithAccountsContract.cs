@@ -3,7 +3,7 @@
 
 using System.Collections.Generic;
 
-namespace MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo
+namespace MarginTrading.AccountsManagement.Contracts.Models
 {
     public class ClientTradingConditionsWithAccountsContract
     {
