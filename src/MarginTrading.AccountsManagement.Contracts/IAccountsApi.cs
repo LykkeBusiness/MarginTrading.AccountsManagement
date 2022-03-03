@@ -139,6 +139,14 @@ namespace MarginTrading.AccountsManagement.Contracts
         [Get("/api/accounts/stat/{accountId}")]
         Task<AccountStatContract> GetStat(string accountId);
 
+        /// <summary>
+        /// Get account disposable capital for the current trading day
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        [Get("/api/accounts/{accountId}/disposable-capital")]
+        Task<decimal?> GetDisposableCapital(string accountId);
+
         [Post("/api/accounts/stat/{accountId}/recalculate")]
         Task RecalculateStat(string accountId);
 
