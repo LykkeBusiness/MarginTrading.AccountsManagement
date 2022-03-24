@@ -54,7 +54,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         /// </summary>
         [Route("by-pages/{accountId}")]
         [HttpGet]
-        public async Task<PaginatedResponseContract<AccountBalanceChangeContract>> ByPages(
+        public async Task<ByPagesAccountBalanceHistoryResponse> ByPages(
             string accountId,
             [FromQuery] DateTime? @from = null, 
             [FromQuery] DateTime? to = null,
@@ -74,7 +74,7 @@ namespace MarginTrading.AccountsManagement.Controllers
                 take,
                 isAscendingOrder);
             
-            return this.Convert(data);
+            return this.Convert(data.paginatedResponse, data.totalAmount);
         }
 
         /// <summary>
@@ -142,13 +142,14 @@ namespace MarginTrading.AccountsManagement.Controllers
                 arg.EventSourceId, arg.LegalEntity, arg.AuditLog, arg.Instrument, arg.TradingDate);
         }
 
-        private PaginatedResponseContract<AccountBalanceChangeContract> Convert(PaginatedResponse<IAccountBalanceChange> data)
+        private ByPagesAccountBalanceHistoryResponse Convert(PaginatedResponse<IAccountBalanceChange> data, decimal totalAmount)
         {
-            return new PaginatedResponseContract<AccountBalanceChangeContract>(
+            return new ByPagesAccountBalanceHistoryResponse(
                 data.Contents.Select(Convert).ToList(),
                 data.Start,
                 data.Size,
-                data.TotalSize
+                data.TotalSize,
+                totalAmount
             );
         }
     }

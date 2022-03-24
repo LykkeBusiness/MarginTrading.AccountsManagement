@@ -11,7 +11,7 @@ namespace MarginTrading.AccountsManagement.Repositories
 {
     public interface IAccountBalanceChangesRepository
     {
-        Task<PaginatedResponse<IAccountBalanceChange>> GetByPagesAsync(string accountId,
+        Task<(PaginatedResponse<IAccountBalanceChange> paginatedResponse, decimal totalAmount)> GetByPagesAsync(string accountId,
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType[] reasonTypes = null, 
             string assetPairId = null, int? skip = null, int? take = null, bool isAscendingOrder = true);
 

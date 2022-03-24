@@ -74,7 +74,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             }
         }
 
-        public async Task<PaginatedResponse<IAccountBalanceChange>> GetByPagesAsync(string accountId,
+        public async Task<(PaginatedResponse<IAccountBalanceChange> paginatedResponse, decimal totalAmount)> GetByPagesAsync(string accountId,
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType[] reasonTypes = null, 
             string assetPairId = null, int? skip = null, int? take = null, bool isAscendingOrder = true)
         {
@@ -93,7 +93,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             using (var conn = new SqlConnection(_settings.Db.ConnectionString))
             {
                 var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}", new
+                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}; SELECT SUM({nameof(IAccountBalanceChange.ChangeAmount)}) FROM {TableName} {whereClause}", new
                     {
                         accountId, 
                         from, 
@@ -104,13 +104,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
                 var contents = (await gridReader.ReadAsync<AccountBalanceChangeEntity>()).ToList();
                 var totalCount = await gridReader.ReadSingleAsync<int>();
+                var totalAmount = await gridReader.ReadSingleAsync<decimal>();
 
-                return new PaginatedResponse<IAccountBalanceChange>(
+                var paginatedResponse = new PaginatedResponse<IAccountBalanceChange>(
                     contents, 
                     skip ?? 0, 
                     contents.Count, 
                     totalCount
                 );
+
+                return (paginatedResponse, totalAmount);
             }
         }
 
