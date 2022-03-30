@@ -93,7 +93,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             using (var conn = new SqlConnection(_settings.Db.ConnectionString))
             {
                 var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}; SELECT SUM({nameof(IAccountBalanceChange.ChangeAmount)}) FROM {TableName} {whereClause}", new
+                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause} {paginationClause}; SELECT COUNT(*), SUM({nameof(IAccountBalanceChange.ChangeAmount)}) FROM {TableName} {whereClause}", new
                     {
                         accountId, 
                         from, 
@@ -103,17 +103,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                     });
 
                 var contents = (await gridReader.ReadAsync<AccountBalanceChangeEntity>()).ToList();
-                var totalCount = await gridReader.ReadSingleAsync<int>();
-                var totalAmount = await gridReader.ReadSingleAsync<decimal>();
+                var totals = await gridReader.ReadSingleAsync<(int count, decimal? amount)>();
 
                 var paginatedResponse = new PaginatedResponse<IAccountBalanceChange>(
                     contents, 
                     skip ?? 0, 
                     contents.Count, 
-                    totalCount
+                    totals.count
                 );
 
-                return (paginatedResponse, totalAmount);
+                return (paginatedResponse, totals.amount ?? 0);
             }
         }
 
