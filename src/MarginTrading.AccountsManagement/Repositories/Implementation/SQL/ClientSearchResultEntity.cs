@@ -5,7 +5,7 @@ using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
-    public class ClientSearchResultEntity : IClientSearchResult
+    public class ClientWithAccountsEntity : IClientWithAccounts
     {
         public string Id { get; set; }
         public string TradingConditionId { get; set; }

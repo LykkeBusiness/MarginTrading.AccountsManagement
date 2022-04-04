@@ -95,12 +95,17 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
             throw new NotImplementedException();
         }
 
-        public async Task<PaginatedResponse<IClientSearchResult>> SearchByClientAsync(string query, int skip, int take)
+        public async Task<PaginatedResponse<IClientWithAccounts>> SearchByClientAsync(string query, int skip, int take)
         {
             throw new NotImplementedException();
         }
 
         public Task<IEnumerable<IClient>> GetAllClients()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEnumerable<IClientWithAccounts>> GetAllClientsWithAccounts()
         {
             throw new NotImplementedException();
         }

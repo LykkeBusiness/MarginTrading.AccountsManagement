@@ -167,6 +167,12 @@ namespace MarginTrading.AccountsManagement.Contracts
         /// </summary>
         [Get("/api/accounts/client-trading-conditions/all")]
         Task<IEnumerable<ClientTradingConditionsContract>> GetAllClientTradingConditions();
+        
+        /// <summary>
+        /// Gets all client trading conditions
+        /// </summary>
+        [Get("/api/accounts/client-trading-conditions/all-with-accounts")]
+        Task<IEnumerable<ClientTradingConditionsWithAccountsContract>> GetAllClientTradingConditionsWithAccounts();
 
         /// <summary>
         /// Updates client trading conditions

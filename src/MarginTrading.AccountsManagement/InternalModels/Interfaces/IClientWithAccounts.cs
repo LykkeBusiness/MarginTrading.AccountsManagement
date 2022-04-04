@@ -5,16 +5,11 @@ using System.Collections.Generic;
 
 namespace MarginTrading.AccountsManagement.InternalModels.Interfaces
 {
-    public interface IClientSearchResult : IClient
+    public interface IClientWithAccounts : IClient
     {
         /// <summary>
         /// Either account id or account name comma separated list
         /// </summary>
         string AccountIdentityCommaSeparatedList { get; set; }
-        
-        /// <summary>
-        /// The user identifier which was generated and passed by broker 
-        /// </summary>
-        string UserId { get; set; }
     }
 }
