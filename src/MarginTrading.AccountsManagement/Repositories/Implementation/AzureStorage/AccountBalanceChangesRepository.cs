@@ -36,35 +36,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.AzureStor
                     settings.Nested(s => s.Db.ConnectionString), "AccountHistory", log);
         }
 
-        public async Task<PaginatedResponse<IAccountBalanceChange>> GetByPagesAsync(string accountId,
+        public Task<(PaginatedResponse<IAccountBalanceChange> paginatedResponse, decimal totalAmount)> GetByPagesAsync(string accountId,
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType[] reasonTypes = null,
             string assetPairId = null, int? skip = null, int? take = null, bool isAscendingOrder = true)
         {
-            take = PaginationHelper.GetTake(take);
-
-            // TODO: Find a way to do paginated query
-            var data =
-                await _tableStorage.WhereAsync(
-                    accountId,
-                    from ?? DateTime.MinValue,
-                    to?.Date.AddDays(1) ?? DateTime.MaxValue,
-                    ToIntervalOption.IncludeTo,
-                    x => (reasonTypes == null || reasonTypes.Any(t => t.ToString() == x.ReasonType)) &&
-                         (assetPairId == null || x.Instrument == assetPairId));
-
-            if (isAscendingOrder)
-                data = data.OrderBy(item => item.ChangeTimestamp).Skip(skip ?? 0).Take(take.Value);
-            else                
-                data = data.OrderByDescending(item => item.ChangeTimestamp).Skip(skip ?? 0).Take(take.Value);
-
-            var contents = data.ToList();
-
-            return new PaginatedResponse<IAccountBalanceChange>(
-                contents,
-                skip ?? 0,
-                take.Value,
-                contents.Count
-            );
+            throw new NotImplementedException();
         }
 
         public Task<IReadOnlyList<IAccountBalanceChangeLight>> GetLightAsync(DateTime? @from = null, DateTime? to = null)

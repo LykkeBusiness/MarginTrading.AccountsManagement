@@ -25,7 +25,7 @@ namespace MarginTrading.AccountsManagement.Contracts
         /// Get account balance change history paginated, by account Id, and optionally by dates and asset pair
         /// </summary>
         [Get("/api/balance-history/by-pages/{accountId}")]
-        Task<PaginatedResponseContract<AccountBalanceChangeContract>> ByPages([NotNull] string accountId,
+        Task<ByPagesAccountBalanceHistoryResponse> ByPages([NotNull] string accountId,
             [CanBeNull] [Query] DateTime? @from = null,
             [CanBeNull] [Query] DateTime? to = null,
             [CanBeNull] [Query(CollectionFormat.Multi)] AccountBalanceChangeReasonTypeContract[] reasonTypes = null,
