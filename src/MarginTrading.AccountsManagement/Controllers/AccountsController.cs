@@ -641,6 +641,19 @@ namespace MarginTrading.AccountsManagement.Controllers
             return stat != null ? _convertService.Convert<AccountStat, AccountStatContract>(stat) : null;
         }
         
+        [HttpGet("{accountId}/disposable-capital")]
+        public async Task<decimal?> GetDisposableCapital(string accountId)
+        {
+            if (string.IsNullOrWhiteSpace(accountId))
+            {
+                throw new ArgumentNullException(nameof(accountId), "Account must be set.");
+            }
+
+            var stat = await _accountManagementService.GetCachedAccountStatistics(accountId);
+
+            return stat?.DisposableCapital;
+        }
+        
         /// <summary>
         /// Recalculates account statistics
         /// </summary>
