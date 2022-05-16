@@ -111,6 +111,9 @@ namespace MarginTrading.AccountsManagement.Modules
             builder.RegisterType<RabbitMqService>().As<IRabbitMqService>().SingleInstance();
             builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
             builder.RegisterType<StartupManager>().As<IStartupManager>().SingleInstance();
+            builder.RegisterType<BrokerSettingsCache>().As<IBrokerSettingsCache>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.MarginTradingAccountManagement.BrokerId))
+                .SingleInstance();
         }
     }
 }

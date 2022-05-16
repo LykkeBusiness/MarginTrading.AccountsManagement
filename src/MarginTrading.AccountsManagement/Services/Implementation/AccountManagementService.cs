@@ -12,6 +12,7 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
+using Lykke.Snow.Common.Percents;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
@@ -51,6 +52,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IFeatureManager _featureManager;
         private readonly IAuditService _auditService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IBrokerSettingsCache _brokerSettingsCache;
 
         public AccountManagementService(IAccountsRepository accountsRepository,
             ITradingConditionsService tradingConditionsService,
@@ -68,7 +70,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             ITradingInstrumentsApi tradingInstrumentsApi,
             IFeatureManager featureManager,
             IAuditService auditService,
-            CorrelationContextAccessor correlationContextAccessor)
+            CorrelationContextAccessor correlationContextAccessor,
+            IBrokerSettingsCache brokerSettingsCache)
         {
             _accountsRepository = accountsRepository;
             _tradingConditionsService = tradingConditionsService;
@@ -87,6 +90,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _featureManager = featureManager;
             _auditService = auditService;
             _correlationContextAccessor = correlationContextAccessor;
+            _brokerSettingsCache = brokerSettingsCache;
         }
 
 
@@ -356,16 +360,19 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var realizedProfit = await realizedProfitTask;
             var unRealizedProfit = await unRealizedProfitTask;
+            var disposableCapitalWithholdPercent = new Percent(_brokerSettingsCache.Get().DisposableCapitalWithholdPercent);
             
             return new AccountCapital(
                 balance, 
                 totalCapital,
-                realizedProfit.total,
                 unRealizedProfit,
-                temporaryCapital, 
+                temporaryCapital,
+                realizedProfit.deals,
                 realizedProfit.compensations,
+                realizedProfit.dividends,
                 baseAssetId,
-                usedMargin);
+                usedMargin,
+                disposableCapitalWithholdPercent);
         }
 
         #endregion
