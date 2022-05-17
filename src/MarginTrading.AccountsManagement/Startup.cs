@@ -37,6 +37,7 @@ using MarginTrading.AccountsManagement.Modules;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
+using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ProductComplexity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -123,6 +124,7 @@ namespace MarginTrading.AccountsManagement
                 
                 services.AddFeatureManagement(_mtSettingsManager.CurrentValue.MarginTradingAccountManagement.BrokerId);
                 services.AddProductComplexity(_mtSettingsManager.CurrentValue);
+                services.AddBrokerSettings(_mtSettingsManager.CurrentValue);
             }
             catch (Exception ex)
             {

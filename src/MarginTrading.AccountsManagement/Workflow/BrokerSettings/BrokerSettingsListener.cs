@@ -11,7 +11,7 @@ using MarginTrading.AccountsManagement.Services;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace MarginTrading.AccountsManagement.Workflow
+namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 {
     public class BrokerSettingsListener : HostedServiceMiddleware, IHostedService
     {

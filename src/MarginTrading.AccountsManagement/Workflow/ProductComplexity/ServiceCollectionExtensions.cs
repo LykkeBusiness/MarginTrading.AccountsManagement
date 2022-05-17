@@ -11,6 +11,7 @@ using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AccountsManagement.Settings;
+using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.Backend.Contracts.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -39,17 +40,6 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
                     TimeSpan.FromSeconds(1)))
                 .SetReadHeadersAction(ctx.GetRequiredService<RabbitMqCorrelationManager>().FetchCorrelationIfExists)
                 .CreateDefaultBinding());
-            
-            services.AddSingleton(ctx =>
-                new RabbitMqSubscriber<BrokerSettingsChangedEvent>(
-                        ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<BrokerSettingsChangedEvent>>(),
-                        settings.MarginTradingAccountManagement.RabbitMq.BrokerSettings)
-                    .SetMessageDeserializer(new MessagePackMessageDeserializer<BrokerSettingsChangedEvent>())
-                    .SetMessageReadStrategy(new MessageReadQueueStrategy())
-                    .UseMiddleware(new ExceptionSwallowMiddleware<BrokerSettingsChangedEvent>(
-                        ctx.GetRequiredService<ILoggerFactory>().CreateLogger<ExceptionSwallowMiddleware<BrokerSettingsChangedEvent>>()))
-                    .SetReadHeadersAction(ctx.GetRequiredService<RabbitMqCorrelationManager>().FetchCorrelationIfExists)
-                    .CreateDefaultBinding());
         }
     }
 }
