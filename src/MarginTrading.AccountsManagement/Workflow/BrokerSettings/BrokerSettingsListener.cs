@@ -22,11 +22,10 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 
         public BrokerSettingsListener(
             ILogger<BrokerSettingsListener> logger,
-            ILogLevelMapper logLevelMapper,
             RabbitMqSubscriber<BrokerSettingsChangedEvent> brokerSettingsChangedSubscriber,
             IBrokerSettingsCache brokerSettingsCache,
             string brokerId)
-            : base(logLevelMapper, logger)
+            : base(new DefaultLogLevelMapper(), logger)
         {
             this.logger = logger;
             this.brokerSettingsChangedSubscriber = brokerSettingsChangedSubscriber;
