@@ -362,7 +362,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             var unRealizedProfit = await unRealizedProfitTask;
             var disposableCapitalWithholdPercent = new Percent(_brokerSettingsCache.Get().DisposableCapitalWithholdPercent);
             
-            return new AccountCapital(
+            var result = new AccountCapital(
                 balance, 
                 totalCapital,
                 unRealizedProfit,
@@ -373,6 +373,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 baseAssetId,
                 usedMargin,
                 disposableCapitalWithholdPercent);
+            _log.WriteInfo(nameof(AccountManagementService), nameof(GetAccountCapitalAsync),result.ToString());
+            
+            return result;
         }
 
         #endregion
