@@ -373,8 +373,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 baseAssetId,
                 usedMargin,
                 disposableCapitalWithholdPercent);
-            _log.WriteInfo(nameof(AccountManagementService), nameof(GetAccountCapitalAsync),result.ToString());
-            
+
             return result;
         }
 

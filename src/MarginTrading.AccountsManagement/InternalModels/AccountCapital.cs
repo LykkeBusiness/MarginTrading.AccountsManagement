@@ -53,8 +53,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
         /// </summary>
         public string AssetId { get; }
 
-        private readonly string _logMessage;
-
         public AccountCapital(decimal balance,
             decimal totalCapital,
             decimal totalUnRealisedPnl,
@@ -88,15 +86,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
                     Math.Max(0, ApplyDisposableCapitalWithholdPercent(totalUnRealisedPnl, disposableCapitalWithholdPercent))
                     )
                 );
-            _logMessage = $"AccountCapital: TotalCapital {TotalCapital}, Temporary {Temporary}, Deals {deals}, Compensations {compensations}, Dividends {dividends}, TotalUnRealisedPnl {totalUnRealisedPnl}";
-            _logMessage += Environment.NewLine;
-            _logMessage += $"BalanceProtected: {balanceProtected}, percent {disposableCapitalWithholdPercent}";
-            _logMessage += Environment.NewLine;
-            _logMessage +=
-                $"Applied percent: deals {Math.Max(0, ApplyDisposableCapitalWithholdPercent(deals, disposableCapitalWithholdPercent))}, " +
-                $"compensations {Math.Max(0, ApplyDisposableCapitalWithholdPercent(compensations, disposableCapitalWithholdPercent))}, " +
-                $"dividends {Math.Max(0, ApplyDisposableCapitalWithholdPercent(dividends, disposableCapitalWithholdPercent))}, " +
-                $"totalUnRealisedPnl {Math.Max(0, ApplyDisposableCapitalWithholdPercent(totalUnRealisedPnl, disposableCapitalWithholdPercent))}";
 
             Disposable = Math.Max(0, balanceProtected - usedMargin);
                     
@@ -109,11 +98,6 @@ namespace MarginTrading.AccountsManagement.InternalModels
         private static decimal ApplyDisposableCapitalWithholdPercent(decimal value, Percent percent)
         {
             return Math.Round(value * percent, 2);
-        }
-
-        public override string ToString()
-        {
-            return _logMessage;
         }
     }
 }
