@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Lykke.Snow.Common.Percents;
 
 namespace MarginTrading.AccountsManagement.InternalModels
 {
@@ -54,12 +55,14 @@ namespace MarginTrading.AccountsManagement.InternalModels
 
         public AccountCapital(decimal balance,
             decimal totalCapital,
-            decimal totalRealisedPnl,
             decimal totalUnRealisedPnl,
             decimal temporary,
+            decimal deals,
             decimal compensations,
-            string assetId, 
-            decimal usedMargin)
+            decimal dividends,
+            string assetId,
+            decimal usedMargin, 
+            Percent disposableCapitalWithholdPercent)
         {
             if (string.IsNullOrWhiteSpace(assetId))
                 throw new ArgumentNullException(nameof(assetId));
@@ -69,21 +72,32 @@ namespace MarginTrading.AccountsManagement.InternalModels
             Temporary = temporary;
             Compensations = compensations;
             AssetId = assetId;
-            TotalRealisedPnl = totalRealisedPnl;
+
+            var total = deals + compensations + dividends;
+            TotalRealisedPnl = total;
             TotalUnRealisedPnl = totalUnRealisedPnl;
 
             var balanceProtected = Math.Max(0,
                 TotalCapital - (
                     Math.Max(0, Temporary) +
-                    Math.Max(0, totalRealisedPnl) +
-                    Math.Max(0, totalUnRealisedPnl)));
+                    Math.Max(0, ApplyDisposableCapitalWithholdPercent(deals, disposableCapitalWithholdPercent)) +
+                    Math.Max(0, ApplyDisposableCapitalWithholdPercent(compensations, disposableCapitalWithholdPercent)) +
+                    Math.Max(0, ApplyDisposableCapitalWithholdPercent(dividends, disposableCapitalWithholdPercent)) +
+                    Math.Max(0, ApplyDisposableCapitalWithholdPercent(totalUnRealisedPnl, disposableCapitalWithholdPercent))
+                    )
+                );
 
             Disposable = Math.Max(0, balanceProtected - usedMargin);
                     
             CanRevokeAmount = Math.Max(0,
                 TotalCapital - (
-                    Math.Max(0, totalRealisedPnl) + 
+                    Math.Max(0, total) + 
                     Math.Max(0, totalUnRealisedPnl)));
+        }
+
+        private static decimal ApplyDisposableCapitalWithholdPercent(decimal value, Percent percent)
+        {
+            return Math.Round(value * percent, 2);
         }
     }
 }
