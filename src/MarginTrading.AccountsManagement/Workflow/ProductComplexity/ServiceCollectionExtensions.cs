@@ -9,7 +9,9 @@ using Lykke.RabbitMqBroker.Subscriber.MessageReadStrategies;
 using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
+using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AccountsManagement.Settings;
+using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.Backend.Contracts.Events;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,6 +24,9 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
         {
             services.AddHostedService<CleanupExpiredComplexityService>();
             services.AddHostedService<OrderHistoryListener>();
+            services.AddHostedService(x => ActivatorUtilities.CreateInstance<BrokerSettingsListener>(
+                x,
+                settings.MarginTradingAccountManagement.BrokerId));
             
             services.AddSingleton(ctx => new RabbitMqSubscriber<OrderHistoryEvent>(
                     ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<OrderHistoryEvent>>(),
