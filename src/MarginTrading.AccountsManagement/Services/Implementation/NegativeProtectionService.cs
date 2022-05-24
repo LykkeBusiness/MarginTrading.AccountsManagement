@@ -61,7 +61,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private static object CreateCompensationAuditLog(DateTime timestamp)
         {
             const string systemUserName = "System";
-            const string systemSessionId = "System";
+            const string systemSessionId = "9999999999";
             
             return new
             {
