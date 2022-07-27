@@ -282,7 +282,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 initiallyUsedMargin: mtCoreAccountStats.InitiallyUsedMargin,
                 openPositionsCount: mtCoreAccountStats.OpenPositionsCount,
                 lastBalanceChangeTime: mtCoreAccountStats.LastBalanceChangeTime,
-                additionalInfo: mtCoreAccountStats.AdditionalInfo
+                additionalInfo: mtCoreAccountStats.AdditionalInfo,
+                temporaryCapital: accountCapital.Temporary
             );
 
             return result;

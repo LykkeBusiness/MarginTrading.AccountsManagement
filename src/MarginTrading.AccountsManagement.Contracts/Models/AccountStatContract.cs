@@ -81,13 +81,16 @@ namespace MarginTrading.AccountsManagement.Contracts.Models
         public DateTime LastBalanceChangeTime { get; }
 
         public string AdditionalInfo { get; set; }
+        
+        public decimal TemporaryCapital { get; set; }
 
         public AccountStatContract(decimal realisedPnl,
             decimal depositAmount, decimal withdrawalAmount, decimal commissionAmount, decimal otherAmount,
             decimal prevEodAccountBalance, decimal disposableCapital,
             decimal unRealisedPnl, decimal totalCapital, decimal usedMargin, decimal freeMargin,
             decimal pnl, decimal balance, decimal unrealizedPnlDaily, decimal currentlyUsedMargin,
-            decimal initiallyUsedMargin, int openPositionsCount, DateTime lastBalanceChangeTime, string additionalInfo)
+            decimal initiallyUsedMargin, int openPositionsCount, DateTime lastBalanceChangeTime, string additionalInfo,
+            decimal temporaryCapital)
         {
             RealisedPnl = realisedPnl;
             DepositAmount = depositAmount;
@@ -108,6 +111,7 @@ namespace MarginTrading.AccountsManagement.Contracts.Models
             OpenPositionsCount = openPositionsCount;
             LastBalanceChangeTime = lastBalanceChangeTime;
             AdditionalInfo = additionalInfo;
+            TemporaryCapital = temporaryCapital;
         }
     }
 }
