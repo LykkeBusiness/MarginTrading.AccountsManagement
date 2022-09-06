@@ -31,7 +31,9 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 cfg.CreateMap<string, List<string>>().ConvertUsing(JsonConvert.DeserializeObject<List<string>>);
                 cfg.CreateMap<IAccount, AccountContract>()
                     .ForMember(p => p.AdditionalInfo,
-                        s => s.ResolveUsing(x => x.AdditionalInfo.Serialize()));
+                        s => s.ResolveUsing(x => x.AdditionalInfo.Serialize()))
+                    .ForMember(p => p.TemporaryCapital,
+                        s => s.ResolveUsing(x => x.TemporaryCapital.Sum(x => x.Amount)));
                 cfg.CreateMap<IClient, ClientTradingConditionsContract>()
                     .ForMember(x => x.ClientId, o => o.MapFrom(s=> s.Id));
                 cfg.CreateMap<IClientWithAccounts, ClientTradingConditionsSearchResultContract>()

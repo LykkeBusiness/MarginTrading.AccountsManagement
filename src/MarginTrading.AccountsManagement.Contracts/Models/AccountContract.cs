@@ -49,5 +49,8 @@ namespace MarginTrading.AccountsManagement.Contracts.Models
 
         [Key(12)]
         public string AdditionalInfo { get; set; }
+        
+        [Key(13)] 
+        public decimal TemporaryCapital { get; set; }
     }
 }
