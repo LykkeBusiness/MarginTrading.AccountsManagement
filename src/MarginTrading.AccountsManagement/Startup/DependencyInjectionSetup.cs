@@ -43,9 +43,6 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddSwaggerGen(options =>
             {
                 options.DefaultLykkeConfiguration("v1", ApiName);
-                var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, 
-                    "MarginTrading.AccountsManagement.Contracts.xml");
-                options.IncludeXmlComments(contractsXmlPath);
                 options.OperationFilter<CustomOperationIdOperationFilter>();
                 if (!string.IsNullOrWhiteSpace(settings.MarginTradingAccountManagementServiceClient?.ApiKey))
                 {
