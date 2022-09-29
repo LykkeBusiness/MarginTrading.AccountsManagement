@@ -1,8 +1,11 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Autofac;
+
 using Common.Log;
+
 using Lykke.HttpClientGenerator;
 using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
@@ -12,12 +15,8 @@ using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Services;
 using MarginTrading.AccountsManagement.Contracts;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using AzureRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.AzureRepositories;
 using SqlRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.SqlRepositories;
 using Microsoft.Extensions.Hosting;
-using Refit;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 {
@@ -50,9 +49,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
             else if (settings.CurrentValue.Db.StorageMode == StorageMode.Azure.ToString())
             {
-                builder.RegisterType<AzureRepos.AccountHistoryRepository>()
-                    .As<IAccountHistoryRepository>()
-                    .SingleInstance();
+                throw new InvalidOperationException("Azure storage mode is not supported");
             }
         }
     }

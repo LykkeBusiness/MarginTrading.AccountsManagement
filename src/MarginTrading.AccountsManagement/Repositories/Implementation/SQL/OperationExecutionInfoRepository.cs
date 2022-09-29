@@ -6,13 +6,13 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Dapper;
 using Lykke.Logs.MsSql.Extensions;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -38,24 +38,23 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly string _connectionString;
-        private readonly ILog _log;
         private readonly ISystemClock _systemClock;
+        private readonly ILogger _logger;
 
         public OperationExecutionInfoRepository(AccountManagementSettings settings, 
-            ILog log, ISystemClock systemClock)
+            ISystemClock systemClock,
+            ILogger<OperationExecutionInfoRepository> logger)
         {
-            _log = log;
             _connectionString = settings.Db.ConnectionString;
             _systemClock = systemClock;
-            
-            using (var conn = new SqlConnection(_connectionString))
+            _logger = logger;
+
+            using var conn = new SqlConnection(_connectionString);
+            try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
+            catch (Exception ex)
             {
-                try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
-                catch (Exception ex)
-                {
-                    _log?.WriteErrorAsync(nameof(OperationExecutionInfoRepository), "CreateTableIfDoesntExists", null, ex);
-                    throw;
-                }
+                _logger.LogError(ex, "Failed to create table {TableName}", TableName);
+                throw;
             }
         }
         
@@ -64,14 +63,13 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         {
             try
             {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    var entity = Convert(factory(), _systemClock.UtcNow.UtcDateTime);
+                await using var conn = new SqlConnection(_connectionString);
+                var entity = Convert(factory(), _systemClock.UtcNow.UtcDateTime);
 
-                    // Here "update when matched" is made as a workaround to get the entity back within inserted
-                    // collection when it has already existed before
-                    var operationInfo = await conn.QueryFirstOrDefaultAsync<OperationExecutionInfoEntity>(
-                        $@"MERGE {TableName} AS target 
+                // Here "update when matched" is made as a workaround to get the entity back within inserted
+                // collection when it has already existed before
+                var operationInfo = await conn.QueryFirstOrDefaultAsync<OperationExecutionInfoEntity>(
+                    $@"MERGE {TableName} AS target 
 USING (SELECT @Id, @OperationName) AS source (Id, OperationName)
 ON (target.Id = source.Id AND target.OperationName = source.OperationName)
 WHEN MATCHED THEN UPDATE SET target.Id = source.Id
@@ -79,34 +77,32 @@ WHEN NOT MATCHED THEN
     INSERT ({GetColumns}) VALUES ({GetFields})
 OUTPUT inserted.*;", entity);
                     
-                    return Convert<TData>(operationInfo);
-                }
+                return Convert<TData>(operationInfo);
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(OperationExecutionInfoRepository), nameof(GetOrAddAsync), ex);
+                _logger.LogError(ex, "Failed to get or add operation execution info {OperationName} {OperationId}", 
+                    operationName, operationId);
                 throw;
             }
         }
 
         public async Task<IOperationExecutionInfo<TData>> GetAsync<TData>(string operationName, string id) where TData : class
         {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                var operationInfo = await conn.QuerySingleOrDefaultAsync<OperationExecutionInfoEntity>(
-                    $"SELECT * FROM {TableName} WHERE Id = @id and OperationName=@operationName",
-                    new {id, operationName});
+            await using var conn = new SqlConnection(_connectionString);
+            var operationInfo = await conn.QuerySingleOrDefaultAsync<OperationExecutionInfoEntity>(
+                $"SELECT * FROM {TableName} WHERE Id = @id and OperationName=@operationName",
+                new {id, operationName});
 
-                return operationInfo == null ? null : Convert<TData>(operationInfo);
-            }
+            return operationInfo == null ? null : Convert<TData>(operationInfo);
         }
 
         public async Task SaveAsync<TData>(IOperationExecutionInfo<TData> executionInfo) where TData : class
         {
             var entity = Convert(executionInfo, _systemClock.UtcNow.UtcDateTime);
             int affectedRows;
-            
-            using (var conn = new SqlConnection(_connectionString))
+
+            await using (var conn = new SqlConnection(_connectionString))
             {
                 try
                 {
@@ -118,7 +114,8 @@ OUTPUT inserted.*;", entity);
                 }
                 catch (Exception ex)
                 {
-                    await _log.WriteErrorAsync(nameof(OperationExecutionInfoRepository), nameof(GetOrAddAsync), ex);
+                    _logger.LogError(ex, "Failed to save operation execution info {OperationName} {OperationId}", 
+                        executionInfo.OperationName, executionInfo.Id);
                     throw;
                 }
             }
@@ -143,21 +140,20 @@ OUTPUT inserted.*;", entity);
         public async Task DeleteAsync<TData>(IOperationExecutionInfo<TData> executionInfo) where TData : class
         {
             var entity = Convert(executionInfo, _systemClock.UtcNow.UtcDateTime);
-            
-            using (var conn = new SqlConnection(_connectionString))
+
+            await using var conn = new SqlConnection(_connectionString);
+            try
             {
-                try
-                {
-                    await conn.ExecuteAsync(
-                        $"DELETE {TableName} where Id=@Id " +
-                        "and OperationName=@OperationName ",
-                        entity);
-                }
-                catch (Exception ex)
-                {
-                    await _log.WriteErrorAsync(nameof(OperationExecutionInfoRepository), nameof(GetOrAddAsync), ex);
-                    throw;
-                }
+                await conn.ExecuteAsync(
+                    $"DELETE {TableName} where Id=@Id " +
+                    "and OperationName=@OperationName ",
+                    entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to delete operation execution info {OperationName} {OperationId}", 
+                    executionInfo.OperationName, executionInfo.Id);
+                throw;
             }
         }
 

@@ -7,7 +7,7 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using Dapper;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Services;
@@ -18,29 +18,28 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.Sql
     public class AccountHistoryRepository : IAccountHistoryRepository
     {
         private readonly Settings _settings;
-        private readonly ILog _log;
         private readonly IConvertService _convertService;
+        private readonly ILogger _logger;
 
-        private static readonly string GetColumns =
-            string.Join(",", typeof(IAccountHistory).GetProperties().Select(x => x.Name));
+        private static readonly string GetColumns = SqlUtilities.GetColumns<IAccountHistory>();
+        private static readonly string GetFields = SqlUtilities.GetFields<IAccountHistory>();
 
-        private static readonly string GetFields =
-            string.Join(",", typeof(IAccountHistory).GetProperties().Select(x => "@" + x.Name));
-
-        public AccountHistoryRepository(Settings settings, ILog log, IConvertService convertService)
+        public AccountHistoryRepository(Settings settings,
+            IConvertService convertService,
+            ILogger<AccountHistoryRepository> logger)
         {
-            _log = log;
             _settings = settings;
             _convertService = convertService;
-            _settings.Db.ConnString.InitializeSqlObject("dbo.AccountHistory.sql", log);
-            _settings.Db.ConnString.InitializeSqlObject("dbo.UpdateDealCommissionParamsOnAccountHistory.sql", log);
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _settings.Db.ConnString.InitializeSqlObject("dbo.AccountHistory.sql", _logger);
+            _settings.Db.ConnString.InitializeSqlObject("dbo.UpdateDealCommissionParamsOnAccountHistory.sql", _logger);
         }
 
         public async Task InsertAsync(IAccountHistory obj)
         {
             var entity = _convertService.Convert<AccountHistoryEntity>(obj);
-            
-            using (var conn = new SqlConnection(_settings.Db.ConnString))
+
+            await using (var conn = new SqlConnection(_settings.Db.ConnString))
             {
                 if (conn.State == ConnectionState.Closed)
                 {
@@ -63,16 +62,13 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.Sql
                     var msg = $"Error {ex.Message} \n" +
                            "Entity <AccountHistoryEntity>: \n" +
                            entity.ToJson();
-                    _log?.WriteError(nameof(AccountHistoryRepository), nameof(InsertAsync), 
-                        new Exception(msg));
-                    
+                    _logger.LogError(ex, msg);
+
                     throw;
                 }
             }
             
-#pragma warning disable 4014
-            Task.Run(async () =>
-#pragma warning restore 4014
+            await Task.Run(async () =>
             {
                 try
                 {
@@ -86,26 +82,22 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.Sql
                         throw new Exception($"EventSourceId was null, with reason type {obj.ReasonType}");
                     }
 
-                    using (var conn = new SqlConnection(_settings.Db.ConnString))
-                    {
-                        await conn.ExecuteAsync("[dbo].[UpdateDealCommissionParamsOnAccountHistory]",
-                            new
-                            {
-                                ChangeAmount = obj.ChangeAmount,
-                                ReasonType = obj.ReasonType.ToString(),
-                                EventSourceId = obj.EventSourceId,
-                            },
-                            commandType: CommandType.StoredProcedure);
-                    }
+                    await using var conn = new SqlConnection(_settings.Db.ConnString);
+                    await conn.ExecuteAsync("[dbo].[UpdateDealCommissionParamsOnAccountHistory]",
+                        new
+                        {
+                            ChangeAmount = obj.ChangeAmount,
+                            ReasonType = obj.ReasonType.ToString(),
+                            EventSourceId = obj.EventSourceId,
+                        },
+                        commandType: CommandType.StoredProcedure);
                 }
                 catch (Exception exception)
                 {
-                    if (_log != null)
-                    {
-                        await _log.WriteErrorAsync(nameof(AccountHistoryRepository), nameof(InsertAsync),
-                            new Exception($"Failed to calculate commissions for eventSourceId {obj.EventSourceId} with reasonType {obj.ReasonType}, skipping.",
-                                exception));
-                    }
+                    _logger.LogError(exception,
+                        "Failed to calculate commissions for eventSourceId {EventSourceId} with reasonType {ReasonType}, skipping",
+                        obj.EventSourceId,
+                        obj.ReasonType);
                 }        
             });
         }

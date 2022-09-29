@@ -4,7 +4,8 @@
 using System;
 using AutoMapper;
 using JetBrains.Annotations;
-using AccountBalanceChangeReasonType = MarginTrading.AccountsManagement.AccountHistoryBroker.Models.AccountBalanceChangeReasonType;
+using AccountBalanceChangeReasonType =
+    MarginTrading.AccountsManagement.AccountHistoryBroker.Models.AccountBalanceChangeReasonType;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Services
 {

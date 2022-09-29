@@ -6,8 +6,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
@@ -17,7 +16,6 @@ using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using MarginTrading.AccountsManagement.Settings;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -31,7 +29,6 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
             Converters = {new StringEnumConverter()}
         };
 
-        private readonly ILog _logger;
         private readonly ILoggerFactory _loggerFactory;
         private readonly RabbitMqCorrelationManager _correlationManager;
 
@@ -42,9 +39,8 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
             new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStartStop>>(
                 new SubscriptionSettingsEqualityComparer());
 
-        public RabbitMqService(ILog logger, ILoggerFactory loggerFactory, RabbitMqCorrelationManager correlationManager)
+        public RabbitMqService(ILoggerFactory loggerFactory, RabbitMqCorrelationManager correlationManager)
         {
-            _logger = logger;
             _loggerFactory = loggerFactory;
             _correlationManager = correlationManager;
         }

@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Cqrs;
@@ -29,7 +29,7 @@ namespace MarginTrading.AccountsManagement.Workflow.RevokeTemporaryCapital
         private readonly ISystemClock _systemClock;
         private readonly IOperationExecutionInfoRepository _executionInfoRepository;
         private readonly IChaosKitty _chaosKitty;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly AccountManagementSettings _settings;
         private readonly IAccountManagementService _accountManagementService;
         
@@ -41,7 +41,7 @@ namespace MarginTrading.AccountsManagement.Workflow.RevokeTemporaryCapital
             ISystemClock systemClock,
             IOperationExecutionInfoRepository executionInfoRepository,
             IChaosKitty chaosKitty,
-            ILog log,
+            ILogger<RevokeTemporaryCapitalCommandsHandler> logger,
             AccountManagementSettings settings, 
             IAccountManagementService accountManagementService)
         {
@@ -50,7 +50,7 @@ namespace MarginTrading.AccountsManagement.Workflow.RevokeTemporaryCapital
             _systemClock = systemClock;
             _executionInfoRepository = executionInfoRepository;
             _chaosKitty = chaosKitty;
-            _log = log;
+            _logger = logger;
             _settings = settings;
             _accountManagementService = accountManagementService;
         }
@@ -139,9 +139,8 @@ namespace MarginTrading.AccountsManagement.Workflow.RevokeTemporaryCapital
             }
             catch (Exception exception)
             {
-                await _log.WriteErrorAsync(nameof(RevokeTemporaryCapitalCommandsHandler),
-                    nameof(StartRevokeTemporaryCapitalInternalCommand), exception);
-                
+                _logger.LogError(exception, "Failed to update account temporary capital");
+
                 publisher.PublishEvent(new RevokeTemporaryCapitalFailedEvent(c.OperationId, 
                     _systemClock.UtcNow.UtcDateTime, exception.Message, c.RevokeEventSourceId));
                 

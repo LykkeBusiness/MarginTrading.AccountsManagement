@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Cqrs;
@@ -30,7 +30,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
         private readonly IOperationExecutionInfoRepository _executionInfoRepository;
         private readonly IAccountsRepository _accountsRepository;
         private readonly IAccountBalanceChangesRepository _accountBalanceChangesRepository;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly ISystemClock _systemClock;
         private readonly IChaosKitty _chaosKitty;
         private readonly IConvertService _convertService;
@@ -43,7 +43,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
             IOperationExecutionInfoRepository executionInfoRepository,
             IAccountsRepository accountsRepository,
             IAccountBalanceChangesRepository accountBalanceChangesRepository,
-            ILog log,
+            ILogger<DeleteAccountsCommandsHandler> logger,
             ISystemClock systemClock,
             IChaosKitty chaosKitty,
             IConvertService convertService,
@@ -53,7 +53,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
             _executionInfoRepository = executionInfoRepository;
             _accountsRepository = accountsRepository;
             _accountBalanceChangesRepository = accountBalanceChangesRepository;
-            _log = log;
+            _logger = logger;
             _systemClock = systemClock;
             _chaosKitty = chaosKitty;
             _convertService = convertService;
@@ -129,8 +129,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                 }
                 catch (Exception exception)
                 {
-                    await _log.WriteErrorAsync(nameof(DeleteAccountsCommandsHandler), 
-                        nameof(DeleteAccountsCommand), exception);
+                    _logger.LogError(exception, "Failed to delete account {AccountId}", accountToBlock);
                     failedAccounts.Add(accountToBlock, exception.Message);
                 }
             }
@@ -197,8 +196,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                 }
                 catch (Exception exception)
                 {
-                    await _log.WriteErrorAsync(nameof(DeleteAccountsCommandsHandler), nameof(MarkAccountsAsDeletedInternalCommand),
-                        $"OperationId: [{command.OperationId}]", exception);
+                    _logger.LogError(exception, "Failed to mark account [{AccountId}] as deleted", accountToDelete);
                     validationFailedAccountIds.Add(accountToDelete, exception.Message);
                 }
             }
@@ -225,8 +223,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                 }
                 catch (Exception exception)
                 {
-                    await _log.WriteErrorAsync(nameof(DeleteAccountsCommandsHandler), 
-                        nameof(MarkAccountsAsDeletedInternalCommand), exception);
+                    _logger.LogError(exception, "Failed to mark account {AccountId} as deleted", failedAccountId);
                 }
             }
             

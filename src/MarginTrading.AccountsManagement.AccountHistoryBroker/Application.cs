@@ -2,23 +2,23 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
 using Lykke.MarginTrading.BrokerBase.Settings;
 using Lykke.SlackNotifications;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.RabbitMq;
+using Lykke.Snow.Common.Startup;
+
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Extensions;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
-using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 {
@@ -27,24 +27,25 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         private readonly IAccountHistoryRepository _accountHistoryRepository;
         private readonly IAccountsApi _accountsApi;
         private readonly Settings _settings;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
 
         public Application(
             CorrelationContextAccessor correlationContextAccessor,
             RabbitMqCorrelationManager correlationManager,
-            ILoggerFactory loggerFactory, 
-            IAccountHistoryRepository accountHistoryRepository, 
-            ILog log,
-            Settings settings, 
+            ILoggerFactory loggerFactory,
+            IAccountHistoryRepository accountHistoryRepository,
+            ILogger<Application> logger,
+            Settings settings,
             CurrentApplicationInfo applicationInfo,
             ISlackNotificationsSender slackNotificationsSender,
             IAccountsApi accountsApi)
-            : base(correlationManager, loggerFactory, log, slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
+            : base(correlationManager, loggerFactory, new LykkeLoggerAdapter<Application>(logger),
+                slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
         {
             _correlationContextAccessor = correlationContextAccessor;
             _accountHistoryRepository = accountHistoryRepository;
-            _log = log;
+            _logger = logger;
             _settings = settings;
             _accountsApi = accountsApi;
         }
@@ -58,18 +59,16 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId;
             if (string.IsNullOrWhiteSpace(correlationId))
             {
-                await _log.WriteMonitorAsync(
-                    nameof(HandleMessage), 
-                    nameof(AccountChangedEvent),
-                    $"Correlation id is empty for account {accountChangedEvent.Account.Id}. OperationId: {accountChangedEvent.OperationId}");
+                _logger.LogDebug("Correlation id is empty for account {AccountId}. OperationId: {OperationId}",
+                    accountChangedEvent.Account.Id, accountChangedEvent.OperationId);
             }
                     
             try
             {
                 if (accountChangedEvent.BalanceChange == null)
                 {
-                    await _log.WriteInfoAsync(nameof(HandleMessage), 
-                        "No history event with BalanceChange=null is permitted to be written",
+                    _logger.LogInformation(
+                        "No history event with BalanceChange=null is permitted to be written, eventJson=[{EventJson}]",
                         accountChangedEvent.ToJson());
                     return;
                 }
@@ -84,7 +83,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
             catch (Exception exception)
             {
-                await _log.WriteErrorAsync(nameof(AccountHistoryBroker), nameof(HandleMessage), exception);
+                _logger.LogError(exception, "Error while processing account changed event");
                 throw;
             }
         }
@@ -98,10 +97,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
             catch (Exception e)
             {
-                await _log.WriteErrorAsync(nameof(AccountHistoryBroker), 
-                    nameof(InvalidateCache), 
-                    $"Error while invalidating cache for account {accountId}", 
-                    e);
+                _logger.LogError(e, "Error while invalidating cache for account {AccountId}", accountId);
             }
         }
 

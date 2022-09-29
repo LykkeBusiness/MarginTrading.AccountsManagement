@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Internal;
@@ -24,14 +24,14 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ISystemClock _systemClock;
         private readonly CacheSettings _cacheSettings;
         private readonly JsonSerializerSettings _serializerSettings;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
-        public AccountsCache(IDistributedCache cache, ISystemClock systemClock, CacheSettings cacheSettings, ILog log)
+        public AccountsCache(IDistributedCache cache, ISystemClock systemClock, CacheSettings cacheSettings, ILogger<AccountsCache> logger)
         {
             _cache = cache;
             _systemClock = systemClock;
             _cacheSettings = cacheSettings;
-            _log = log;
+            _logger = logger;
             _serializerSettings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.All
@@ -61,9 +61,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     //Mismatch in that parameters (for instance during refactoring of code base) could lead to exception during deserialization.
                     //We should invalidate cache in that case
 
-                    await _log.WriteWarningAsync(nameof(AccountsCache), nameof(Get),
-                        $"Type mismatch while deserialization cache item of category {category} for {accountId}. " +
-                        "Invalidating cache", e);
+                    _logger.LogWarning(e,
+                        "Type mismatch while deserialization cache item of category {Category} for {AccountId}. Invalidating cache",
+                        category, accountId);
                 }
             }
 

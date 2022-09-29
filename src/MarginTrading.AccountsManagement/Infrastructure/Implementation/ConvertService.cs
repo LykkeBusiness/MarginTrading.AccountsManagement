@@ -26,26 +26,22 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
             {
                 cfg.CreateMap<AccountBalanceChangeReasonType, string>().ConvertUsing(x => x.ToString());
                 cfg.CreateMap<string, AccountBalanceChangeReasonType>()
-                    .ConvertUsing(Enum.Parse<AccountBalanceChangeReasonType>);
-                cfg.CreateMap<List<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
-                cfg.CreateMap<string, List<string>>().ConvertUsing(JsonConvert.DeserializeObject<List<string>>);
+                    .ConvertUsing(x => Enum.Parse<AccountBalanceChangeReasonType>(x));
+                cfg.CreateMap<List<string>, string>().ConvertUsing(x => JsonConvert.SerializeObject(x));
+                cfg.CreateMap<string, List<string>>().ConvertUsing(x => JsonConvert.DeserializeObject<List<string>>(x));
                 cfg.CreateMap<IAccount, AccountContract>()
                     .ForMember(p => p.AdditionalInfo,
-                        s => s.ResolveUsing(x => x.AdditionalInfo.Serialize()))
+                        s => s.MapFrom(x => x.AdditionalInfo.Serialize()))
                     .ForMember(p => p.TemporaryCapital,
-                        s => s.ResolveUsing(x => x.TemporaryCapital.Sum(x => x.Amount)));
+                        s => s.MapFrom(x => x.TemporaryCapital.Sum(x => x.Amount)));
                 cfg.CreateMap<IClient, ClientTradingConditionsContract>()
                     .ForMember(x => x.ClientId, o => o.MapFrom(s=> s.Id));
                 cfg.CreateMap<IClientWithAccounts, ClientTradingConditionsSearchResultContract>()
                     .ForMember(x => x.ClientId, o => o.MapFrom(s => s.Id))
-                    .ForMember(x => x.AccountIdentities,
-                        o => o.ResolveUsing((src, dest, destMember, resContext) =>
-                            dest.AccountIdentities = src.AccountIdentityCommaSeparatedList?.Split(',').ToList()));
+                    .ForMember(x => x.AccountIdentities, o => o.MapFrom(x => x.DeserializeAccounts()));
                 cfg.CreateMap<IClientWithAccounts, ClientTradingConditionsWithAccountsContract>()
                     .ForMember(x => x.ClientId, o => o.MapFrom(s => s.Id))
-                    .ForMember(x => x.AccountIdentities,
-                        o => o.ResolveUsing((src, dest, destMember, resContext) =>
-                            dest.AccountIdentities = src.AccountIdentityCommaSeparatedList?.Split(',').ToList()));
+                    .ForMember(x => x.AccountIdentities, o => o.MapFrom(x => x.DeserializeAccounts()));
                 cfg.CreateMap<IAccountSuggested, AccountSuggestedContract>()
                     .ForMember(d => d.Name,
                         o => o.MapFrom(s => s.AccountName));
@@ -70,6 +66,11 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
         public TResult Convert<TResult>(object source)
         {
             return _mapper.Map<TResult>(source);
+        }
+        
+        public void AssertConfigurationIsValid()
+        {
+            _mapper.ConfigurationProvider.AssertConfigurationIsValid();
         }
     }
 }

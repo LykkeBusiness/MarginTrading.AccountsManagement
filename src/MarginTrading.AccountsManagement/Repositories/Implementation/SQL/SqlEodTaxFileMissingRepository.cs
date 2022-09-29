@@ -6,27 +6,27 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
-using Common.Log;
 using Lykke.Snow.Common;
 using Lykke.Snow.Common.Exceptions;
 using MarginTrading.AccountsManagement.Dal.Common;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
     public class SqlEodTaxFileMissingRepository: SqlRepositoryBase, IEodTaxFileMissingRepository
     {
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         
-        public SqlEodTaxFileMissingRepository(string connectionString, ILog log) : base(connectionString)
+        public SqlEodTaxFileMissingRepository(string connectionString,
+            ILogger<SqlEodTaxFileMissingRepository> logger) : base(connectionString, logger)
         {
-            _log = log;
+            _logger = logger;
         }
 
         public void Initialize()
         {
-            ConnectionString.InitializeSqlObject("dbo.TaxFileMissing.sql", _log);
+            ConnectionString.InitializeSqlObject("dbo.TaxFileMissing.sql", _logger);
             ExecCreateOrAlter("dbo.addTaxFileMissing.sql");
             ExecCreateOrAlter("dbo.removeTaxFileMissing.sql");
             ExecCreateOrAlter("dbo.getTaxFileMissing.sql");
@@ -44,11 +44,9 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             }
             catch (InsertionFailedException e)
             {
-                await _log.WriteWarningAsync(
-                    nameof(SqlEodTaxFileMissingRepository), 
-                    nameof(AddAsync),
-                    new {tradingDay}.ToJson(),
-                    $"Couldn't insert new value into taxFileMissing table. Error message = {e.Message}");
+                _logger.LogWarning(e,
+                    "Couldn't insert new value into taxFileMissing table for trading day [{TradingDay}]. Error message = {Message}",
+                    tradingDay, e.Message);
             }
         }
 
@@ -61,11 +59,9 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             }
             catch (InsertionFailedException e)
             {
-                await _log.WriteWarningAsync(
-                    nameof(SqlEodTaxFileMissingRepository), 
-                    nameof(RemoveAsync),
-                    new {tradingDay}.ToJson(),
-                    $"Couldn't delete from taxFileMissing table. Error message = {e.Message}");
+                _logger.LogWarning(e,
+                    "Couldn't delete from taxFileMissing table for trading day [{TradingDay}]. Error message = {Message}",
+                    tradingDay, e.Message);
             }
         }
 
@@ -77,19 +73,17 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             }
             catch (FormatException e)
             {
-                await _log.WriteErrorAsync(
-                    nameof(SqlEodTaxFileMissingRepository),
-                    nameof(GetAllDaysAsync),
-                    null,
-                    e);
-                
+                _logger.LogError(e,
+                    "Couldn't get data from taxFileMissing table. Error message = {Message}",
+                    e.Message);
                 return Enumerable.Empty<DateTime>();
             }
         }
         
         private DateTime Map(SqlDataReader reader)
         {
-            return reader["TradingDate"] as DateTime? ?? throw new FormatException("Trading date column value can't be casted to datetime");
+            return reader["TradingDate"] as DateTime? ??
+                   throw new FormatException("Trading date column value can't be casted to datetime");
         }
     }
 }

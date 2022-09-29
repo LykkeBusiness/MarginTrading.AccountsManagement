@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace MarginTrading.AccountsManagement.Contracts.ErrorCodes
+﻿namespace MarginTrading.AccountsManagement.Contracts.ErrorCodes
 {
     public static class AccountsApiErrorCodes
     {

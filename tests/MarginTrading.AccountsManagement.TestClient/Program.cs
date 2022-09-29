@@ -4,16 +4,14 @@
 using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using AsyncFriendlyStackTrace;
-using Common.Log;
-using JetBrains.Annotations;
-using Lykke.HttpClientGenerator;
-using MarginTrading.AccountsManagement.Contracts;
-using MarginTrading.AccountsManagement.Contracts.Api;
+using Microsoft.Extensions.Logging;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Settings;
+
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Newtonsoft.Json;
 using Refit;
 
@@ -25,13 +23,11 @@ namespace MarginTrading.AccountsManagement.TestClient
     /// </summary>
     internal static class Program
     {
-        private static int _counter;
-
-        static async Task Main()
+        static void Main()
         {
             try
             {
-                await Run();
+                Run();
             }
             catch (ApiException e)
             {
@@ -58,24 +54,15 @@ namespace MarginTrading.AccountsManagement.TestClient
             }
         }
 
-        private static async Task Run()
+        private static void Run()
         {
-//            var clientGenerator = HttpClientGenerator.BuildForUrl("http://localhost:5000")
-//                .WithApiKey("TestClient")
-//                .WithRetriesStrategy(new LinearRetryStrategy(TimeSpan.FromSeconds(10), 12))
-//                .Create();
-//            
-//            await CheckAccountsBalabceHistoryApiWorking(clientGenerator);
-//            // todo check other apis
-
-            await CheckBrokerRetries();
-
+            CheckBrokerRetries();
             Console.WriteLine("Successfuly finished");
         }
 
-        private static async Task CheckBrokerRetries()
+        private static void CheckBrokerRetries()
         {
-            var logger = new LogToConsole();
+            var logger = new NullLogger<CqrsFake>();
             
             var cqrsEngine = new CqrsFake(new CqrsSettings
             {
@@ -84,8 +71,8 @@ namespace MarginTrading.AccountsManagement.TestClient
                 EnvironmentName = "andreev",
                 RetryDelay = TimeSpan.FromSeconds(5),
             }, logger).CreateEngine();
-
-            logger.WriteLine("waiting 5 sec for cqrsEngine");
+            
+            logger.LogInformation("waiting 5 sec for cqrsEngine");
             Thread.Sleep(5000);
 
             cqrsEngine.PublishEvent(new AccountChangedEvent(
@@ -111,53 +98,6 @@ namespace MarginTrading.AccountsManagement.TestClient
                 ),
                 null,
                 null), new CqrsContextNamesSettings().AccountsManagement);
-        }
-
-        private static async Task CheckAccountsApiWorking(IHttpClientGenerator clientGenerator)
-        {
-            var client = clientGenerator.Generate<IAccountsApi>();
-            await client.List().Dump();
-            var accountResponse = await client.Create(new CreateAccountRequest
-                {ClientId = "client1", TradingConditionId = "tc1", BaseAssetId = "ba1"}).Dump();
-            await client.GetByClientAndId("client1", accountResponse.Content.Id).Dump();
-        }
-        
-        private static async Task CheckAccountsBalabceHistoryApiWorking(IHttpClientGenerator clientGenerator)
-        {
-            var client = clientGenerator.Generate<IAccountBalanceHistoryApi>();
-            var history = await client.ByAccount("AA0011").Dump();
-            var record = history?.FirstOrDefault();
-            if (record != null)
-            {
-                var account = record.Value.Key;
-                var historyByAccount = await client.ByAccount(account).Dump();
-                var historyByAccountAndEvent = await client.ByAccountAndEventSource(account).Dump();
-                var date = record.Value.Value.FirstOrDefault()?.ChangeTimestamp ?? DateTime.UtcNow;
-                var balance = await client.GetBalanceOnDate(account, date).Dump();
-            }
-            
-        }
-
-        [CanBeNull]
-        public static T Dump<T>(this T o)
-        {
-            var str = o is string s ? s : JsonConvert.SerializeObject(o);
-            Console.WriteLine("{0}. {1}", ++_counter, str);
-            return o;
-        }
-
-        [ItemCanBeNull]
-        public static async Task<T> Dump<T>(this Task<T> t)
-        {
-            var obj = await t;
-            obj.Dump();
-            return obj;
-        }
-
-        public static async Task Dump(this Task o)
-        {
-            await o;
-            "ok".Dump();
         }
     }
 }

@@ -4,7 +4,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Cqrs;
@@ -16,7 +16,6 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Repositories;
-using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Workflow.UpdateBalance.Commands;
 using Microsoft.Extensions.Internal;
 
@@ -24,30 +23,27 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
 {
     internal class UpdateBalanceCommandsHandler
     {
-        private readonly INegativeProtectionService _negativeProtectionService;
         private readonly IAccountsRepository _accountsRepository;
         private readonly IChaosKitty _chaosKitty;
         private readonly ISystemClock _systemClock;
         private readonly IConvertService _convertService;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly IOperationExecutionInfoRepository _executionInfoRepository;
 
         private const string OperationName = "UpdateBalance";
 
         public UpdateBalanceCommandsHandler(IOperationExecutionInfoRepository executionInfoRepository,
-            INegativeProtectionService negativeProtectionService,
             IAccountsRepository accountsRepository,
             IChaosKitty chaosKitty, 
             ISystemClock systemClock,
             IConvertService convertService,
-            ILog log)
+            ILogger<UpdateBalanceCommandsHandler> logger)
         {
-            _negativeProtectionService = negativeProtectionService;
             _accountsRepository = accountsRepository;
             _chaosKitty = chaosKitty;
             _systemClock = systemClock;
             _convertService = convertService;
-            _log = log;
+            _logger = logger;
             _executionInfoRepository = executionInfoRepository;
         }
 
@@ -80,9 +76,9 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                 }
                 catch (ValidationException ex)
                 {
-                    await _log.WriteWarningAsync(nameof(UpdateBalanceCommandsHandler),
-                        nameof(UpdateBalanceInternalCommand), ex.Message);
-                    
+                    _logger.LogWarning(ex, "Validation error while updating balance for account {AccountId}",
+                        command.AccountId);
+
                     publisher.PublishEvent(new AccountBalanceChangeFailedEvent(command.OperationId,
                         _systemClock.UtcNow.UtcDateTime, ex.Message, command.Source));
                 

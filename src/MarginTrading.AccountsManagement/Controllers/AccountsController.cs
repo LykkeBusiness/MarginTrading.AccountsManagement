@@ -8,9 +8,8 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
-using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AccountsManagement.Contracts;
@@ -28,7 +27,6 @@ using Microsoft.Extensions.Internal;
 using Refit;
 using MarginTrading.AccountsManagement.Exceptions;
 using MarginTrading.AccountsManagement.Contracts.ErrorCodes;
-using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels.ErrorCodes;
 
@@ -47,7 +45,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         private readonly IScheduleSettingsApi _scheduleSettingsApi;
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly BrokerConfigurationAccessor _brokerConfigurationAccessor;
-        private readonly ILog _logger;
+        private readonly ILogger _logger;
 
         public AccountsController(
             IAccountManagementService accountManagementService,
@@ -59,7 +57,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             IScheduleSettingsApi scheduleSettingsApi, 
             IBrokerSettingsApi brokerSettingsApi, 
             BrokerConfigurationAccessor brokerConfigurationAccessor,
-            ILog logger)
+            ILogger logger)
         {
             _accountManagementService = accountManagementService;
             _accuracyService = accuracyService;
@@ -308,7 +306,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             }
             catch (NotSupportedException e)
             {
-                _logger.WriteError("Account creation", request.ToJson(), e);
+                _logger.LogError(e,"Account creation error, request: [{RequestJson}]", request.ToJson());
                 return Conflict();
             }
         }

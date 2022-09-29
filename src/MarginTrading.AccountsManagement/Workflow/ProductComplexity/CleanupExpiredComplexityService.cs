@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Repositories;
@@ -16,15 +16,19 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
     public class CleanupExpiredComplexityService : BackgroundService
     {
         private readonly IFeatureManager _featureManager;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly AccountManagementSettings _settings;
         private readonly IAccountManagementService _accountManagementService;
         private readonly IComplexityWarningRepository _complexityWarningRepository;
         
-        public CleanupExpiredComplexityService(IFeatureManager featureManager, ILog log, AccountManagementSettings settings, IAccountManagementService accountManagementService, IComplexityWarningRepository complexityWarningRepository)
+        public CleanupExpiredComplexityService(IFeatureManager featureManager,
+            ILogger<CleanupExpiredComplexityService> logger,
+            AccountManagementSettings settings,
+            IAccountManagementService accountManagementService,
+            IComplexityWarningRepository complexityWarningRepository)
         {
             _featureManager = featureManager;
-            _log = log;
+            _logger = logger;
             _settings = settings;
             _accountManagementService = accountManagementService;
             _complexityWarningRepository = complexityWarningRepository;
@@ -34,23 +38,21 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
         {
             if (!await _featureManager.IsEnabledAsync(BrokerFeature.ProductComplexityWarning))
             {
-                await _log.WriteInfoAsync(nameof(CleanupExpiredComplexityService),
-                    nameof(Run), 
-                    $"Feature {BrokerFeature.ProductComplexityWarning} is disabled. " +
-                          $"{nameof(CleanupExpiredComplexityService)}.{nameof(Run)} will not be executed");
+                _logger.LogInformation("Feature {FeatureName} is disabled. {Action} will not be executed",
+                    BrokerFeature.ProductComplexityWarning,
+                    nameof(CleanupExpiredComplexityService) + '.' + nameof(Run));
 
                 return;
             }
 
-            await _log.WriteInfoAsync(nameof(CleanupExpiredComplexityService),
-                nameof(Run),
-                $"Feature {BrokerFeature.ProductComplexityWarning} is enabled. " +
-                $"{nameof(CleanupExpiredComplexityService)}.{nameof(Run)} will be executed");
+            _logger.LogInformation("Feature {FeatureName} is enabled. {Action} WILL BE executed",
+                BrokerFeature.ProductComplexityWarning,
+                nameof(CleanupExpiredComplexityService) + '.' + nameof(Run));
 
             var retryForever = Policy.Handle<Exception>()
-                .RetryForeverAsync(onRetry: async ex =>
+                .RetryForeverAsync(onRetry: ex =>
                 {
-                    await _log.WriteErrorAsync(nameof(CleanupExpiredComplexityService), nameof(Run), ex);
+                    _logger.LogError(ex, "Error while executing {Action}", nameof(Run));
                 });
 
             while (!stoppingToken.IsCancellationRequested)
@@ -70,13 +72,17 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
             {
                 stoppingToken.ThrowIfCancellationRequested();
 
-                await _log.WriteInfoAsync(nameof(CleanupExpiredComplexityService), nameof(Run),
-                            $"Product complexity confirmation expired for account {acc.AccountId}. " +
-                                 $"{nameof(_settings.ComplexityWarningExpiration)} : {_settings.ComplexityWarningExpiration}." +
-                                 $"{nameof(expirationTimestamp)} : {expirationTimestamp}." +
-                                 $"{nameof(acc.SwitchedToFalseAt)} : {acc.SwitchedToFalseAt}." +
-                                 $"Resetting {nameof(IAccount.AdditionalInfo.ShouldShowProductComplexityWarning)} flag to true");
-
+                _logger.LogInformation("Product complexity confirmation expired for account {AccountId}. " +
+                                       "Complexity warning expiration : {ComplexityWarningExpirationValue}." +
+                                       "Expiration timestamp : {ExpirationTimestamp}." +
+                                       "Switched to False at : {SwitchedToFalseAt}." +
+                                       "Resetting {FlagName} flag to true",
+                    acc.AccountId,
+                    _settings.ComplexityWarningExpiration,
+                    expirationTimestamp,
+                    acc.SwitchedToFalseAt,
+                    nameof(IAccount.AdditionalInfo.ShouldShowProductComplexityWarning));
+                
                 acc.ResetConfirmation();
                 await _accountManagementService.UpdateComplexityWarningFlag(acc.AccountId, shouldShowProductComplexityWarning: true);
 
