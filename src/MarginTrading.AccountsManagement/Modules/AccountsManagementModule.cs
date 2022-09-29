@@ -3,10 +3,15 @@
 
 using System;
 using Autofac;
+
+using Common.Log;
+
 using Lykke.Common.Chaos;
 using Lykke.Logs.MsSql.Interfaces;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
+using Lykke.Snow.Common.Startup;
+
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels;
@@ -15,6 +20,8 @@ using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
+
 using Module = Autofac.Module;
 using SqlRepos = MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
 
@@ -31,6 +38,12 @@ namespace MarginTrading.AccountsManagement.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
+            // still required for some middlewares
+            builder.Register(ctx =>
+                    new LykkeLoggerAdapter<AccountsManagementModule>(ctx.Resolve<ILogger<AccountsManagementModule>>()))
+                .As<ILog>()
+                .SingleInstance();
+            
             builder.RegisterInstance(new BrokerConfigurationAccessor(_settings.CurrentValue.MarginTradingAccountManagement.BrokerId));
             builder.RegisterInstance(_settings.Nested(s => s.MarginTradingAccountManagement)).SingleInstance();
             builder.RegisterInstance(_settings.CurrentValue.MarginTradingAccountManagement).SingleInstance();
