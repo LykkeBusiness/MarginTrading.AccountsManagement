@@ -57,7 +57,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             IScheduleSettingsApi scheduleSettingsApi, 
             IBrokerSettingsApi brokerSettingsApi, 
             BrokerConfigurationAccessor brokerConfigurationAccessor,
-            ILogger logger)
+            ILogger<AccountsController> logger)
         {
             _accountManagementService = accountManagementService;
             _accuracyService = accuracyService;
