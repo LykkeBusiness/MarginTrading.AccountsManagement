@@ -24,6 +24,7 @@
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
   </Target>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
     <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="5.0.0" />
   </ItemGroup>
   <PropertyGroup>
