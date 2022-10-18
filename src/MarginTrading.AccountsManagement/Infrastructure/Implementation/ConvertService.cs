@@ -45,6 +45,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 cfg.CreateMap<IAccountSuggested, AccountSuggestedContract>()
                     .ForMember(d => d.Name,
                         o => o.MapFrom(s => s.AccountName));
+                cfg.CreateMap<AccountStat, AccountStatContract>();
 
                 //Audit
                 cfg.CreateMap<AuditModel, AuditContract>();
