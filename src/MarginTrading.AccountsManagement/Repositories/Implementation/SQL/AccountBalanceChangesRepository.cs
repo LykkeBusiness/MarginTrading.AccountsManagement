@@ -7,14 +7,14 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Dapper;
 using Lykke.Logs.MsSql.Extensions;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Settings;
-using Microsoft.Extensions.Internal;
+
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
@@ -50,27 +50,22 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         private readonly IConvertService _convertService;
         private readonly AccountManagementSettings _settings;
-        private readonly ILog _log;
-        private readonly ISystemClock _systemClock;
+        private readonly ILogger _logger;
         
         public AccountBalanceChangesRepository(IConvertService convertService, 
             AccountManagementSettings settings, 
-            ILog log,
-            ISystemClock systemClock)
+            ILogger<AccountBalanceChangesRepository> logger)
         {
             _convertService = convertService;
             _settings = settings;
-            _log = log;
-            _systemClock = systemClock;
-            
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
+            _logger = logger;
+
+            using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
+            catch (Exception ex)
             {
-                try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
-                catch (Exception ex)
-                {
-                    _log?.WriteErrorAsync(nameof(AccountBalanceChangesRepository), "CreateTableIfDoesntExists", null, ex);
-                    throw;
-                }
+                _logger.LogError(ex, "Failed to create table {TableName}", TableName);
+                throw;
             }
         }
 
@@ -90,30 +85,28 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             var sorting = isAscendingOrder ? "ASC" : "DESC";
             var paginationClause = $" ORDER BY [ChangeTimestamp] {sorting} OFFSET {skip ?? 0} ROWS FETCH NEXT {take} ROWS ONLY";
 
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
-            {
-                var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause} {paginationClause}; SELECT COUNT(*), SUM({nameof(IAccountBalanceChange.ChangeAmount)}) FROM {TableName} {whereClause}", new
-                    {
-                        accountId, 
-                        from, 
-                        to, 
-                        types = reasonTypes?.Select(x => x.ToString()),
-                        assetPairId
-                    });
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            var gridReader = await conn.QueryMultipleAsync(
+                $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause} {paginationClause}; SELECT COUNT(*), SUM({nameof(IAccountBalanceChange.ChangeAmount)}) FROM {TableName} {whereClause}", new
+                {
+                    accountId, 
+                    from, 
+                    to, 
+                    types = reasonTypes?.Select(x => x.ToString()),
+                    assetPairId
+                });
 
-                var contents = (await gridReader.ReadAsync<AccountBalanceChangeEntity>()).ToList();
-                var totals = await gridReader.ReadSingleAsync<(int count, decimal? amount)>();
+            var contents = (await gridReader.ReadAsync<AccountBalanceChangeEntity>()).ToList();
+            var totals = await gridReader.ReadSingleAsync<(int count, decimal? amount)>();
 
-                var paginatedResponse = new PaginatedResponse<IAccountBalanceChange>(
-                    contents, 
-                    skip ?? 0, 
-                    contents.Count, 
-                    totals.count
-                );
+            var paginatedResponse = new PaginatedResponse<IAccountBalanceChange>(
+                contents, 
+                skip ?? 0, 
+                contents.Count, 
+                totals.count
+            );
 
-                return (paginatedResponse, totals.amount ?? 0);
-            }
+            return (paginatedResponse, totals.amount ?? 0);
         }
 
         public async Task<IReadOnlyList<IAccountBalanceChangeLight>> GetLightAsync(DateTime? @from = null, DateTime? to = null)
@@ -121,18 +114,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             var whereClause = "WHERE 1=1 "
                               + (from != null ? $" AND ChangeTimestamp >= @from" : "")
                               + (to != null ? $" AND ChangeTimestamp < @to" : "");
-            
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
-            {
-                var data = await conn.QueryAsync<AccountBalanceChangeLightEntity>(
-                    $"SELECT {GetColumnsLight} FROM {TableName} WITH (NOLOCK) {whereClause}", new
-                    {
-                        from, 
-                        to, 
-                    });
 
-                return data.ToList();
-            }
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            var data = await conn.QueryAsync<AccountBalanceChangeLightEntity>(
+                $"SELECT {GetColumnsLight} FROM {TableName} WITH (NOLOCK) {whereClause}", new
+                {
+                    from, 
+                    to, 
+                });
+
+            return data.ToList();
         }
 
         public async Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, DateTime? @from = null,
@@ -143,35 +134,31 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                                        + (from != null ? $" AND {timeFilterField} >= @from" : "")
                                        + (to != null ? $" AND {timeFilterField} < @to" : "")
                                        + (reasonType != null ? " AND ReasonType = @reasonType" : "");
-            
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
-            {
-                var data = await conn.QueryAsync<AccountBalanceChangeEntity>(
-                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause}", new
-                    {
-                        accountId, 
-                        from, 
-                        to, 
-                        reasonType = reasonType.ToString(),
-                    });
 
-                return data.ToList();
-            }
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            var data = await conn.QueryAsync<AccountBalanceChangeEntity>(
+                $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause}", new
+                {
+                    accountId, 
+                    from, 
+                    to, 
+                    reasonType = reasonType.ToString(),
+                });
+
+            return data.ToList();
         }
 
         public async Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, string eventSourceId)
         {
             var whereClause = "WHERE AccountId=@accountId "
                 + (string.IsNullOrWhiteSpace(eventSourceId) ? "" : "AND EventSourceId=@eventSourceId");
-            
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
-            {
-                var data = await conn.QueryAsync<AccountBalanceChangeEntity>(
-                    $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause}", 
-                    new { accountId, eventSourceId });
 
-                return data.ToList();
-            }
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            var data = await conn.QueryAsync<AccountBalanceChangeEntity>(
+                $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause}", 
+                new { accountId, eventSourceId });
+
+            return data.ToList();
         }
 
         public Task<decimal> GetCompensationsProfit(string accountId, DateTime[] days)
@@ -205,60 +192,54 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             }
 
 
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
-            {
-                return await conn.QuerySingleAsync<decimal?>(
-                    $"SELECT SUM(ChangeAmount) FROM {TableName} WITH (NOLOCK) {whereClause}", new
-                    {
-                        accountId,
-                        reasonTypes = reasonTypes.Select(x => x.ToString()).ToArray(),
-                        days
-                    }) ?? 0;
-            }
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            return await conn.QuerySingleAsync<decimal?>(
+                $"SELECT SUM(ChangeAmount) FROM {TableName} WITH (NOLOCK) {whereClause}", new
+                {
+                    accountId,
+                    reasonTypes = reasonTypes.Select(x => x.ToString()).ToArray(),
+                    days
+                }) ?? 0;
         }
 
         public async Task AddAsync(IAccountBalanceChange change)
         {
             var entity = _convertService.Convert<AccountBalanceChangeEntity>(change);
-            
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
+
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            try
             {
                 try
                 {
-                    try
-                    {
-                        await conn.ExecuteAsync(
-                            $"insert into {TableName} ({GetColumns}) values ({GetFields})", entity);
-                    }
-                    catch (SqlException)
-                    {
-                        await conn.ExecuteAsync(
-                            $"update {TableName} set {GetUpdateClause} where Id=@Id", entity); 
-                    }
+                    await conn.ExecuteAsync(
+                        $"insert into {TableName} ({GetColumns}) values ({GetFields})", entity);
                 }
-                catch (Exception ex)
+                catch (SqlException)
                 {
-                    var msg = $"Error {ex.Message} \n" +
-                              "Entity <AccountBalanceChangeEntity>: \n" +
-                              entity.ToJson();
-                    await _log.WriteWarningAsync(nameof(AccountBalanceChangesRepository), nameof(AddAsync), null, msg);
-                    throw new Exception(msg);
+                    await conn.ExecuteAsync(
+                        $"update {TableName} set {GetUpdateClause} where Id=@Id", entity); 
                 }
+            }
+            catch (Exception ex)
+            {
+                var msg = $"Error {ex.Message} \n" +
+                          "Entity <AccountBalanceChangeEntity>: \n" +
+                          entity.ToJson();
+                _logger.LogWarning(ex, msg);
+                throw new Exception(msg);
             }
         }
 
         public async Task<decimal> GetBalanceAsync(string accountId, DateTime date)
         {
-            using (var conn = new SqlConnection(_settings.Db.ConnectionString))
-            {
-                return await conn.ExecuteScalarAsync<decimal>(
-                    $"SELECT TOP 1 Balance FROM {TableName} WHERE AccountId=@accountId AND ChangeTimestamp < @date ORDER BY ChangeTimestamp DESC",
-                    new
-                    {
-                        accountId,
-                        date = date.Date.AddDays(1),
-                    });
-            }
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            return await conn.ExecuteScalarAsync<decimal>(
+                $"SELECT TOP 1 Balance FROM {TableName} WHERE AccountId=@accountId AND ChangeTimestamp < @date ORDER BY ChangeTimestamp DESC",
+                new
+                {
+                    accountId,
+                    date = date.Date.AddDays(1),
+                });
         }
     }
 }

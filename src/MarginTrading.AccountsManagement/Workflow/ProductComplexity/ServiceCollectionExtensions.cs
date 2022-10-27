@@ -1,15 +1,9 @@
 ﻿using System;
-using Common.Log;
-using Lykke.Common.Log;
-using Lykke.Logs;
-using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.RabbitMqBroker.Subscriber.Deserializers;
 using Lykke.RabbitMqBroker.Subscriber.MessageReadStrategies;
 using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
 using Lykke.Snow.Common.Correlation.RabbitMq;
-using Lykke.Snow.Common.Startup;
-using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.Backend.Contracts.Events;

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Dapper;
 using Dapper.Contrib.Extensions;
+using Lykke.Common.MsSql;
 using MarginTrading.AccountsManagement.Dal.Common;
 using MarginTrading.AccountsManagement.InternalModels;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
@@ -15,17 +16,17 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
     public class ComplexityWarningRepository : IComplexityWarningRepository
     {
         private readonly string _connectionString;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
-        public ComplexityWarningRepository(string connectionString, ILog log)
+        public ComplexityWarningRepository(string connectionString, ILogger<ComplexityWarningRepository> logger)
         {
             _connectionString = connectionString;
-            _log = log;
+            _logger = logger;
         }
 
         public void Initialize()
         {
-            _connectionString.InitializeSqlObject("dbo.ComplexityWarning.sql", _log);
+            _connectionString.InitializeSqlObject("dbo.ComplexityWarning.sql", _logger);
         }
 
         public async Task<ComplexityWarningState> GetOrCreate(string accountId, Func<ComplexityWarningState> factory)
@@ -44,10 +45,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             {
                 await conn.InsertAsync(newItem);
             }
-            catch (SqlException e) when(e.Number == 2627 || e.Number == 2601) // unique constraint violation
+            catch (SqlException e) when (e.Number.IsDuplicateKeyViolation())
             {
-                await _log.WriteWarningAsync(nameof(ComplexityWarningRepository), nameof(GetOrCreate),
-                    $"Optimistic concurrency control violated: Entity with id {accountId} already exists,  use that value");
+                _logger.LogWarning(e,
+                    "Optimistic concurrency control violated: Entity with id {AccountId} already exists,  use that value",
+                    accountId);
             }
 
             return (await conn.GetAsync<DbSchema>(accountId)).ToDomain();
@@ -104,9 +106,15 @@ where AccountId = @{nameof(DbSchema.AccountId)} and RowVersion = @{nameof(DbSche
 
             public ComplexityWarningState ToDomain()
             {
-                var confirmedOrders = JsonConvert.DeserializeObject<List<ComplexityWarningState.OrderInfo>>(ConfirmedOrders).ToDictionary(p => p.OrderId);
+                var confirmedOrders = JsonConvert
+                    .DeserializeObject<List<ComplexityWarningState.OrderInfo>>(ConfirmedOrders)?
+                    .ToDictionary(p => p.OrderId);
 
-                return ComplexityWarningState.Restore(AccountId, RowVersion, confirmedOrders, ShouldShowComplexityWarning, SwitchedToFalseAt);
+                return ComplexityWarningState.Restore(AccountId,
+                    RowVersion,
+                    confirmedOrders,
+                    ShouldShowComplexityWarning,
+                    SwitchedToFalseAt);
             }
 
             public static DbSchema FromDomain(ComplexityWarningState source)

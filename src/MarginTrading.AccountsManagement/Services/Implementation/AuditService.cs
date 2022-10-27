@@ -4,7 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JsonDiffPatchDotNet;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
@@ -14,12 +14,12 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
     public class AuditService : IAuditService
     {
         private readonly IAuditRepository _auditRepository;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
-        public AuditService(IAuditRepository auditRepository, ILog log)
+        public AuditService(IAuditRepository auditRepository, ILogger<AuditService> logger)
         {
             _auditRepository = auditRepository;
-            _log = log;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public Task<PaginatedResponse<AuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
@@ -53,8 +53,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             if (string.IsNullOrEmpty(newStateJson) && string.IsNullOrEmpty(oldStateJson))
             {
-                _log?.WriteWarningAsync(nameof(AuditService), nameof(TryAudit),
-                    $"Unable to generate audit event based on both {nameof(newStateJson)} and {nameof(oldStateJson)} state as null.");
+                _logger.LogWarning("Unable to generate audit event based on both newStateJson and oldStateJson state as null");
                 return false;
             }
 

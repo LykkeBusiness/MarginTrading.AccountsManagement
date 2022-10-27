@@ -4,39 +4,34 @@
 using System.Threading.Tasks;
 using BookKeeper.Client.Workflow.Events;
 using Common;
-using Common.Log;
 using JetBrains.Annotations;
 using MarginTrading.AccountsManagement.Repositories;
+
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Workflow.Projections
 {
     public class TaxFileUploadedProjection
     {
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
-        public TaxFileUploadedProjection(ILog log, IEodTaxFileMissingRepository taxFileMissingRepository)
+        public TaxFileUploadedProjection(IEodTaxFileMissingRepository taxFileMissingRepository,
+            ILogger<TaxFileUploadedProjection> logger)
         {
-            _log = log;
             _taxFileMissingRepository = taxFileMissingRepository;
+            _logger = logger;
         }
-        
+
         [UsedImplicitly]
         public async Task Handle(TaxFileUploadedEvent e)
         {
-            await _log.WriteInfoAsync(
-                nameof(TaxFileUploadedProjection), 
-                nameof(Handle), 
-                e.ToJson(),
-                $"Handling new TaxFileUploadedEvent event.");
+            _logger.LogInformation("Handling tax file uploaded event: [{EventJson}]", e.ToJson());
 
             await _taxFileMissingRepository.RemoveAsync(e.TradingDay);
-
-            await _log.WriteInfoAsync(
-                nameof(TaxFileUploadedProjection), 
-                nameof(Handle), 
-                new {e.TradingDay}.ToJson(),
-                $"Tax file missing entity has been deleted.");
+            
+            _logger.LogInformation("Tax file missing entity has been deleted for trading day [{TradingDay}]", 
+                e.TradingDay);
         }
     }
 }

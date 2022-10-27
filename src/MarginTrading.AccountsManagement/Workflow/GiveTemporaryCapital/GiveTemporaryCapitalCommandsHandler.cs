@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Cqrs;
@@ -25,7 +25,7 @@ namespace MarginTrading.AccountsManagement.Workflow.GiveTemporaryCapital
         private readonly ISystemClock _systemClock;
         private readonly IOperationExecutionInfoRepository _executionInfoRepository;
         private readonly IChaosKitty _chaosKitty;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly AccountManagementSettings _settings;
         
         private const string OperationName = GiveTemporaryCapitalSaga.OperationName;
@@ -35,14 +35,14 @@ namespace MarginTrading.AccountsManagement.Workflow.GiveTemporaryCapital
             ISystemClock systemClock,
             IOperationExecutionInfoRepository executionInfoRepository,
             IChaosKitty chaosKitty,
-            ILog log,
+            ILogger<GiveTemporaryCapitalCommandsHandler> logger,
             AccountManagementSettings settings)
         {
             _accountsRepository = accountsRepository;
             _systemClock = systemClock;
             _executionInfoRepository = executionInfoRepository;
             _chaosKitty = chaosKitty;
-            _log = log;
+            _logger = logger;
             _settings = settings;
         }
 
@@ -97,7 +97,7 @@ namespace MarginTrading.AccountsManagement.Workflow.GiveTemporaryCapital
             {
                 await _accountsRepository.UpdateAccountTemporaryCapitalAsync(c.AccountId, 
                     AccountManagementService.UpdateTemporaryCapital,
-                    new InternalModels.TemporaryCapital
+                    new TemporaryCapital
                     {
                         Id = c.OperationId,
                         Amount = c.Amount,
@@ -106,9 +106,8 @@ namespace MarginTrading.AccountsManagement.Workflow.GiveTemporaryCapital
             }
             catch (Exception exception)
             {
-                await _log.WriteErrorAsync(nameof(GiveTemporaryCapitalCommandsHandler),
-                    nameof(StartGiveTemporaryCapitalInternalCommand), exception);
-                
+                _logger.LogError(exception, "Failed to update account temporary capital");
+
                 publisher.PublishEvent(new GiveTemporaryCapitalFailedEvent(c.OperationId, 
                     _systemClock.UtcNow.UtcDateTime, exception.Message));
                 
@@ -156,7 +155,7 @@ namespace MarginTrading.AccountsManagement.Workflow.GiveTemporaryCapital
                 //rollback account. if exception is thrown here, it will be retried until success
                 await _accountsRepository.UpdateAccountTemporaryCapitalAsync(executionInfo.Data.AccountId, 
                     AccountManagementService.UpdateTemporaryCapital,
-                    new InternalModels.TemporaryCapital
+                    new TemporaryCapital
                     {
                         Id = executionInfo.Data.OperationId,
                         Amount = executionInfo.Data.Amount,

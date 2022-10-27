@@ -1,19 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
     <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
     <NoWarn>$(NoWarn);1591</NoWarn>
     <Version>2.10.3</Version>
-    <LangVersion>latest</LangVersion>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
   </PropertyGroup>
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>
     <UserSecretsId>F7428201-B7F7-4571-9ABD-7A3DEC971018</UserSecretsId>
@@ -41,42 +37,35 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
-    <PackageReference Include="AutoMapper" Version="7.0.0" />
+    <PackageReference Include="AutoMapper" Version="10.1.1" />
     <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
     <PackageReference Include="JsonDiffPatch.Net" Version="2.3.0" />
-    <PackageReference Include="Lykke.AzureStorage" Version="8.13.4" />
-    <PackageReference Include="Lykke.Common" Version="7.5.0" />
-    <PackageReference Include="Lykke.Common.ApiLibrary" Version="3.1.1" />
-    <PackageReference Include="Lykke.JobTriggers" Version="2.2.0" />
-    <PackageReference Include="Lykke.Logs" Version="7.4.0" />
-    <PackageReference Include="Lykke.Logs.MsSql" Version="2.2.0" />
     <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" Version="9.7.6" />
     <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.46.0" />
     <PackageReference Include="Lykke.Logs.Serilog" Version="2.3.0" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
-    <PackageReference Include="Lykke.Messaging" Version="6.3.1" />
-    <PackageReference Include="Lykke.Messaging.RabbitMq" Version="2.2.2" />
-    <PackageReference Include="Lykke.Middlewares" Version="3.4.3" />
+    <PackageReference Include="Lykke.Middlewares" Version="3.6.0" />
     <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.49.0" />
-    <PackageReference Include="Lykke.Snow.Common.Startup" Version="2.17.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.52.0" />
+    <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.0.1" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.25.0" />
-    <PackageReference Include="LykkeBiz.Cqrs" Version="10.0.0" />
-    <PackageReference Include="LykkeBiz.HttpClientGenerator" Version="4.5.3" />
+    <PackageReference Include="Lykke.Common.ApiLibrary" Version="3.1.1" />
+    <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
+    <PackageReference Include="LykkeBiz.Logs.MsSql" Version="3.0.0" />
+    <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.0" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
+    <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
     <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.14" />
-    <PackageReference Include="morelinq" Version="3.3.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
@@ -85,11 +74,6 @@
     <ProjectReference Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
     <ProjectReference Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
   </ItemGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties />
-    </VisualStudio>
-  </ProjectExtensions>
 
   <ItemGroup>
     <None Include=".\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />

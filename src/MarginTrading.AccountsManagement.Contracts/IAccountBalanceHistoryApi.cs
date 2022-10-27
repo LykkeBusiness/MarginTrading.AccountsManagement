@@ -32,7 +32,7 @@ namespace MarginTrading.AccountsManagement.Contracts
             [CanBeNull] [Query] string assetPairId = null,
             [CanBeNull] [Query] int? skip = null,
             [CanBeNull] [Query] int? take = null,
-            [CanBeNull] [Query] bool isAscendingOrder = true);
+            [Query] bool isAscendingOrder = true);
 
         /// <summary>
         /// Get account balance change history by account Id, and optionally by dates

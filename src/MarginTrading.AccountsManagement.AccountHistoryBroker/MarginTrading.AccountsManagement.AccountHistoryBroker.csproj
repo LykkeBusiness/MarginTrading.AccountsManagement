@@ -1,20 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>MarginTrading.AccountsManagement.AccountHistoryBroker</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>MarginTrading.AccountsManagement.AccountHistoryBroker</PackageId>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <Version>2.10.3</Version>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
   </PropertyGroup>
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
   <ItemGroup>
     <None Update="Dockerfile">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
@@ -30,26 +24,8 @@
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="Lykke.Logs" Version="7.4.0" />
-    <PackageReference Include="Lykke.Logs.MsSql" Version="2.2.0" />
-    <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
-    <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.5" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.49.0" />
-    <PackageReference Include="Lykke.Snow.Common.Startup" Version="2.17.0" />
-    <PackageReference Include="LykkeBiz.HttpClientGenerator" Version="4.5.3" />
-    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="4.5.1" />
-    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="3.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.14" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
+    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="5.0.0" />
   </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>

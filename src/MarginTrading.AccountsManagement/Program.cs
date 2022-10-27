@@ -1,71 +1,35 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
-using MarginTrading.AccountsManagement.Services.Implementation;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.PlatformAbstractions;
+using Lykke.Logs.Serilog;
+using MarginTrading.AccountsManagement.Startup;
+using Microsoft.AspNetCore.Builder;
 
 namespace MarginTrading.AccountsManagement
 {
     [UsedImplicitly]
     internal sealed class Program
     {
-        internal static IHost AppHost { get; private set; }
-
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
-            Console.WriteLine($"{PlatformServices.Default.Application.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
-
-            var restartAttemptsLeft = int.TryParse(Environment.GetEnvironmentVariable("RESTART_ATTEMPTS_NUMBER"),
-                out var restartAttemptsFromEnv) 
-                ? restartAttemptsFromEnv
-                : int.MaxValue;
-            var restartAttemptsInterval = int.TryParse(Environment.GetEnvironmentVariable("RESTART_ATTEMPTS_INTERVAL_MS"),
-                out var restartAttemptsIntervalFromEnv) 
-                ? restartAttemptsIntervalFromEnv
-                : 10000;
-
-            while (restartAttemptsLeft > 0)
+            await StartupLoggingWrapper.HandleStartupException(async () =>
             {
-                try
-                {
-                    var configuration = new ConfigurationBuilder()
-                        .AddJsonFile("appsettings.json", true)
-                        .AddUserSecrets<Startup>()
-                        .AddEnvironmentVariables()
-                        .Build();
+                var builder = WebApplication.CreateBuilder(args);
 
-                    AppHost = Host.CreateDefaultBuilder()
-                        .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                        .ConfigureWebHostDefaults(webBuilder =>
-                        {
-                            webBuilder.ConfigureKestrel(serverOptions =>
-                                {
-                                    // Set properties and call methods on options
-                                })
-                                .UseConfiguration(configuration)
-                                .UseStartup<Startup>();
-                        })
-                        .Build();
+                var (configuration, settingsManager) = builder.BuildConfiguration();
 
-                    await AppHost.RunAsync();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Error: {e.Message}{Environment.NewLine}{e.StackTrace}{Environment.NewLine}Restarting...");
-                    LogLocator.Log?.WriteFatalErrorAsync(
-                        "MT AccountsManagement", "Restart host", $"Attempts left: {restartAttemptsLeft}", e);
-                    restartAttemptsLeft--;
-                    Thread.Sleep(restartAttemptsInterval);
-                }
-            }
+                builder.Services.RegisterInfrastructureServices(settingsManager.CurrentValue);
+
+                builder.ConfigureHost(configuration, settingsManager);
+
+                var app = builder.Build();
+
+                await app
+                    .Configure()
+                    .RunAsync();
+            }, "accounts");
         }
     }
 }

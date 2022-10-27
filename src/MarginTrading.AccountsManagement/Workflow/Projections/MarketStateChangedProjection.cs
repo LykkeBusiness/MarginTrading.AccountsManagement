@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.Backend.Contracts.TradingSchedule;
@@ -13,24 +13,20 @@ namespace MarginTrading.AccountsManagement.Workflow.Projections
     public class MarketStateChangedProjection
     {
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         
         private const string PlatformScheduleMarketId = nameof(PlatformScheduleMarketId);
 
-        public MarketStateChangedProjection(ILog log, IEodTaxFileMissingRepository taxFileMissingRepository)
+        public MarketStateChangedProjection(ILogger<MarketStateChangedProjection> logger, IEodTaxFileMissingRepository taxFileMissingRepository)
         {
-            _log = log;
+            _logger = logger;
             _taxFileMissingRepository = taxFileMissingRepository;
         }
         
         [UsedImplicitly]
         public async Task Handle(MarketStateChangedEvent e)
         {
-            await _log.WriteInfoAsync(
-                nameof(MarketStateChangedProjection), 
-                nameof(Handle), 
-                e.ToJson(),
-                $"Handling new MarketStateChanged event.");
+            _logger.LogInformation("Handling new MarketStateChanged event: [{EventJson}]",e.ToJson());
 
             if (e.Id == PlatformScheduleMarketId && e.IsEnabled)
             {
@@ -38,11 +34,7 @@ namespace MarginTrading.AccountsManagement.Workflow.Projections
                     
                 await _taxFileMissingRepository.AddAsync(tradingDay);
                 
-                await _log.WriteInfoAsync(
-                    nameof(MarketStateChangedProjection),
-                    nameof(Handle),
-                    new {tradingDay}.ToJson(),
-                    "Added new tax file missing day");
+                _logger.LogInformation("Added new tax file missing day: [{TradingDay}]", tradingDay);
             }
         }
     }

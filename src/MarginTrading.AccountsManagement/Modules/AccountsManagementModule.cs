@@ -1,24 +1,28 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Autofac;
+
 using Common.Log;
+
 using Lykke.Common.Chaos;
 using Lykke.Logs.MsSql.Interfaces;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
+using Lykke.Snow.Common.Startup;
+
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
-using MarginTrading.AccountsManagement.Repositories.AzureServices;
-using MarginTrading.AccountsManagement.Repositories.AzureServices.Implementations;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
+
 using Module = Autofac.Module;
-using AzureRepos = MarginTrading.AccountsManagement.Repositories.Implementation.AzureStorage;
 using SqlRepos = MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
 
 namespace MarginTrading.AccountsManagement.Modules
@@ -26,23 +30,26 @@ namespace MarginTrading.AccountsManagement.Modules
     internal class AccountsManagementModule : Module
     {
         private readonly IReloadingManager<AppSettings> _settings;
-        private readonly ILog _log;
 
-        public AccountsManagementModule(IReloadingManager<AppSettings> settings, ILog log)
+        public AccountsManagementModule(IReloadingManager<AppSettings> settings)
         {
             _settings = settings;
-            _log = log;
         }
 
         protected override void Load(ContainerBuilder builder)
         {
+            // still required for some middlewares
+            builder.Register(ctx =>
+                    new LykkeLoggerAdapter<AccountsManagementModule>(ctx.Resolve<ILogger<AccountsManagementModule>>()))
+                .As<ILog>()
+                .SingleInstance();
+            
             builder.RegisterInstance(new BrokerConfigurationAccessor(_settings.CurrentValue.MarginTradingAccountManagement.BrokerId));
             builder.RegisterInstance(_settings.Nested(s => s.MarginTradingAccountManagement)).SingleInstance();
             builder.RegisterInstance(_settings.CurrentValue.MarginTradingAccountManagement).SingleInstance();
             builder.RegisterInstance(_settings.CurrentValue.MarginTradingAccountManagement.Cqrs.ContextNames).SingleInstance();
             builder.RegisterInstance(_settings.CurrentValue.MarginTradingAccountManagement.Cache).SingleInstance();
             builder.RegisterType<SystemClock>().As<ISystemClock>().SingleInstance();
-            builder.RegisterInstance(_log).As<ILog>().SingleInstance();
             
             builder.RegisterType<EventSender>()
                 .As<IEventSender>()
@@ -87,15 +94,7 @@ namespace MarginTrading.AccountsManagement.Modules
             }
             else if (_settings.CurrentValue.MarginTradingAccountManagement.Db.StorageMode == StorageMode.Azure.ToString())
             {
-                builder.RegisterType<AzureTableStorageFactoryService>().As<IAzureTableStorageFactoryService>()
-                    .SingleInstance();
-
-                builder.RegisterType<AzureRepos.AccountBalanceChangesRepository>()
-                    .As<IAccountBalanceChangesRepository>().SingleInstance();
-                builder.RegisterType<AzureRepos.AccountsRepository>()
-                    .As<IAccountsRepository>().SingleInstance();
-                builder.RegisterType<AzureRepos.OperationExecutionInfoRepository>()
-                    .As<IOperationExecutionInfoRepository>().SingleInstance();
+                throw new InvalidOperationException("Azure mode is not supported");
             }
         }
 

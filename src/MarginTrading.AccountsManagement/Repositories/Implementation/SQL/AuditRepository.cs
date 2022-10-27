@@ -4,31 +4,31 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Dapper;
 using Dapper.Contrib.Extensions;
 using MarginTrading.AccountsManagement.Dal.Common;
 using MarginTrading.AccountsManagement.InternalModels;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
     public class AuditRepository : IAuditRepository
     {
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly string _connectionString;
         
         private static readonly string GetColumns = string.Join(",", typeof(DbSchema).GetProperties().Select(x => x.Name));
 
-        public AuditRepository(string connectionString, ILog log)
+        public AuditRepository(string connectionString, ILogger<AuditRepository> logger)
         {
-            _log = log;
             _connectionString = connectionString;
+            _logger = logger;
         }
 
         public void Initialize()
         {
-            _connectionString.InitializeSqlObject("dbo.AuditTrail.sql", _log);
+            _connectionString.InitializeSqlObject("dbo.AuditTrail.sql", _logger);
         }
 
         public async Task InsertAsync(AuditModel model)
@@ -81,7 +81,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         }
 
         [Table("MarginTradingAccountsAuditTrail")]
-        private class DbSchema
+        private sealed class DbSchema
         {
             [Key]
             public int Id { get; set; }

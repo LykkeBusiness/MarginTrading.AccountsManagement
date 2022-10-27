@@ -3,31 +3,29 @@
 
 using System;
 using Common;
-using Common.Log;
 using Dapper;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Dal.Common
 {
     public static class SqlExtensions
     {
         private const char WildcardCharacterAnyString = '%';
-        public static void InitializeSqlObject(this string connectionString, string scriptFileName, ILog log = null)
+        public static void InitializeSqlObject(this string connectionString, string scriptFileName, ILogger log = null)
         {
             var creationScript = FileExtensions.ReadFromFile(scriptFileName);
-            
-            using (var conn = new SqlConnection(connectionString))
+
+            using var conn = new SqlConnection(connectionString);
+            try
             {
-                try
-                {
-                    conn.Execute(creationScript);
-                }
-                catch (Exception ex)
-                {
-                    log?.WriteErrorAsync(typeof(SqlExtensions).FullName, nameof(InitializeSqlObject), 
-                        scriptFileName, ex).Wait();
-                    throw;
-                }
+                conn.Execute(creationScript);
+            }
+            catch (Exception ex)
+            {
+                log?.LogError(ex, "Failed to initialize SQL object, script file name [{ScriptFileName}]",
+                    scriptFileName);
+                throw;
             }
         }
 

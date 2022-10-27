@@ -2,14 +2,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using Autofac;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
-using Lykke.Messaging;
-using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
+using Lykke.Snow.Common.Startup;
+using Lykke.Snow.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Settings;
 using Moq;
@@ -22,14 +21,14 @@ namespace MarginTrading.AccountsManagement.TestClient
         private const string DefaultRoute = "self";
         private const string DefaultPipeline = "commands";
         private readonly CqrsSettings _settings;
-        private readonly ILog _log;
+        private readonly ILogger<CqrsFake> _logger;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsFake(CqrsSettings settings, ILog log)
+        public CqrsFake(CqrsSettings settings, ILogger<CqrsFake> logger)
         {
             _settings = settings;
-            _log = log;
+            _logger = logger;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
         }
@@ -40,24 +39,19 @@ namespace MarginTrading.AccountsManagement.TestClient
                 "RabbitMq",
                 SerializationFormat.MessagePack,
                 environment: _settings.EnvironmentName);
+            
             var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory
             {
                 Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
             };
-            return new CqrsEngine(
-                _log,
+            
+            return new RabbitMqCqrsEngine(
+                new LykkeLoggerAdapter<CqrsFake>(_logger),
                 new AutofacDependencyResolver(Mock.Of<IComponentContext>()),
-                new MessagingEngine(_log,
-                    new TransportResolver(new Dictionary<string, TransportInfo>
-                    {
-                        {
-                            "RabbitMq",
-                            new TransportInfo(rabbitMqSettings.Endpoint.ToString(), rabbitMqSettings.UserName,
-                                rabbitMqSettings.Password, "None", "RabbitMq")
-                        }
-                    }),
-                    new RabbitMqTransportFactory()),
                 new DefaultEndpointProvider(),
+                rabbitMqSettings.Endpoint.ToString(),
+                rabbitMqSettings.UserName,
+                rabbitMqSettings.Password,
                 false,
                 Register.DefaultEndpointResolver(rabbitMqConventionEndpointResolver),
                 RegisterContext());

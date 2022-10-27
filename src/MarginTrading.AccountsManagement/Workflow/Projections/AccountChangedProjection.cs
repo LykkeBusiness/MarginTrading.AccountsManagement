@@ -3,7 +3,7 @@
 
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Services;
@@ -13,26 +13,22 @@ namespace MarginTrading.AccountsManagement.Workflow.Projections
     public class AccountChangedProjection
     {
         private readonly IAccountManagementService _accountManagementService;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
-        public AccountChangedProjection(IAccountManagementService accountManagementService, ILog log)
+        public AccountChangedProjection(IAccountManagementService accountManagementService, ILogger<AccountChangedProjection> logger)
         {
             _accountManagementService = accountManagementService;
-            _log = log;
+            _logger = logger;
         }
 
         [UsedImplicitly]
         public async Task Handle(AccountChangedEvent e)
         {
-            var accountId = e?.Account?.Id;
+            var accountId = e?.Account.Id;
 
             if (string.IsNullOrEmpty(accountId))
             {
-                await _log.WriteWarningAsync(
-                    nameof(AccountChangedProjection), 
-                    nameof(Handle), 
-                    e.ToJson(),
-                    "Account id is empty");
+                _logger.LogWarning("Account id is empty, accountChangedEvent: {EventJson}", e.ToJson());
             }
             else
             {

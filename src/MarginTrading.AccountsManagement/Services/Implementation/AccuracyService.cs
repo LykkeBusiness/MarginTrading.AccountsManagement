@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using MarginTrading.AssetService.Contracts;
 
 namespace MarginTrading.AccountsManagement.Services.Implementation
@@ -11,16 +11,16 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
     public class AccuracyService : IAccuracyService
     {
         private readonly IAssetsApi _assetsApi;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
 
         private const int MaxAccuracy = 16;
 
         public AccuracyService(
             IAssetsApi assetsApi,
-            ILog log)
+            ILogger<AccuracyService> logger)
         {
             _assetsApi = assetsApi;
-            _log = log;
+            _logger = logger;
         }
         
         public async Task<decimal> ToAccountAccuracy(decimal amount, string accountBaseAsset, string operationName)
@@ -33,8 +33,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             if (roundedValue != amount)
             {
-                await _log.WriteWarningAsync(nameof(AccuracyService), nameof(ToAccountAccuracy),
-                    $"Amount was rounded to account base asset accuracy while starting [{operationName}] operation: [{amount}] -> [{roundedValue}].");
+                _logger.LogWarning(
+                    "Amount was rounded to account base asset accuracy while starting [{OperationName}] operation: [{Amount}] -> [{RoundedValue}]",
+                    operationName, amount, roundedValue);
             }
 
             return roundedValue;

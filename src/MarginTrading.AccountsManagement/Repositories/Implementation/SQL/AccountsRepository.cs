@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Dapper;
 using Lykke.Snow.Common;
 using Lykke.Snow.Common.Model;
@@ -20,6 +19,7 @@ using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
@@ -47,25 +47,25 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         private readonly IConvertService _convertService;
         private readonly ISystemClock _systemClock;
         private readonly int _longRunningSqlTimeoutSec;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private const int MaxOperationsCount = 200;
 
         public AccountsRepository(string connectionString,
             IConvertService convertService,
             ISystemClock systemClock,
             int longRunningSqlTimeoutSec,
-            ILog log) : base(connectionString)
+            ILogger<AccountsRepository> logger) : base(connectionString, logger)
         {
             _convertService = convertService;
             _systemClock = systemClock;
-            _log = log;
             _longRunningSqlTimeoutSec = longRunningSqlTimeoutSec;
+            _logger = logger;
         }
 
         public void Initialize()
         {
-            ConnectionString.InitializeSqlObject("dbo.MarginTradingClients.sql", _log);
-            ConnectionString.InitializeSqlObject("dbo.MarginTradingAccounts.sql", _log);
+            ConnectionString.InitializeSqlObject("dbo.MarginTradingClients.sql", _logger);
+            ConnectionString.InitializeSqlObject("dbo.MarginTradingAccounts.sql", _logger);
             ExecCreateOrAlter("dbo.searchClients.sql");
             ExecCreateOrAlter("dbo.getAllClients.sql");
             ExecCreateOrAlter("dbo.DeleteAccountData.sql");
@@ -80,11 +80,9 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         
         public async Task<IReadOnlyList<IAccountSuggested>> GetSuggestedListAsync(string query, int limit)
         {
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var sql = $"SELECT TOP {limit} Id, AccountName FROM {AccountsTableName} WHERE Id LIKE @query OR AccountName LIKE @query ORDER BY Id";
-                return (await conn.QueryAsync<AccountSuggestedEntity>(sql, new { query = $"{query}%" })).ToList();
-            }
+            await using var conn = new SqlConnection(ConnectionString);
+            var sql = $"SELECT TOP {limit} Id, AccountName FROM {AccountsTableName} WHERE Id LIKE @query OR AccountName LIKE @query ORDER BY Id";
+            return (await conn.QueryAsync<AccountSuggestedEntity>(sql, new { query = $"{query}%" })).ToList();
         }
         
         public async Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null,
@@ -94,19 +92,17 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             {
                 search = "%" + search + "%";
             }
-            
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var whereClause = "WHERE 1=1"
-                                  + (string.IsNullOrWhiteSpace(clientId) ? "" : " AND a.ClientId = @clientId")
-                                  + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
-                                  + (showDeleted ? "" : " AND a.IsDeleted = 0");
-                var accounts = await conn.QueryAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on c.Id = a.ClientId {whereClause}", 
-                    new { clientId, search });
+
+            await using var conn = new SqlConnection(ConnectionString);
+            var whereClause = "WHERE 1=1"
+                              + (string.IsNullOrWhiteSpace(clientId) ? "" : " AND a.ClientId = @clientId")
+                              + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
+                              + (showDeleted ? "" : " AND a.IsDeleted = 0");
+            var accounts = await conn.QueryAsync<AccountEntity>(
+                $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on c.Id = a.ClientId {whereClause}", 
+                new { clientId, search });
                 
-                return accounts.ToList();
-            }
+            return accounts.ToList();
         }
 
         public async Task<PaginatedResponse<IAccount>> GetByPagesAsync(string search = null, bool showDeleted = false,
@@ -116,28 +112,26 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             {
                 search = "%" + search + "%";
             }
-            
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var whereClause = "WHERE a.ClientId=c.Id"
-                                  + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search OR c.Id LIKE @search OR c.UserId LIKE @search)")
-                                  + (showDeleted ? "" : " AND a.IsDeleted = 0");
 
-                var paginationClause = $" ORDER BY [Id] {(isAscendingOrder ? "ASC" : "DESC")} OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
-                var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a, {ClientsTableName} c {whereClause} {paginationClause}; " +
-                    $"SELECT COUNT(*) FROM {AccountsTableName} a, {ClientsTableName} c {whereClause}",
-                    new {search});
-                var accounts = (await gridReader.ReadAsync<AccountEntity>()).ToList();
-                var totalCount = await gridReader.ReadSingleAsync<int>();
+            await using var conn = new SqlConnection(ConnectionString);
+            var whereClause = "WHERE a.ClientId=c.Id"
+                              + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search OR c.Id LIKE @search OR c.UserId LIKE @search)")
+                              + (showDeleted ? "" : " AND a.IsDeleted = 0");
 
-                return new PaginatedResponse<IAccount>(
-                    accounts, 
-                    skip ?? 0, 
-                    accounts.Count, 
-                    totalCount
-                );
-            }
+            var paginationClause = $" ORDER BY [Id] {(isAscendingOrder ? "ASC" : "DESC")} OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+            var gridReader = await conn.QueryMultipleAsync(
+                $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a, {ClientsTableName} c {whereClause} {paginationClause}; " +
+                $"SELECT COUNT(*) FROM {AccountsTableName} a, {ClientsTableName} c {whereClause}",
+                new {search});
+            var accounts = (await gridReader.ReadAsync<AccountEntity>()).ToList();
+            var totalCount = await gridReader.ReadSingleAsync<int>();
+
+            return new PaginatedResponse<IAccount>(
+                accounts, 
+                skip ?? 0, 
+                accounts.Count, 
+                totalCount
+            );
         }
 
         public async Task<IAccount> GetAsync(string accountId)
@@ -147,34 +141,30 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task<IAccount> GetAsync(string accountId, bool includeDeleted)
         {
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var whereClause = "WHERE 1=1 "
-                                  + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId")
-                                  + (includeDeleted ? "" : " and a.IsDeleted = 0");
-                var accounts = await conn.QueryAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
-                    new { accountId });
+            await using var conn = new SqlConnection(ConnectionString);
+            var whereClause = "WHERE 1=1 "
+                              + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId")
+                              + (includeDeleted ? "" : " and a.IsDeleted = 0");
+            var accounts = await conn.QueryAsync<AccountEntity>(
+                $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
+                new { accountId });
                 
-                return accounts.FirstOrDefault();
-            }
+            return accounts.FirstOrDefault();
         }
 
         public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
             string accountId)
         {
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var whereClause = "WHERE 1=1 " + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND Id = @accountId");
-                var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>(
-                    $"SELECT TOP 1 {nameof(AccountEntity.BaseAssetId)}, {nameof(AccountEntity.TemporaryCapital)} FROM {AccountsTableName} {whereClause}", 
-                    new { accountId });
+            await using var conn = new SqlConnection(ConnectionString);
+            var whereClause = "WHERE 1=1 " + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND Id = @accountId");
+            var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>(
+                $"SELECT TOP 1 {nameof(AccountEntity.BaseAssetId)}, {nameof(AccountEntity.TemporaryCapital)} FROM {AccountsTableName} {whereClause}", 
+                new { accountId });
 
-                var baseAssetId = account?.BaseAssetId;
-                var temporaryCapital = JsonConvert.DeserializeObject<List<TemporaryCapital>>(account?.TemporaryCapital)
-                    ?.Sum(x => x.Amount) ?? default;
-                return (baseAssetId, temporaryCapital);
-            }
+            var baseAssetId = account?.BaseAssetId;
+            var temporaryCapital = JsonConvert.DeserializeObject<List<TemporaryCapital>>(account?.TemporaryCapital)
+                ?.Sum(x => x.Amount) ?? default;
+            return (baseAssetId, temporaryCapital);
         }
 
         public async Task<IAccount> UpdateBalanceAsync(string operationId, string accountId,
@@ -258,17 +248,15 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task EraseAsync(string accountId)
         {
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                await conn.ExecuteAsync(
-                    DeleteProcName,
-                    new
-                    {
-                        AccountId = accountId,
-                    },
-                    commandType: CommandType.StoredProcedure,
-                    commandTimeout: _longRunningSqlTimeoutSec);
-            }
+            await using var conn = new SqlConnection(ConnectionString);
+            await conn.ExecuteAsync(
+                DeleteProcName,
+                new
+                {
+                    AccountId = accountId,
+                },
+                commandType: CommandType.StoredProcedure,
+                commandTimeout: _longRunningSqlTimeoutSec);
         }
 
         #region Client
@@ -289,22 +277,20 @@ end
 
         public async Task<PaginatedResponse<IClient>> GetClientsByPagesAsync(string tradingConditionId, int skip, int take)
         {
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var whereClause = $"WHERE exists (select 1 from MarginTradingAccounts a where a.ClientId = c.Id){(string.IsNullOrEmpty(tradingConditionId) ? "" : " and c.TradingConditionId = @tradingConditionId")}";
-                var paginationClause = $" ORDER BY [Id] ASC OFFSET {skip} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
-                var gridReader = await conn.QueryMultipleAsync($"SELECT * FROM {ClientsTableName} c {whereClause} {paginationClause}; " +
-                                                               $"SELECT COUNT(*) FROM {ClientsTableName} c {whereClause}", new {tradingConditionId});
-                var clients = (await gridReader.ReadAsync<ClientEntity>()).ToList();
-                var totalCount = await gridReader.ReadSingleAsync<int>();
+            await using var conn = new SqlConnection(ConnectionString);
+            var whereClause = $"WHERE exists (select 1 from MarginTradingAccounts a where a.ClientId = c.Id){(string.IsNullOrEmpty(tradingConditionId) ? "" : " and c.TradingConditionId = @tradingConditionId")}";
+            var paginationClause = $" ORDER BY [Id] ASC OFFSET {skip} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+            var gridReader = await conn.QueryMultipleAsync($"SELECT * FROM {ClientsTableName} c {whereClause} {paginationClause}; " +
+                                                           $"SELECT COUNT(*) FROM {ClientsTableName} c {whereClause}", new {tradingConditionId});
+            var clients = (await gridReader.ReadAsync<ClientEntity>()).ToList();
+            var totalCount = await gridReader.ReadSingleAsync<int>();
 
-                return new PaginatedResponse<IClient>(
-                    clients,
-                    skip,
-                    clients.Count,
-                    totalCount
-                );
-            }
+            return new PaginatedResponse<IClient>(
+                clients,
+                skip,
+                clients.Count,
+                totalCount
+            );
         }
 
         public async Task<PaginatedResponse<IClientWithAccounts>> SearchByClientAsync(string query, int skip, int take)
@@ -343,16 +329,14 @@ end
 
         public async Task<IClient> GetClient(string clientId, bool includeDeleted)
         {
-            using (var conn = new SqlConnection(ConnectionString))
-            {
-                var sqlParams = new { Id = clientId };
+            await using var conn = new SqlConnection(ConnectionString);
+            var sqlParams = new { Id = clientId };
 
-                return await conn.QuerySingleOrDefaultAsync<ClientEntity>(
-                    $"SELECT * FROM {ClientsTableName} c where c.Id = @{nameof(sqlParams.Id)} " +
-                    $"and exists (select 1 from {AccountsTableName} a where a.ClientId = c.Id" +
-                    (includeDeleted ? "" : " and a.IsDeleted = 0") + ")",
-                    sqlParams);
-            }
+            return await conn.QuerySingleOrDefaultAsync<ClientEntity>(
+                $"SELECT * FROM {ClientsTableName} c where c.Id = @{nameof(sqlParams.Id)} " +
+                $"and exists (select 1 from {AccountsTableName} a where a.ClientId = c.Id" +
+                (includeDeleted ? "" : " and a.IsDeleted = 0") + ")",
+                sqlParams);
         }
         
         public async Task UpdateClientTradingCondition(string clientId, string tradingConditionId)
@@ -407,52 +391,50 @@ end
 
         private async Task<IAccount> GetAccountAndUpdate(string accountId, Action<AccountEntity> handler)
         {
-            using (var conn = new SqlConnection(ConnectionString))
+            await using var conn = new SqlConnection(ConnectionString);
+            if (conn.State == ConnectionState.Closed)
+                await conn.OpenAsync();
+
+            //Balance changing operation needs maximum level of isolation
+            var transaction = conn.BeginTransaction(IsolationLevel.Serializable);
+
+            try
             {
-                if (conn.State == ConnectionState.Closed)
-                    await conn.OpenAsync();
+                var account = await conn.QuerySingleOrDefaultAsync<AccountEntity>(
+                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a WITH (UPDLOCK) join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
 
-                //Balance changing operation needs maximum level of isolation
-                var transaction = conn.BeginTransaction(IsolationLevel.Serializable);
-
-                try
+                if (account == null)
                 {
-                    var account = await conn.QuerySingleOrDefaultAsync<AccountEntity>(
-                        $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a WITH (UPDLOCK) join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
-
-                    if (account == null)
-                    {
-                        throw new ValidationException( $"Account with ID {accountId} does not exist");
-                    }
-
-                    if (account.IsDeleted)
-                    {
-                        throw new ValidationException($"Account with ID {accountId} is deleted");
-                    }
-
-                    var tradingConditionBeforeUpdate = account.TradingConditionId;
-                    handler(account);
-
-                    if (account.TradingConditionId != tradingConditionBeforeUpdate)
-                    {
-                        throw new InvalidOperationException($"Update of {account.TradingConditionId} is not allowed on per account level. " +
-                                                            $"Use Update for {ClientsTableName} table");
-                    }
-
-                    account.ModificationTimestamp = _systemClock.UtcNow.UtcDateTime;
-
-                    await conn.ExecuteAsync(
-                        $"update {AccountsTableName} set {GetAccountUpdateClause} where Id=@Id", account, transaction);
-
-                    transaction.Commit();
-
-                    return account;
+                    throw new ValidationException( $"Account with ID {accountId} does not exist");
                 }
-                catch
+
+                if (account.IsDeleted)
                 {
-                    transaction.Rollback();
-                    throw;
+                    throw new ValidationException($"Account with ID {accountId} is deleted");
                 }
+
+                var tradingConditionBeforeUpdate = account.TradingConditionId;
+                handler(account);
+
+                if (account.TradingConditionId != tradingConditionBeforeUpdate)
+                {
+                    throw new InvalidOperationException($"Update of {account.TradingConditionId} is not allowed on per account level. " +
+                                                        $"Use Update for {ClientsTableName} table");
+                }
+
+                account.ModificationTimestamp = _systemClock.UtcNow.UtcDateTime;
+
+                await conn.ExecuteAsync(
+                    $"update {AccountsTableName} set {GetAccountUpdateClause} where Id=@Id", account, transaction);
+
+                transaction.Commit();
+
+                return account;
+            }
+            catch
+            {
+                transaction.Rollback();
+                throw;
             }
         }
 

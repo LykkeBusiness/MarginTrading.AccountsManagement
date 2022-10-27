@@ -24,6 +24,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             // NOTE: Feel free to extend IsAliveResponse, to display job-specific indicators
             return Ok(new IsAliveResponse
             {
+                Name = PlatformServices.Default.Application.ApplicationName,
                 Version = PlatformServices.Default.Application.ApplicationVersion,
                 Env = Environment.GetEnvironmentVariable("ENV_INFO"),
 #if DEBUG
@@ -31,7 +32,6 @@ namespace MarginTrading.AccountsManagement.Controllers
 #else
                 IsDebug = false,
 #endif
-                Name = Startup.ServiceName,
             });
         }
     }

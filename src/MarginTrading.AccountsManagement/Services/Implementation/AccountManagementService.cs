@@ -8,7 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
+using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
@@ -40,7 +40,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ISendBalanceCommandsService _sendBalanceCommandsService; 
         private readonly AccountManagementSettings _settings;
         private readonly IEventSender _eventSender;
-        private readonly ILog _log;
+        private readonly ILogger _logger;
         private readonly ISystemClock _systemClock;
         private readonly IAccountBalanceChangesRepository _accountBalanceChangesRepository;
         private readonly IDealsApi _dealsApi;
@@ -59,7 +59,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             ISendBalanceCommandsService sendBalanceCommandsService,
             AccountManagementSettings settings,
             IEventSender eventSender,
-            ILog log,
+            ILogger<AccountManagementService> logger,
             ISystemClock systemClock,
             AccountsCache cache, 
             IAccountBalanceChangesRepository accountBalanceChangesRepository, 
@@ -78,7 +78,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _sendBalanceCommandsService = sendBalanceCommandsService;
             _settings = settings;
             _eventSender = eventSender;
-            _log = log;
+            _logger = logger;
             _systemClock = systemClock;
             _cache = cache;
             _accountBalanceChangesRepository = accountBalanceChangesRepository;
@@ -130,10 +130,17 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var legalEntity = await _tradingConditionsService.GetLegalEntityAsync(tradingConditionId);
 
-            var account = await CreateAccount(clientId, baseAssetId, tradingConditionId, legalEntity, accountId, accountName, userId);
+            var account = await CreateAccount(clientId,
+                baseAssetId,
+                tradingConditionId,
+                legalEntity,
+                accountId,
+                accountName,
+                userId);
 
-            _log.WriteInfo(nameof(AccountManagementService), nameof(CreateAsync),
-                $"{baseAssetId} account {accountId} created for client {clientId} on trading condition {tradingConditionId}");
+            _logger.LogInformation(
+                "{BaseAssetId} account {AccountId} created for client {ClientId} on trading condition {TradingConditionId}",
+                baseAssetId, accountId, clientId, tradingConditionId);
 
             return account;
         }
@@ -165,13 +172,14 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 }
                 catch (Exception e)
                 {
-                    _log.WriteError(nameof(AccountManagementService),
-                        $"Create default accounts: clientId={clientId}, tradingConditionId={tradingConditionId}", e);
+                    _logger.LogError(e,
+                        "Create default accounts: clientId={ClientId}, tradingConditionId={TradingConditionId}",
+                        clientId, tradingConditionId);
                 }
             }
 
-            _log.WriteInfo(nameof(AccountManagementService), "CreateDefaultAccountsAsync",
-                $"{string.Join(", ", newAccounts.Select(x => x.BaseAssetId))} accounts created for client {clientId}");
+            _logger.LogInformation("{AccountIds} accounts created for client {ClientId}",
+                string.Join(", ", newAccounts.Select(x => x.Id)), clientId);
 
             return newAccounts;
         }
@@ -194,14 +202,15 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 }
                 catch (Exception e)
                 {
-                    _log.WriteError(nameof(AccountManagementService),
-                        $"Create accounts by account group : clientId={group.Key}, tradingConditionId={tradingConditionId}, baseAssetId={baseAssetId}",
-                        e);
+                    _logger.LogError(e,
+                        "Create accounts by account group: clientId={ClientId}, tradingConditionId={TradingConditionId}, baseAssetId={BaseAssetId}",
+                        group.Key, tradingConditionId, baseAssetId);
                 }
             }
 
-            _log.WriteInfo(nameof(AccountManagementService), nameof(CreateAccountsForNewBaseAssetAsync),
-                $"{result.Count} accounts created for the new base asset {baseAssetId} in trading condition {tradingConditionId}");
+            _logger.LogInformation(
+                "{AccountsCount} accounts created for the new base asset {BaseAssetId} in trading condition {TradingConditionId}",
+                result.Count, baseAssetId, tradingConditionId);
 
             return result;
         }
@@ -458,8 +467,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             if (!await _tradingConditionsService.IsTradingConditionExistsAsync(tradingConditionId))
             {
-                _log.WriteWarning(nameof(AccountManagementService), nameof(tradingConditionId), $"{tradingConditionId} does not exist");
-
+                _logger.LogWarning("{TradingConditionId} does not exist", tradingConditionId);
                 return new Result<TradingConditionErrorCodes>(TradingConditionErrorCodes.TradingConditionNotFound);
             }
 
@@ -480,7 +488,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 var unavailableProducts = getUnavailableProductsResponse.UnavailableProductIds;
                 if (unavailableProducts.Count > 0)
                 {
-                    _log.WriteWarning(nameof(AccountManagementService), nameof(accountId), $"Client {clientId} has open positions for account {accountId}. List of unavailable products: {string.Join(", ", unavailableProducts)}");
+                    _logger.LogWarning(
+                        "Client {ClientId} has open positions for account {AccountId}. List of unavailable products: {UnavailableProducts}",
+                        clientId, accountId, string.Join(", ", unavailableProducts));
                     return new Result<TradingConditionErrorCodes>(TradingConditionErrorCodes.ClientHasOpenPositions);
                 }
             }
@@ -520,9 +530,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             {
                 if (!clientsInDb.TryGetValue(clientId, out var existedClient))
                 {
-                    _log.WriteWarning(nameof(AccountManagementService),
-                        new {clientId}.ToJson(), 
-                        $"Client {clientId} not exist");
+                    _logger.LogWarning("Client {ClientId} not exist", clientId);
                     return new Result<TradingConditionErrorCodes>(TradingConditionErrorCodes.ClientNotFound);
                 }
 
@@ -719,9 +727,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             if (missingDays.Length > 1)
             {
-                _log.WriteWarning(nameof(AccountManagementService),
-                    new {accountId, missingDays}.ToJson(),
-                    "There are days which we don't have tax file for. Therefore these days PnL will be excluded from total PnL for the account.");
+                _logger.LogWarning(
+                    "There are days which we don't have tax file for. Therefore these days PnL will be excluded from total PnL for the account: [{Days}]",
+                    new { accountId, missingDays }.ToJson());
             }
         }
 

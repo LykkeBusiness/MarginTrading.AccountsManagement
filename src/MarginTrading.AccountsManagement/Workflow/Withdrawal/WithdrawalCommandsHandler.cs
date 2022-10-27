@@ -1,24 +1,19 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Threading.Tasks;
 using Common;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Cqrs;
-using Lykke.Snow.Mdm.Contracts.Api;
-using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Commands;
 using MarginTrading.AccountsManagement.Contracts.Events;
-using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Workflow.Withdrawal.Commands;
 using MarginTrading.AccountsManagement.Workflow.Withdrawal.Events;
 using Microsoft.Extensions.Internal;
-using MarginTrading.AssetService.Contracts;
 
 namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
 {

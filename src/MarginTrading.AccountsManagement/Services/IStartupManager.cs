@@ -7,6 +7,6 @@ namespace MarginTrading.AccountsManagement.Services
 {
     public interface IStartupManager
     {
-        Task StartAsync();
+        void Start();
     }
 }
