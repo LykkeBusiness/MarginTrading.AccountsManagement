@@ -4,6 +4,10 @@
 using System;
 using AutoMapper;
 using JetBrains.Annotations;
+
+using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
+using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.SqlRepositories;
+
 using AccountBalanceChangeReasonType =
     MarginTrading.AccountsManagement.AccountHistoryBroker.Models.AccountBalanceChangeReasonType;
 
@@ -19,6 +23,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Services
             return new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<AccountBalanceChangeReasonType, string>().ConvertUsing(x => x.ToString());
+                cfg.CreateMap<IAccountHistory, AccountHistoryEntity>();
             }).CreateMapper();
         }
 
@@ -36,6 +41,11 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Services
         public TResult Convert<TResult>(object source)
         {
             return _mapper.Map<TResult>(source);
+        }
+
+        public void AssertConfigurationIsValid()
+        {
+            _mapper.ConfigurationProvider.AssertConfigurationIsValid();
         }
     }
 }

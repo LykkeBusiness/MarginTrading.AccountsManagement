@@ -3,15 +3,23 @@
 
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using NUnit.Framework;
+using BrokerConvertService = MarginTrading.AccountsManagement.AccountHistoryBroker.Services.ConvertService;
 
 namespace MarginTrading.AccountsManagement.Tests
 {
     public class MappingTests
     {
         [Test]
-        public void ShouldHaveValidMappingConfiguration()
+        public void Host_ShouldHaveValidMappingConfiguration()
         {
             var convertService = new ConvertService();
+            convertService.AssertConfigurationIsValid();
+        }
+
+        [Test]
+        public void Broker_ShouldHaveValidMappingConfiguration()
+        {
+            var convertService = new BrokerConvertService();
             convertService.AssertConfigurationIsValid();
         }
     }
