@@ -34,8 +34,12 @@
     <ProjectReference Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
     <ProjectReference Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="..\..\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />
   </ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>MarginTrading.AccountsManagement.Tests</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
 </Project>

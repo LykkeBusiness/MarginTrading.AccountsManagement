@@ -11,5 +11,6 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker.Services
         TResult Convert<TSource, TResult>(TSource source, Action<IMappingOperationOptions<TSource, TResult>> opts);
         TResult Convert<TSource, TResult>(TSource source);
         TResult Convert<TResult>(object source);
+        void AssertConfigurationIsValid();
     }
 }
