@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Lykke Corp.
+// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -20,7 +20,6 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
@@ -157,14 +156,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         {
             await using var conn = new SqlConnection(ConnectionString);
             var whereClause = "WHERE 1=1 " + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND Id = @accountId");
-            var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>(
-                $"SELECT TOP 1 {nameof(AccountEntity.BaseAssetId)}, {nameof(AccountEntity.TemporaryCapital)} FROM {AccountsTableName} {whereClause}", 
+            var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>($@"
+SELECT TOP 1 
+    {nameof(AccountEntity.BaseAssetId)}, 
+    {nameof(AccountEntity.TemporaryCapital)} 
+FROM 
+    {AccountsTableName} {whereClause}",
                 new { accountId });
-
-            var baseAssetId = account?.BaseAssetId;
-            var temporaryCapital = JsonConvert.DeserializeObject<List<TemporaryCapital>>(account?.TemporaryCapital)
-                ?.Sum(x => x.Amount) ?? default;
-            return (baseAssetId, temporaryCapital);
+                
+            var temporaryCapital = DeserializeUtils.DeserializeTemporaryCapital(account?.TemporaryCapital);
+            return (account?.BaseAssetId, temporaryCapital);
         }
 
         public async Task<IAccount> UpdateBalanceAsync(string operationId, string accountId,
