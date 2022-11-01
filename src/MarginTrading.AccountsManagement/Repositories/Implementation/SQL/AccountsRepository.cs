@@ -95,10 +95,20 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             await using var conn = new SqlConnection(ConnectionString);
             var whereClause = "WHERE 1=1"
                               + (string.IsNullOrWhiteSpace(clientId) ? "" : " AND a.ClientId = @clientId")
-                              + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
+                              + (string.IsNullOrWhiteSpace(search)
+                                  ? ""
+                                  : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
                               + (showDeleted ? "" : " AND a.IsDeleted = 0");
-            var accounts = await conn.QueryAsync<AccountEntity>(
-                $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on c.Id = a.ClientId {whereClause}", 
+            var accounts = await conn.QueryAsync<AccountEntity>(@$"
+SELECT 
+    a.*, 
+    c.TradingConditionId, 
+    c.UserId 
+FROM 
+    {AccountsTableName} a 
+JOIN 
+    {ClientsTableName} c on c.Id = a.ClientId 
+{whereClause}", 
                 new { clientId, search });
                 
             return accounts.ToList();
