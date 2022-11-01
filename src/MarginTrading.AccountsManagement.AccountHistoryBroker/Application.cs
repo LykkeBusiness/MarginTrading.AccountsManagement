@@ -8,10 +8,8 @@ using Microsoft.Extensions.Logging;
 using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
 using Lykke.MarginTrading.BrokerBase.Settings;
-using Lykke.SlackNotifications;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.RabbitMq;
-using Lykke.Snow.Common.Startup;
 
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Extensions;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
@@ -38,10 +36,8 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             ILogger<Application> logger,
             Settings settings,
             CurrentApplicationInfo applicationInfo,
-            ISlackNotificationsSender slackNotificationsSender,
             IAccountsApi accountsApi)
-            : base(correlationManager, loggerFactory, new LykkeLoggerAdapter<Application>(logger),
-                slackNotificationsSender, applicationInfo, MessageFormat.MessagePack)
+            : base(correlationManager, loggerFactory, logger, applicationInfo, MessageFormat.MessagePack)
         {
             _correlationContextAccessor = correlationContextAccessor;
             _accountHistoryRepository = accountHistoryRepository;
