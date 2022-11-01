@@ -3,9 +3,6 @@
 
 using System;
 using Autofac;
-
-using Common.Log;
-
 using Lykke.HttpClientGenerator;
 using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
@@ -29,7 +26,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         }
 
         protected override void RegisterCustomServices(ContainerBuilder builder, 
-            IReloadingManager<Settings> settings, ILog log)
+            IReloadingManager<Settings> settings)
         {
             builder.RegisterClient<IAccountsApi>(settings.CurrentValue.AccountManagement.ServiceUrl,
                 config =>

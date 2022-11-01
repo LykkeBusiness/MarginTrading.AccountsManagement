@@ -26,9 +26,9 @@ namespace MarginTrading.AccountsManagement.Startup
 #if DEBUG
             app.UseLykkeMiddleware(
                 Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName, 
-                ex => ex.ToString());
+                ex => ex.ToString(), false);
 #else
-                app.UseLykkeMiddleware("Account Management Service", ex => new ErrorResponse {ErrorMessage = ex.Message});
+                app.UseLykkeMiddleware("Account Management Service", ex => new ErrorResponse {ErrorMessage = ex.Message}, false);
 #endif
 
             app.UseRouting();

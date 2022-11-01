@@ -1,7 +1,6 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System.IO;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
@@ -16,7 +15,6 @@ using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ProductComplexity;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
