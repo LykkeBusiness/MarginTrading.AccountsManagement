@@ -1,6 +1,10 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System.Linq;
+
+using Common;
+
 using MarginTrading.AccountsManagement.Repositories.Implementation;
 
 using NUnit.Framework;
@@ -24,21 +28,16 @@ namespace MarginTrading.AccountsManagement.Tests.Extensions
             //Assert
             Assert.IsNull(actual);
         }
-        
-        [TestCase("[]", 0)]
-        [TestCase("[{}]", 0)]
-        [TestCase("[{}, {}]", 0)]
-        [TestCase("[{'Amount': 1}]", 1)]
-        [TestCase("[{'amount': 1}]", 1)]
-        [TestCase("[{'amount': 1}]", 1)]
-        [TestCase("[{'amount': 1}, {'amount': 2}]", 3)]
-        [TestCase("[{'whatever': 'any', 'amount': 1}, {'amount': 2}]", 3)]
-        [TestCase("[{'amount': 1}, {'amount': 2}, {'amount': -5}]", -2)]
-        public void DeserializeTemporaryCapital_When_ParameterIsCorrect_Should_Return_Sum(string json, decimal expected)
+
+        [FsCheck.NUnit.Property]
+        public void DeserializeTemporaryCapital_When_ParameterIsCorrect_Should_Return_Sum(decimal[] amounts)
         {
+            var json = amounts.Select(i => new { amount = i}).ToJson();
+            
             //Act
             var actual = DeserializeUtils.DeserializeTemporaryCapital(json);
-    
+            var expected = amounts.Select(i => i).Sum();
+            
             //Assert
             Assert.AreEqual(expected, actual);
         }
