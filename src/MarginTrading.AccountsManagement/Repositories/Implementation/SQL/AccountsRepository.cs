@@ -24,7 +24,7 @@ using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
-    internal class AccountsRepository : SqlRepositoryBase, IAccountsRepository
+    public class AccountsRepository : SqlRepositoryBase, IAccountsRepository
     
     {
         private const string AccountsTableName = "MarginTradingAccounts";
