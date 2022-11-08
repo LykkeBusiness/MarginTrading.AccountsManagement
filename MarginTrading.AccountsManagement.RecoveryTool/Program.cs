@@ -5,6 +5,7 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.RecoveryTool.LogParsers;
 using MarginTrading.AccountsManagement.RecoveryTool.Mappers;
+using MarginTrading.AccountsManagement.RecoveryTool.Services;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
 
@@ -39,6 +40,8 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
                 {
                     // db connection
                     var cs = context.Configuration.GetConnectionString("db");
+                    // rabbitmq connection
+                    var rcs = context.Configuration.GetConnectionString("rabbitmq");
 
                     // container
                     services.AddSingleton(context.Configuration);
@@ -52,7 +55,12 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
                     services.AddSingleton<IConvertService, ConvertService>();
                     services.AddSingleton<IAccountsRepository, AccountsRepository>(provider =>
                         ActivatorUtilities.CreateInstance<AccountsRepository>(provider, cs, 60));
+                    
+                    // for testing
+                    // services.AddSingleton<IAccountsRepository, FakeAccountsRepository>();
 
+                    services.AddSingleton(provider =>
+                        ActivatorUtilities.CreateInstance<Publisher>(provider, rcs));
                 });
 
             return hostBuilder;

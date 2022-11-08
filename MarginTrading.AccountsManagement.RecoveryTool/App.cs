@@ -11,6 +11,7 @@ using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.RecoveryTool.LogParsers;
 using MarginTrading.AccountsManagement.RecoveryTool.Mappers;
 using MarginTrading.AccountsManagement.RecoveryTool.Model;
+using MarginTrading.AccountsManagement.RecoveryTool.Services;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -23,20 +24,26 @@ public class App
     private readonly UpdateBalanceInternalCommandMapper _updateBalanceInternalCommandMapper;
     private readonly AccountChangedEventMapper _accountChangedEventMapper;
     private readonly IConfiguration _configuration;
+    private readonly Publisher _publisher;
     private readonly ILogger<App> _logger;
+    private string[] _queues;
 
     public App(
         AccountsManagementLogParser accountsManagementLogParser,
         UpdateBalanceInternalCommandMapper updateBalanceInternalCommandMapper,
         AccountChangedEventMapper accountChangedEventMapper,
         IConfiguration configuration,
+        Publisher publisher,
         ILogger<App> logger)
     {
         _accountsManagementLogParser = accountsManagementLogParser;
         _updateBalanceInternalCommandMapper = updateBalanceInternalCommandMapper;
         _accountChangedEventMapper = accountChangedEventMapper;
         _configuration = configuration;
+        _publisher = publisher;
         _logger = logger;
+
+        _queues = _configuration.GetSection("Queues").Get<string[]>();
     }
     
     public async Task ImportFromAccountManagementAsync()
@@ -62,8 +69,14 @@ public class App
                 var @event = await _accountChangedEventMapper.Map(command);
                 accountChangedEvents.Add(@event);
             }
-            
-            // TODO: send accountChangedEvents to queues
+
+            foreach (var queue in _queues)
+            {
+                foreach (var @event in accountChangedEvents)
+                {
+                    await _publisher.Publish(@event, queue);
+                }
+            }
 
             _logger.LogInformation("File {File} uploaded", file);
         }
