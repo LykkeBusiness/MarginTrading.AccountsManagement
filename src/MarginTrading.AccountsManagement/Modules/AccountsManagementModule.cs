@@ -75,6 +75,10 @@ namespace MarginTrading.AccountsManagement.Modules
                     .WithParameter(TypedParameter.From(_settings.CurrentValue.MarginTradingAccountManagement.Db.ConnectionString))
                     .WithParameter(TypedParameter.From(_settings.CurrentValue.MarginTradingAccountManagement.Db.LongRunningSqlTimeoutSec))
                     .SingleInstance();
+                builder.RegisterType<SqlRepos.LossPercentageRepository>()
+                    .As<ILossPercentageRepository>().SingleInstance();
+                builder.RegisterType<SqlRepos.AccountHistoryRepository>()
+                    .As<IAccountHistoryRepository>().SingleInstance();
                 builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
                     .As<IOperationExecutionInfoRepository>().SingleInstance();
                 builder.RegisterType<SqlRepos.SqlEodTaxFileMissingRepository>()
