@@ -10,100 +10,99 @@ using System.Threading.Tasks;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.RecoveryTool.LogParsers;
 using MarginTrading.AccountsManagement.RecoveryTool.Mappers;
+using MarginTrading.AccountsManagement.RecoveryTool.Model;
 using MarginTrading.AccountsManagement.RecoveryTool.Services;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace MarginTrading.AccountsManagement.RecoveryTool
+namespace MarginTrading.AccountsManagement.RecoveryTool;
+
+public class App
 {
+    private readonly AccountsManagementLogParser _accountsManagementLogParser;
+    private readonly UpdateBalanceInternalCommandMapper _updateBalanceInternalCommandMapper;
+    private readonly AccountChangedEventMapper _accountChangedEventMapper;
+    private readonly IConfiguration _configuration;
+    private readonly Publisher _publisher;
+    private readonly ILogger<App> _logger;
+    private string[] _queues;
 
-    public class App
+    public App(
+        AccountsManagementLogParser accountsManagementLogParser,
+        UpdateBalanceInternalCommandMapper updateBalanceInternalCommandMapper,
+        AccountChangedEventMapper accountChangedEventMapper,
+        IConfiguration configuration,
+        Publisher publisher,
+        ILogger<App> logger)
     {
-        private readonly AccountsManagementLogParser _accountsManagementLogParser;
-        private readonly UpdateBalanceInternalCommandMapper _updateBalanceInternalCommandMapper;
-        private readonly AccountChangedEventMapper _accountChangedEventMapper;
-        private readonly IConfiguration _configuration;
-        private readonly Publisher _publisher;
-        private readonly ILogger<App> _logger;
-        private string[] _queues;
+        _accountsManagementLogParser = accountsManagementLogParser;
+        _updateBalanceInternalCommandMapper = updateBalanceInternalCommandMapper;
+        _accountChangedEventMapper = accountChangedEventMapper;
+        _configuration = configuration;
+        _publisher = publisher;
+        _logger = logger;
 
-        public App(
-            AccountsManagementLogParser accountsManagementLogParser,
-            UpdateBalanceInternalCommandMapper updateBalanceInternalCommandMapper,
-            AccountChangedEventMapper accountChangedEventMapper,
-            IConfiguration configuration,
-            Publisher publisher,
-            ILogger<App> logger)
+        _queues = _configuration.GetSection("Queues").Get<string[]>();
+    }
+
+    public async Task ImportFromAccountManagementAsync()
+    {
+        _logger.LogInformation("Starting to import data from Accounts Management");
+
+        var activityProducerPath = _configuration.GetValue<string>("AccountsManagementLogDirectory");
+        var files = GetFiles(activityProducerPath, "accounts management");
+
+        foreach (var file in files)
         {
-            _accountsManagementLogParser = accountsManagementLogParser;
-            _updateBalanceInternalCommandMapper = updateBalanceInternalCommandMapper;
-            _accountChangedEventMapper = accountChangedEventMapper;
-            _configuration = configuration;
-            _publisher = publisher;
-            _logger = logger;
+            _logger.LogInformation("Starting to parse {File}", file);
+            var domainEvents = _accountsManagementLogParser.Parse(await File.ReadAllTextAsync(file));
 
-            _queues = _configuration.GetSection("Queues").Get<string[]>();
-        }
+            var commands = domainEvents
+                .Select(x => _updateBalanceInternalCommandMapper.Map(x))
+                .ToList();
 
-        public async Task ImportFromAccountManagementAsync()
-        {
-            _logger.LogInformation("Starting to import data from Accounts Management");
+            var accountChangedEvents = new List<AccountChangedEvent>();
 
-            var activityProducerPath = _configuration.GetValue<string>("AccountsManagementLogDirectory");
-            var files = GetFiles(activityProducerPath, "accounts management");
-
-            foreach (var file in files)
+            foreach (var command in commands)
             {
-                _logger.LogInformation("Starting to parse {File}", file);
-                var domainEvents = _accountsManagementLogParser.Parse(await File.ReadAllTextAsync(file));
+                var @event = await _accountChangedEventMapper.Map(command);
+                accountChangedEvents.Add(@event);
+            }
 
-                var commands = domainEvents
-                    .Select(x => _updateBalanceInternalCommandMapper.Map(x))
-                    .ToList();
+            _logger.LogInformation("{N} events found", accountChangedEvents.Count);
 
-                var accountChangedEvents = new List<AccountChangedEvent>();
-
-                foreach (var command in commands)
+            foreach (var queue in _queues)
+            {
+                _logger.LogInformation("Pushing to queue {Queue}", queue);
+                foreach (var @event in accountChangedEvents)
                 {
-                    var @event = await _accountChangedEventMapper.Map(command);
-                    accountChangedEvents.Add(@event);
+                    await _publisher.Publish(@event, queue);
                 }
-
-                _logger.LogInformation("{N} events found", accountChangedEvents.Count);
-
-                foreach (var queue in _queues)
-                {
-                    _logger.LogInformation("Pushing to queue {Queue}", queue);
-                    foreach (var @event in accountChangedEvents)
-                    {
-                        _publisher.Publish(@event, queue);
-                    }
-                }
-
-                _logger.LogInformation("File {File} uploaded", file);
             }
 
-            _logger.LogInformation("Data from Accounts Management imported");
+            _logger.LogInformation("File {File} uploaded", file);
         }
 
-        private List<string> GetFiles(string path, string service)
+        _logger.LogInformation("Data from Accounts Management imported");
+    }
+
+    private List<string> GetFiles(string path, string service)
+    {
+        if (!Directory.Exists(path))
         {
-            if (!Directory.Exists(path))
-            {
-                _logger.LogError("Directory {Path} for service {Service} not found",
-                    path, service);
-                throw new Exception("Check directory configuration: directory not found");
-            }
-
-            var files = Directory.EnumerateFiles(path).ToList();
-            if (files.Count == 0)
-            {
-                _logger.LogError("Logfiles not found for service {Service}", service);
-                throw new Exception("Check directory configuration: logfiles not found");
-            }
-
-            return files;
+            _logger.LogError("Directory {Path} for service {Service} not found",
+                path, service);
+            throw new Exception("Check directory configuration: directory not found");
         }
+
+        var files = Directory.EnumerateFiles(path).ToList();
+        if (files.Count == 0)
+        {
+            _logger.LogError("Logfiles not found for service {Service}", service);
+            throw new Exception("Check directory configuration: logfiles not found");
+        }
+
+        return files;
     }
 }
