@@ -60,7 +60,9 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
                     // services.AddSingleton<IAccountsRepository, FakeAccountsRepository>();
 
                     services.AddSingleton(provider =>
-                        ActivatorUtilities.CreateInstance<Publisher>(provider, rcs));
+                        ActivatorUtilities.CreateInstance<Publisher>(provider, 
+                            rcs, 
+                            provider.GetRequiredService<ILogger<Publisher>>()));
                 });
 
             return hostBuilder;
