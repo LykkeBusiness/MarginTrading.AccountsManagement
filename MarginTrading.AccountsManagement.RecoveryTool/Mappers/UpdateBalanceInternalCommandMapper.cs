@@ -8,17 +8,19 @@ using MarginTrading.AccountsManagement.RecoveryTool.Model;
 
 using Newtonsoft.Json;
 
-namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers;
+namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
 
-public class UpdateBalanceInternalCommandMapper
 {
-    public UpdateBalanceInternalCommand Map(DomainEvent domainEvent)
+    public class UpdateBalanceInternalCommandMapper
     {
-        if (string.IsNullOrEmpty(domainEvent?.Json))
-            throw new ArgumentNullException("Domain event is null");
-        
-        var @event = JsonConvert.DeserializeObject<UpdateBalanceInternalCommand>(domainEvent.Json);
+        public UpdateBalanceInternalCommand Map(DomainEvent domainEvent)
+        {
+            if (string.IsNullOrEmpty(domainEvent?.Json))
+                throw new ArgumentNullException(nameof(domainEvent));
 
-        return @event;
+            var @event = JsonConvert.DeserializeObject<UpdateBalanceInternalCommand>(domainEvent.Json);
+
+            return @event;
+        }
     }
 }
