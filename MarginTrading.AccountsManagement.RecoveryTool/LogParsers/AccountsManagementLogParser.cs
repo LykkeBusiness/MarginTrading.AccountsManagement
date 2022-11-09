@@ -15,8 +15,8 @@ public class AccountsManagementLogParser
     {
         var result = new List<DomainEvent>();
             
-        var margin = Create("UpdateBalanceCommandsHandler:");
-        result.AddRange(Parse(log, margin));
+        var regex = Create("UpdateBalanceCommandsHandler:");
+        result.AddRange(Parse(log, regex));
 
         return result.Where(x => x.Type != EventType.None).ToList();
     }

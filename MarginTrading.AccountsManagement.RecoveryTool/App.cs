@@ -45,7 +45,7 @@ public class App
 
         _queues = _configuration.GetSection("Queues").Get<string[]>();
     }
-    
+
     public async Task ImportFromAccountManagementAsync()
     {
         _logger.LogInformation("Starting to import data from Accounts Management");
@@ -70,8 +70,11 @@ public class App
                 accountChangedEvents.Add(@event);
             }
 
+            _logger.LogInformation("{N} events found", accountChangedEvents.Count);
+
             foreach (var queue in _queues)
             {
+                _logger.LogInformation("Pushing to queue {Queue}", queue);
                 foreach (var @event in accountChangedEvents)
                 {
                     await _publisher.Publish(@event, queue);
@@ -81,9 +84,9 @@ public class App
             _logger.LogInformation("File {File} uploaded", file);
         }
 
-        _logger.LogInformation("Data from Activity Producer imported");
+        _logger.LogInformation("Data from Accounts Management imported");
     }
-    
+
     private List<string> GetFiles(string path, string service)
     {
         if (!Directory.Exists(path))
