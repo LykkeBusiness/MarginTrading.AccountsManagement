@@ -17,7 +17,6 @@ using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.RecoveryTool
 {
-
     public class App
     {
         private readonly AccountsManagementLogParser _accountsManagementLogParser;
@@ -71,6 +70,9 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
                 }
 
                 _logger.LogInformation("{N} events found", accountChangedEvents.Count);
+                accountChangedEvents = accountChangedEvents
+                    .OrderBy(x => x.ChangeTimestamp)
+                    .ToList();
 
                 foreach (var queue in _queues)
                 {
