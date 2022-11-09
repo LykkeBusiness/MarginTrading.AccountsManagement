@@ -20,7 +20,6 @@ using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
-using MarginTrading.AccountsManagement.Workflow.BrokerSettings.Commands;
 using MarginTrading.AccountsManagement.Workflow.ClosePosition;
 using MarginTrading.AccountsManagement.Workflow.DeleteAccounts;
 using MarginTrading.AccountsManagement.Workflow.DeleteAccounts.Commands;
@@ -438,11 +437,11 @@ namespace MarginTrading.AccountsManagement.Modules
         private IRegistration RegisterLossPercentageSaga()
         {
             var sagaRegistration = RegisterSaga<LossPercentageSaga>();
-
+                
             sagaRegistration
                 .ListeningEvents(typeof(EodProcessFinishedEvent))
                 .From(_settings.ContextNames.BookKeeper)
-                .On(nameof(EodProcessFinishedEvent))
+                .On(DefaultRoute)
                 .PublishingCommands(typeof(UpdateLossPercentageCommand))
                 .To(_contextNames.AccountsManagement)
                 .With(DefaultPipeline);

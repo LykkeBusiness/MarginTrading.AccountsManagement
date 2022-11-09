@@ -7,10 +7,11 @@ using BookKeeper.Client.Workflow.Events;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
+
+using MarginTrading.AccountsManagement.Contracts.Commands;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Settings;
-using MarginTrading.AccountsManagement.Workflow.BrokerSettings.Commands;
 using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
