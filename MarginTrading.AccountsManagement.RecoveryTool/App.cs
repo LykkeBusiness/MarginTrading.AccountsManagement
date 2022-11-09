@@ -86,7 +86,8 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
                 _logger.LogInformation("File {File} uploaded", file);
             }
 
-            _logger.LogInformation("Data from Accounts Management imported");
+            _logger.LogInformation("Data from Accounts Management imported. Press any button to exit the app.");
+            Console.ReadKey();
         }
 
         private List<string> GetFiles(string path, string service)
