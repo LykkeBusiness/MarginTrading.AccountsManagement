@@ -38,8 +38,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             _systemClock = systemClock;
             _log = log;
             _settings = settings;
-
-            Handle(null, null);
         }
 
         [UsedImplicitly]
