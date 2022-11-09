@@ -41,7 +41,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Services
         public void Publish<T>(T command, string routingKey) where T: class
         {
             IBasicProperties properties = _publishingChannel.CreateBasicProperties();
-            properties.Headers = new Dictionary<string, object>() {{"type", typeof(T).Name}};
+            properties.Type = typeof(T).Name;
 
             var serializer = new MessagePackMessageSerializer<T>();
             var message = serializer.Serialize(command);
