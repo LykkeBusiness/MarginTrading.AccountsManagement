@@ -56,8 +56,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            CalculateLossPercentageIfNeeded();
-            
             _eodProcessFinishedSubscriber
                 .Subscribe(@event => this.DecorateAndHandle(() => this.CalculateLossPercentageIfNeeded()))
                 .Start();
