@@ -104,19 +104,12 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
                 
                 _logger.LogInformation($"Loss percentage calculated. Value={value}.");
 
-                try
+                await _lossPercentageUpdatedpublisher.ProduceAsync(new LossPercentageUpdatedEvent
                 {
-                    await _lossPercentageUpdatedpublisher.ProduceAsync(new LossPercentageUpdatedEvent
-                    {
-                        BrokerId = _brokerId,
-                        Value = value,
-                        Timestamp = utcNow
-                    });
-                }
-                catch
-                {
-                    var x = 1 + 2;
-                }
+                    BrokerId = _brokerId,
+                    Value = value,
+                    Timestamp = utcNow
+                });
             }
         }
     }
