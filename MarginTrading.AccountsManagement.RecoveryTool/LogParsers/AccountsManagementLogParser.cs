@@ -27,9 +27,17 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.LogParsers
             return regex.Matches(log)
                 .Select(x =>
                 {
-                    var type = x.Value.Contains("UpdateBalanceInternalCommand")
-                        ? EventType.UpdateBalanceInternalCommand
-                        : EventType.None;
+                    EventType type = EventType.None;
+                    if (x.Value.Contains("UpdateBalanceInternalCommand"))
+                    {
+                        type = EventType.UpdateBalanceInternalCommand;
+                    }
+
+                    if (x.Value.Contains("ChangeBalanceCommand"))
+                    {
+                        type = EventType.ChangeBalanceCommand;
+                    }
+
                     var json = ExtractJson(x.Value);
 
                     return new DomainEvent(json, type);

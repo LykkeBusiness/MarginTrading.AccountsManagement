@@ -7,5 +7,6 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Model
     {
         None,
         UpdateBalanceInternalCommand,
+        ChangeBalanceCommand,
     }
 }

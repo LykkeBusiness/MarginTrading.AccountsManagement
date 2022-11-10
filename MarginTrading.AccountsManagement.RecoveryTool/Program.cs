@@ -34,6 +34,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
                 {
                     builder.SetBasePath(Directory.GetCurrentDirectory());
                     builder.AddJsonFile("appsettings.json");
+                    builder.AddUserSecrets(typeof(Program).Assembly);
                 })
                 .ConfigureLogging(x => x.AddConsole())
                 .ConfigureServices((context, services) =>
@@ -50,6 +51,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool
 
                     services.AddSingleton<UpdateBalanceInternalCommandMapper>();
                     services.AddSingleton<AccountChangedEventMapper>();
+                    services.AddSingleton<ChangeBalanceCommandMapper>();
 
                     services.AddSingleton<ISystemClock, SystemClock>();
                     services.AddSingleton<IConvertService, ConvertService>();
