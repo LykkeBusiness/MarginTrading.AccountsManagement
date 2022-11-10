@@ -32,7 +32,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
 
             var change = new AccountBalanceChangeContract(
                 command.OperationId,
-                account.ModificationTimestamp,
+                command.TradingDay,
                 account.Id,
                 account.ClientId,
                 command.AmountDelta,
