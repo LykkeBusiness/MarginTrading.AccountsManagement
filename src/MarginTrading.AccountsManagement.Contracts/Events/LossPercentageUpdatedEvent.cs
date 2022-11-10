@@ -5,10 +5,10 @@ using System;
 
 using MessagePack;
 
-namespace MarginTrading.AccountsManagement.Contracts.Commands
+namespace MarginTrading.AccountsManagement.Contracts.Events
 {
     [MessagePackObject]
-    public class UpdateLossPercentageCommand
+    public class LossPercentageUpdatedEvent
     {
         [Key(0)] public string BrokerId { get; set; }
         

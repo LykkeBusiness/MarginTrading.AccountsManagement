@@ -21,6 +21,9 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
             services.AddHostedService(x => ActivatorUtilities.CreateInstance<BrokerSettingsListener>(
                 x,
                 settings.MarginTradingAccountManagement.BrokerId));
+            services.AddHostedService(x => ActivatorUtilities.CreateInstance<EodProcessFinishedListener>(
+                x,
+                settings.MarginTradingAccountManagement.BrokerId));
             
             services.AddSingleton(ctx => new RabbitMqSubscriber<OrderHistoryEvent>(
                     ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<OrderHistoryEvent>>(),

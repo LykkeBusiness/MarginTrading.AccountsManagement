@@ -111,7 +111,6 @@ namespace MarginTrading.AccountsManagement.Modules
                 RegisterGiveTemporaryCapitalSaga(),
                 RegisterRevokeTemporaryCapitalSaga(),
                 RegisterDeleteAccountsSaga(),
-                RegisterLossPercentageSaga(),
                 RegisterContext(),
                 Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(log)),
                 Register.EventInterceptors(new DefaultEventLoggingInterceptor(log)));
@@ -430,21 +429,6 @@ namespace MarginTrading.AccountsManagement.Modules
                 )
                 .From(_contextNames.AccountsManagement)
                 .On(DefaultRoute);
-
-            return sagaRegistration;
-        }
-
-        private IRegistration RegisterLossPercentageSaga()
-        {
-            var sagaRegistration = RegisterSaga<LossPercentageSaga>();
-                
-            sagaRegistration
-                .ListeningEvents(typeof(EodProcessFinishedEvent))
-                .From(_settings.ContextNames.BookKeeper)
-                .On(DefaultRoute)
-                .PublishingCommands(typeof(UpdateLossPercentageCommand))
-                .To(_contextNames.Mdm)
-                .With(DefaultPipeline);
 
             return sagaRegistration;
         }

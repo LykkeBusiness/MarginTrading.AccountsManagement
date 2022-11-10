@@ -65,6 +65,8 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddFeatureManagement(settings.MarginTradingAccountManagement.BrokerId);
             services.AddProductComplexity(settings);
             services.AddBrokerSettings(settings);
+            services.AddEodProcessFinishedSubscriber(settings);
+            services.AddLossPercentageUpdatedPublisher(settings);
 
             return services;
         }
