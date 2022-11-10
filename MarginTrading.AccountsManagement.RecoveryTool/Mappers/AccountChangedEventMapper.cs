@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Globalization;
 using System.Threading.Tasks;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
@@ -20,7 +21,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
     {
         private readonly IAccountsRepository _accountsRepository;
         private readonly IConvertService _convertService;
-        private readonly IConfiguration _configuration;
+        private DateTime _changeDate;
 
         public AccountChangedEventMapper(IAccountsRepository accountsRepository,
             IConvertService convertService,
@@ -28,7 +29,8 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
         {
             _accountsRepository = accountsRepository;
             _convertService = convertService;
-            _configuration = configuration;
+            var dateStr = configuration.GetValue<string>("ChangeDate");
+            _changeDate = DateTime.Parse(dateStr, CultureInfo.InvariantCulture, DateTimeStyles.AdjustToUniversal);
         }
 
         public async Task<AccountChangedEvent> Map(UpdateBalanceInternalCommand command)
@@ -36,11 +38,10 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
             var accountId = command.AccountId;
 
             var account = await _accountsRepository.GetAsync(accountId);
-            var changeDate = _configuration.GetValue<DateTime>("ChangeDate");
 
             var change = new AccountBalanceChangeContract(
                 command.OperationId,
-                changeDate,
+                _changeDate,
                 account.Id,
                 account.ClientId,
                 command.AmountDelta,
