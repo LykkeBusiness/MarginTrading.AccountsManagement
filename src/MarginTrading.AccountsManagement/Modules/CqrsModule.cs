@@ -443,7 +443,7 @@ namespace MarginTrading.AccountsManagement.Modules
                 .From(_settings.ContextNames.BookKeeper)
                 .On(DefaultRoute)
                 .PublishingCommands(typeof(UpdateLossPercentageCommand))
-                .To(_contextNames.AccountsManagement)
+                .To(_contextNames.Mdm)
                 .With(DefaultPipeline);
 
             return sagaRegistration;

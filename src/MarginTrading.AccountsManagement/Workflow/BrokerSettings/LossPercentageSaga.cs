@@ -16,7 +16,7 @@ using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 {
-    public class LossPercentageSaga
+    internal class LossPercentageSaga
     {
         private readonly ILossPercentageRepository _lossPercentageRepository;
         private readonly IAccountHistoryRepository _accountHistoryRepository;
@@ -40,9 +40,9 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             _log = log;
             _settings = settings;
         }
-
+        
         [UsedImplicitly]
-        public async Task Handle(EodProcessFinishedEvent e, ICommandSender sender)
+        private async Task Handle(EodProcessFinishedEvent e, ICommandSender sender)
         {
             var utcNow = _systemClock.UtcNow.DateTime;
             var lastLossPercentage = await _lossPercentageRepository.GetLastAsync();
@@ -72,7 +72,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
                 {
                     Value = value,
                     Timestamp = utcNow
-                }, _contextNames.AccountsManagement);
+                }, _contextNames.Mdm);
             }
         }
     }

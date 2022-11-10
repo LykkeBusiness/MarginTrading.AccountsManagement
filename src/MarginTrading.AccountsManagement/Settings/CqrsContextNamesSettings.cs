@@ -12,5 +12,7 @@ namespace MarginTrading.AccountsManagement.Settings
         [Optional] public string TradingEngine { get; set; } = nameof(TradingEngine);
         
         [Optional] public string BookKeeper { get; set; } = nameof(BookKeeper);
+        
+        [Optional] public string Mdm { get; set; } = nameof(Mdm);
     }
 }
