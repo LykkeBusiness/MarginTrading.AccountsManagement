@@ -1,6 +1,7 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Threading.Tasks;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
@@ -10,6 +11,8 @@ using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.RecoveryTool.Model;
 using MarginTrading.AccountsManagement.Repositories;
 
+using Microsoft.Extensions.Configuration;
+
 namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
 
 {
@@ -17,11 +20,15 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
     {
         private readonly IAccountsRepository _accountsRepository;
         private readonly IConvertService _convertService;
+        private readonly IConfiguration _configuration;
 
-        public AccountChangedEventMapper(IAccountsRepository accountsRepository, IConvertService convertService)
+        public AccountChangedEventMapper(IAccountsRepository accountsRepository,
+            IConvertService convertService,
+            IConfiguration configuration)
         {
             _accountsRepository = accountsRepository;
             _convertService = convertService;
+            _configuration = configuration;
         }
 
         public async Task<AccountChangedEvent> Map(UpdateBalanceInternalCommand command)
@@ -29,10 +36,11 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Mappers
             var accountId = command.AccountId;
 
             var account = await _accountsRepository.GetAsync(accountId);
+            var changeDate = _configuration.GetValue<DateTime>("ChangeDate");
 
             var change = new AccountBalanceChangeContract(
                 command.OperationId,
-                command.TradingDay,
+                changeDate,
                 account.Id,
                 account.ClientId,
                 command.AmountDelta,
