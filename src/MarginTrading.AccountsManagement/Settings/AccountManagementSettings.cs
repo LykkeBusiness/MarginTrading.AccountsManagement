@@ -63,5 +63,8 @@ namespace MarginTrading.AccountsManagement.Settings
         
         [Optional]
         public TimeSpan LossPercentageCalculationPeriod { get; set; } = TimeSpan.FromDays(365);
+        
+        [Optional]
+        public bool LossPercentageCalculationEnabled { get; set; } = false;
     }
 }
