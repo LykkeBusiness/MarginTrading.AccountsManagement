@@ -173,8 +173,10 @@ SELECT TOP 1
 FROM 
     {AccountsTableName} {whereClause}",
                 new { accountId });
-                
-            var temporaryCapital = DeserializeUtils.DeserializeTemporaryCapital(account?.TemporaryCapital);
+            
+            var temporaryCapital = DeserializeUtils
+                .DeserializeTemporaryCapital(account?.TemporaryCapital)
+                .Summarize();
             return (account?.BaseAssetId, temporaryCapital);
         }
 

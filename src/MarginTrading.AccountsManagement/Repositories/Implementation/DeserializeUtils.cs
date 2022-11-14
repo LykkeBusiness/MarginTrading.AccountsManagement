@@ -15,11 +15,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation
     internal static class DeserializeUtils
     {
         [Pure]
-        public static decimal? DeserializeTemporaryCapital(string json)
+        public static List<TemporaryCapital> DeserializeTemporaryCapital(string json)
         {
             if (string.IsNullOrWhiteSpace(json))
             {
-                return null;
+                return new List<TemporaryCapital>();
             }
 
             List<TemporaryCapital> deseralized;
@@ -29,16 +29,20 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation
             }
             catch (JsonReaderException)
             {
-                return null;
+                return new List<TemporaryCapital>();
             }
             catch (JsonSerializationException)
             {
-                return null;
+                return new List<TemporaryCapital>();
             }
-            
-            var result = deseralized?.Sum(x => x.Amount);
 
-            return result;
+            return deseralized;
+        }
+        
+        [Pure]
+        public static decimal Summarize(this List<TemporaryCapital> temporaryCapital)
+        {
+            return temporaryCapital?.Sum(x => x.Amount) ?? 0;
         }
     }
 }
