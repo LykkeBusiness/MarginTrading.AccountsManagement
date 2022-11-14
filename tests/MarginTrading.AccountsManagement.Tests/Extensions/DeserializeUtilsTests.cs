@@ -40,8 +40,7 @@ namespace MarginTrading.AccountsManagement.Tests.Extensions
             
             //Act
             var actual = DeserializeUtils.DeserializeTemporaryCapital(json);
-            var expected = amounts.Select(i => i).Sum();
-            
+
             //Assert
             actual.Select(x => x.Amount).Except(amounts).Should().BeEmpty();
             Assert.AreEqual(amounts.Length, actual.Count);
