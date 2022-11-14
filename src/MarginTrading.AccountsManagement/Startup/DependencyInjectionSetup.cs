@@ -1,7 +1,11 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Autofac;
+
 using Lykke.Common.ApiLibrary.Swagger;
+using Lykke.RabbitMqBroker;
+using Lykke.RabbitMqBroker.Publisher;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Correlation.Http;
@@ -9,7 +13,10 @@ using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
+
+using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
+using MarginTrading.AccountsManagement.RabbitMq.Publishers;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
@@ -66,6 +73,10 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddProductComplexity(settings);
             services.AddBrokerSettings(settings);
             services.AddEodProcessFinishedSubscriber(settings);
+            
+            services.AddSingleton<IRabbitPublisher<LossPercentageUpdatedEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());
+            services.AddSingleton<IStartable>(x => x.GetRequiredService<LossPercentagePublisher>());
+            services.AddSingleton<IStartStop>(x => x.GetRequiredService<LossPercentagePublisher>());
 
             return services;
         }

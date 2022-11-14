@@ -9,12 +9,10 @@ using BookKeeper.Client.Workflow.Events;
 using Lykke.Middlewares;
 using Lykke.Middlewares.Mappers;
 using Lykke.RabbitMqBroker.Publisher;
-using Lykke.RabbitMqBroker.Publisher.Serializers;
 using Lykke.RabbitMqBroker.Subscriber;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.InternalModels;
-using MarginTrading.AccountsManagement.RabbitMq;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Settings;
 
@@ -31,8 +29,8 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         private readonly ISystemClock _systemClock;
         private readonly ILogger<EodProcessFinishedListener> _logger;
         private readonly RabbitMqSubscriber<EodProcessFinishedEvent> _eodProcessFinishedSubscriber;
-        private readonly RabbitMqPublisher<LossPercentageUpdatedEvent> _lossPercentageUpdatedpublisher;
         private readonly AccountManagementSettings _settings;
+        private readonly IRabbitPublisher<LossPercentageUpdatedEvent> _lossPercentageProducer;
         private readonly string _brokerId;
 
         public EodProcessFinishedListener(
@@ -40,9 +38,9 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             IAccountHistoryRepository accountHistoryRepository,
             ISystemClock systemClock,
             ILogger<EodProcessFinishedListener> logger,
-            ILoggerFactory loggerFactory,
             RabbitMqSubscriber<EodProcessFinishedEvent> eodProcessFinishedSubscriber,
             AccountManagementSettings settings,
+            IRabbitPublisher<LossPercentageUpdatedEvent> lossPercentageProducer,
             string brokerId)
             : base(new DefaultLogLevelMapper(), logger)
         {
@@ -51,14 +49,8 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             _systemClock = systemClock;
             _logger = logger;
             _eodProcessFinishedSubscriber = eodProcessFinishedSubscriber;
-            _lossPercentageUpdatedpublisher = new RabbitMqPublisher<LossPercentageUpdatedEvent>(
-                    loggerFactory,
-                    settings.RabbitMq.LossPercentageUpdated)
-                .SetSerializer(new MessagePackMessageSerializer<LossPercentageUpdatedEvent>())
-                .SetPublishStrategy(new TopicPublishingStrategy(settings.RabbitMq.LossPercentageUpdated))
-                .DisableInMemoryQueuePersistence()
-                .PublishSynchronously();
             _settings = settings;
+            _lossPercentageProducer = lossPercentageProducer;
             _brokerId = brokerId;
         }
 
@@ -67,8 +59,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             _eodProcessFinishedSubscriber
                 .Subscribe(@event => this.DecorateAndHandle(() => this.CalculateLossPercentageIfNeeded()))
                 .Start();
-            
-            _lossPercentageUpdatedpublisher.Start();
 
             CalculateLossPercentageIfNeeded();
             
@@ -79,8 +69,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         {
             _eodProcessFinishedSubscriber.Stop();
             
-            _lossPercentageUpdatedpublisher.Stop();
-
             return Task.CompletedTask;
         }
 
@@ -104,11 +92,9 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
                 
                 _logger.LogInformation($"Loss percentage calculated. Value={value}.");
 
-                await _lossPercentageUpdatedpublisher.ProduceAsync(new LossPercentageUpdatedEvent
+                await _lossPercentageProducer.PublishAsync(new LossPercentageUpdatedEvent
                 {
-                    BrokerId = _brokerId,
-                    Value = value,
-                    Timestamp = utcNow
+                    BrokerId = _brokerId, Value = value, Timestamp = utcNow
                 });
             }
         }
