@@ -8,6 +8,7 @@ using Common;
 
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
+using Lykke.RabbitMqBroker.Publisher.Strategies;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Settings;
@@ -51,7 +52,7 @@ namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
                     _loggerFactory,
                     _settings.RabbitMq.LossPercentageUpdated)
                 .SetSerializer(new MessagePackMessageSerializer<AutoComputedLossPercentageUpdateEvent>())
-                .SetPublishStrategy(new TopicPublishingStrategy(_settings.RabbitMq.LossPercentageUpdated))
+                .SetPublishStrategy(new TopicPublishStrategy(_settings.RabbitMq.LossPercentageUpdated))
                 .DisableInMemoryQueuePersistence()
                 .PublishSynchronously();
             _publisher.Start();

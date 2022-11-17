@@ -27,11 +27,11 @@ namespace MarginTrading.AccountsManagement.Tests
     public class EodProcessFinishedListenerTests
     {
         private Mock<ILossPercentageRepository> _lossPercentageRepositoryMock;
-        private new Mock<IAccountHistoryRepository> _accountHistoryRepositoryMock;
+        private Mock<IAccountHistoryRepository> _accountHistoryRepositoryMock;
         private Mock<ISystemClock> _systemClockMock;
         private Mock<ILogger<EodProcessFinishedListener>> _loggerMock;
         private Mock<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>> _lossPercentageProducerMock;
-        private  const string BrokerId = "TestBrokerId";
+        private const string BrokerId = "TestBrokerId";
         
         [SetUp]
         public void SetUp()
@@ -41,31 +41,6 @@ namespace MarginTrading.AccountsManagement.Tests
             _systemClockMock = new Mock<ISystemClock>();
             _loggerMock = new Mock<ILogger<EodProcessFinishedListener>>();
             _lossPercentageProducerMock = new Mock<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>();
-        }
-
-        [Test]
-        public void CalculateLossPercentageIfNeeded_LossPercentageCalculationDisabled_Skips()
-        {
-            //arrange
-            var listener = new EodProcessFinishedListener(
-                _lossPercentageRepositoryMock.Object,
-                _accountHistoryRepositoryMock.Object,
-                _systemClockMock.Object,
-                _loggerMock.Object,
-                It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
-                new AccountManagementSettings
-                {
-                    LossPercentageCalculationEnabled = false
-                },
-                _lossPercentageProducerMock.Object,
-                BrokerId);
-
-            //act
-            typeof(EodProcessFinishedListener).GetMethod("CalculateLossPercentageIfNeeded", BindingFlags.NonPublic | BindingFlags.Instance)
-                .Invoke(listener, null);
-
-            //assert
-            _systemClockMock.Verify(mock => mock.UtcNow, Times.Never());
         }
         
         [Test]
@@ -86,7 +61,6 @@ namespace MarginTrading.AccountsManagement.Tests
                 It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
-                    LossPercentageCalculationEnabled = true,
                     LossPercentageExpirationCheckPeriod = new TimeSpan(2,0,0,0)
                 },
                 _lossPercentageProducerMock.Object,
@@ -99,7 +73,7 @@ namespace MarginTrading.AccountsManagement.Tests
             //assert
             _systemClockMock.Verify(mock => mock.UtcNow, Times.Once);
             _lossPercentageRepositoryMock.Verify(x => x.GetLastAsync(), Times.Once);
-            _accountHistoryRepositoryMock.Verify(mock => mock.CalculateLossPercentageAsync(It.IsAny<DateTime>()), Times.Never());
+            _accountHistoryRepositoryMock.Verify(mock => mock.CalculateLossPercentageAsync(It.IsAny<DateTime>()), Times.Never);
         }
         
         [Test]
@@ -125,7 +99,6 @@ namespace MarginTrading.AccountsManagement.Tests
                 It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
-                    LossPercentageCalculationEnabled = true,
                     LossPercentageCalculationPeriod = lossPercentageCalculationPeriod
                 },
                 _lossPercentageProducerMock.Object,
@@ -136,9 +109,6 @@ namespace MarginTrading.AccountsManagement.Tests
                 .Invoke(listener, null);
 
             //assert
-            _systemClockMock.Verify(mock => mock.UtcNow, Times.Once);
-            _lossPercentageRepositoryMock.Verify(x => x.GetLastAsync(), Times.Once);
-            _accountHistoryRepositoryMock.Verify(mock => mock.CalculateLossPercentageAsync(It.IsAny<DateTime>()), Times.Once);
             _lossPercentageRepositoryMock.Verify(x => x.AddAsync(
                 It.Is<LossPercentage>(arg => arg.ClientNumber == 100
                                              && arg.LooserNumber == 50
@@ -147,12 +117,16 @@ namespace MarginTrading.AccountsManagement.Tests
             _lossPercentageProducerMock.Verify(x =>x.PublishAsync(
                     It.Is<AutoComputedLossPercentageUpdateEvent>(arg => arg.BrokerId == BrokerId
                                                                         && arg.Timestamp == utcNow
-                                                                        && arg.Value == 50/100)),
+                                                                        && arg.Value == 0.5M)),
                 Times.Once);
         }
         
-        [Test]
-        public void CalculateLossPercentageIfNeeded_LastLossPercentageNotNullAndExpired_Calculates()
+        [TestCase(100, 50, 0.5)]
+        [TestCase(0, 0, 0)]
+        public void CalculateLossPercentageIfNeeded_LastLossPercentageNotNullAndExpired_Calculates(
+            int clientNumber,
+            int looserNumber,
+            decimal lossPercentageValue)
         {
             //arrange
             var utcNow = DateTime.UtcNow;
@@ -163,8 +137,8 @@ namespace MarginTrading.AccountsManagement.Tests
                 .ReturnsAsync(lossPercentageMock.Object);
             _systemClockMock.Setup(x => x.UtcNow).Returns(utcNow);
             var accountHistoryLossPercentageMock = new Mock<IAccountHistoryLossPercentage>();
-            accountHistoryLossPercentageMock.Setup(x => x.ClientNumber).Returns(100);
-            accountHistoryLossPercentageMock.Setup(x => x.LooserNumber).Returns(50);
+            accountHistoryLossPercentageMock.Setup(x => x.ClientNumber).Returns(clientNumber);
+            accountHistoryLossPercentageMock.Setup(x => x.LooserNumber).Returns(looserNumber);
             _accountHistoryRepositoryMock
                 .Setup(x => x.CalculateLossPercentageAsync(utcNow.Subtract(lossPercentageCalculationPeriod)))
                 .ReturnsAsync(accountHistoryLossPercentageMock.Object);
@@ -176,7 +150,6 @@ namespace MarginTrading.AccountsManagement.Tests
                 It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
-                    LossPercentageCalculationEnabled = true,
                     LossPercentageExpirationCheckPeriod = new TimeSpan(1,0,0,0),
                     LossPercentageCalculationPeriod = lossPercentageCalculationPeriod
                 },
@@ -188,18 +161,15 @@ namespace MarginTrading.AccountsManagement.Tests
                 .Invoke(listener, null);
 
             //assert
-            _systemClockMock.Verify(mock => mock.UtcNow, Times.Once);
-            _lossPercentageRepositoryMock.Verify(x => x.GetLastAsync(), Times.Once);
-            _accountHistoryRepositoryMock.Verify(mock => mock.CalculateLossPercentageAsync(It.IsAny<DateTime>()), Times.Once);
             _lossPercentageRepositoryMock.Verify(x => x.AddAsync(
-                It.Is<LossPercentage>(arg => arg.ClientNumber == 100
-                                             && arg.LooserNumber == 50
+                It.Is<LossPercentage>(arg => arg.ClientNumber == clientNumber
+                                             && arg.LooserNumber == looserNumber
                                              && arg.Timestamp == utcNow)),
                 Times.Once);
             _lossPercentageProducerMock.Verify(x =>x.PublishAsync(
                     It.Is<AutoComputedLossPercentageUpdateEvent>(arg => arg.BrokerId == BrokerId
                                                                         && arg.Timestamp == utcNow
-                                                                        && arg.Value == 50/100)),
+                                                                        && arg.Value == lossPercentageValue)),
                 Times.Once);
         }
     }

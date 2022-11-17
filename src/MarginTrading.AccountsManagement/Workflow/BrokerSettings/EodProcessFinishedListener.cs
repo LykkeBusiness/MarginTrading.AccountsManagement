@@ -74,11 +74,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 
         private async Task CalculateLossPercentageIfNeeded()
         {
-            if (!_settings.LossPercentageCalculationEnabled)
-            {
-                return;
-            }
-
             var utcNow = _systemClock.UtcNow.DateTime;
             var lastLossPercentage = await _lossPercentageRepository.GetLastAsync();
             if (lastLossPercentage == null || lastLossPercentage.Timestamp < utcNow.Subtract(_settings.LossPercentageExpirationCheckPeriod))
@@ -93,7 +88,9 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
                     calculation.LooserNumber,
                     utcNow);
                 await _lossPercentageRepository.AddAsync(newLossPercentage);
-                var value = newLossPercentage.LooserNumber / newLossPercentage.ClientNumber;
+                var value = newLossPercentage.ClientNumber != 0
+                    ? newLossPercentage.LooserNumber / (decimal)newLossPercentage.ClientNumber
+                    : 0;
                 
                 _logger.LogInformation($"Loss percentage calculated. Value={value}.");
 
