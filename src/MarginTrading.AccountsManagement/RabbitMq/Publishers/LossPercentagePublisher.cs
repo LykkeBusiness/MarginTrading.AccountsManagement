@@ -21,7 +21,6 @@ namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
     {
         private RabbitMqPublisher<AutoComputedLossPercentageUpdateEvent> _publisher;
         private readonly AccountManagementSettings _settings;
-        private readonly ILogger<AutoComputedLossPercentageUpdateEvent> _log;
         private readonly ILoggerFactory _loggerFactory;
 
         public LossPercentagePublisher(
@@ -30,20 +29,11 @@ namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
         {
             _settings = settings;
             _loggerFactory = loggerFactory;
-            _log = loggerFactory.CreateLogger<AutoComputedLossPercentageUpdateEvent>();
         }
 
         public async Task PublishAsync(AutoComputedLossPercentageUpdateEvent message)
         {
-            try
-            {
-                await _publisher.ProduceAsync(message);
-            }
-            catch (Exception e)
-            {
-                _log.LogWarning(e, "An error occurred while publishing event.", message.ToJson());
-                throw;
-            }
+            await _publisher.ProduceAsync(message);
         }
 
         public void Start()

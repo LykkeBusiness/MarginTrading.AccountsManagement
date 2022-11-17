@@ -59,8 +59,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             _eodProcessFinishedSubscriber
                 .Subscribe(@event => this.DecorateAndHandle(() => this.CalculateLossPercentageIfNeeded()))
                 .Start();
-
-            CalculateLossPercentageIfNeeded();
             
             return Task.CompletedTask;
         }
