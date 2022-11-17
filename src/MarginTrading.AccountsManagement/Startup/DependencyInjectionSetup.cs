@@ -76,7 +76,7 @@ namespace MarginTrading.AccountsManagement.Startup
             
 
             services.AddSingleton<LossPercentagePublisher>();
-            services.AddSingleton<IRabbitPublisher<LossPercentageUpdatedEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());
+            services.AddSingleton<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());
             services.AddSingleton<IStartable>(x => x.GetRequiredService<LossPercentagePublisher>());
             services.AddSingleton<IStartStop>(x => x.GetRequiredService<LossPercentagePublisher>());
 

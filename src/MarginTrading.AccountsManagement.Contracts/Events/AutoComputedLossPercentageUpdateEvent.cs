@@ -8,7 +8,7 @@ using MessagePack;
 namespace MarginTrading.AccountsManagement.Contracts.Events
 {
     [MessagePackObject]
-    public class LossPercentageUpdatedEvent
+    public class AutoComputedLossPercentageUpdateEvent
     {
         [Key(0)] public string BrokerId { get; set; }
         

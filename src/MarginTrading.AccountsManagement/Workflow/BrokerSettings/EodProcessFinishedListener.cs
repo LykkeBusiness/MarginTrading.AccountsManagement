@@ -30,7 +30,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         private readonly ILogger<EodProcessFinishedListener> _logger;
         private readonly RabbitMqSubscriber<EodProcessFinishedEvent> _eodProcessFinishedSubscriber;
         private readonly AccountManagementSettings _settings;
-        private readonly IRabbitPublisher<LossPercentageUpdatedEvent> _lossPercentageProducer;
+        private readonly IRabbitPublisher<AutoComputedLossPercentageUpdateEvent> _lossPercentageProducer;
         private readonly string _brokerId;
 
         public EodProcessFinishedListener(
@@ -40,7 +40,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             ILogger<EodProcessFinishedListener> logger,
             RabbitMqSubscriber<EodProcessFinishedEvent> eodProcessFinishedSubscriber,
             AccountManagementSettings settings,
-            IRabbitPublisher<LossPercentageUpdatedEvent> lossPercentageProducer,
+            IRabbitPublisher<AutoComputedLossPercentageUpdateEvent> lossPercentageProducer,
             string brokerId)
             : base(new DefaultLogLevelMapper(), logger)
         {
@@ -97,7 +97,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
                 
                 _logger.LogInformation($"Loss percentage calculated. Value={value}.");
 
-                await _lossPercentageProducer.PublishAsync(new LossPercentageUpdatedEvent
+                await _lossPercentageProducer.PublishAsync(new AutoComputedLossPercentageUpdateEvent
                 {
                     BrokerId = _brokerId, Value = value, Timestamp = utcNow
                 });

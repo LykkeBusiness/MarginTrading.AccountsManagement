@@ -30,7 +30,7 @@ namespace MarginTrading.AccountsManagement.Tests
         private new Mock<IAccountHistoryRepository> _accountHistoryRepositoryMock;
         private Mock<ISystemClock> _systemClockMock;
         private Mock<ILogger<EodProcessFinishedListener>> _loggerMock;
-        private Mock<IRabbitPublisher<LossPercentageUpdatedEvent>> _lossPercentageProducerMock;
+        private Mock<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>> _lossPercentageProducerMock;
         private  const string BrokerId = "TestBrokerId";
         
         [SetUp]
@@ -40,7 +40,7 @@ namespace MarginTrading.AccountsManagement.Tests
             _accountHistoryRepositoryMock = new Mock<IAccountHistoryRepository>();
             _systemClockMock = new Mock<ISystemClock>();
             _loggerMock = new Mock<ILogger<EodProcessFinishedListener>>();
-            _lossPercentageProducerMock = new Mock<IRabbitPublisher<LossPercentageUpdatedEvent>>();
+            _lossPercentageProducerMock = new Mock<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>();
         }
 
         [Test]
@@ -145,9 +145,9 @@ namespace MarginTrading.AccountsManagement.Tests
                                              && arg.Timestamp == utcNow)),
                 Times.Once);
             _lossPercentageProducerMock.Verify(x =>x.PublishAsync(
-                    It.Is<LossPercentageUpdatedEvent>(arg => arg.BrokerId == BrokerId
-                                                             && arg.Timestamp == utcNow
-                                                             && arg.Value == 50/100)),
+                    It.Is<AutoComputedLossPercentageUpdateEvent>(arg => arg.BrokerId == BrokerId
+                                                                        && arg.Timestamp == utcNow
+                                                                        && arg.Value == 50/100)),
                 Times.Once);
         }
         
@@ -197,9 +197,9 @@ namespace MarginTrading.AccountsManagement.Tests
                                              && arg.Timestamp == utcNow)),
                 Times.Once);
             _lossPercentageProducerMock.Verify(x =>x.PublishAsync(
-                    It.Is<LossPercentageUpdatedEvent>(arg => arg.BrokerId == BrokerId
-                                                             && arg.Timestamp == utcNow
-                                                             && arg.Value == 50/100)),
+                    It.Is<AutoComputedLossPercentageUpdateEvent>(arg => arg.BrokerId == BrokerId
+                                                                        && arg.Timestamp == utcNow
+                                                                        && arg.Value == 50/100)),
                 Times.Once);
         }
     }

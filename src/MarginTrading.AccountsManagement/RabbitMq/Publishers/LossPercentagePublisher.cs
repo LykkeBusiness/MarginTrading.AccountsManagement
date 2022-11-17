@@ -16,11 +16,11 @@ using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
 {
-    public class LossPercentagePublisher : IRabbitPublisher<LossPercentageUpdatedEvent>
+    public class LossPercentagePublisher : IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>
     {
-        private RabbitMqPublisher<LossPercentageUpdatedEvent> _publisher;
+        private RabbitMqPublisher<AutoComputedLossPercentageUpdateEvent> _publisher;
         private readonly AccountManagementSettings _settings;
-        private readonly ILogger<LossPercentageUpdatedEvent> _log;
+        private readonly ILogger<AutoComputedLossPercentageUpdateEvent> _log;
         private readonly ILoggerFactory _loggerFactory;
 
         public LossPercentagePublisher(
@@ -29,10 +29,10 @@ namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
         {
             _settings = settings;
             _loggerFactory = loggerFactory;
-            _log = loggerFactory.CreateLogger<LossPercentageUpdatedEvent>();
+            _log = loggerFactory.CreateLogger<AutoComputedLossPercentageUpdateEvent>();
         }
 
-        public async Task PublishAsync(LossPercentageUpdatedEvent message)
+        public async Task PublishAsync(AutoComputedLossPercentageUpdateEvent message)
         {
             try
             {
@@ -47,10 +47,10 @@ namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
 
         public void Start()
         {
-            _publisher = new RabbitMqPublisher<LossPercentageUpdatedEvent>(
+            _publisher = new RabbitMqPublisher<AutoComputedLossPercentageUpdateEvent>(
                     _loggerFactory,
                     _settings.RabbitMq.LossPercentageUpdated)
-                .SetSerializer(new MessagePackMessageSerializer<LossPercentageUpdatedEvent>())
+                .SetSerializer(new MessagePackMessageSerializer<AutoComputedLossPercentageUpdateEvent>())
                 .SetPublishStrategy(new TopicPublishingStrategy(_settings.RabbitMq.LossPercentageUpdated))
                 .DisableInMemoryQueuePersistence()
                 .PublishSynchronously();
