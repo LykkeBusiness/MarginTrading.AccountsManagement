@@ -17,15 +17,15 @@ namespace MarginTrading.AccountsManagement
             await StartupLoggingWrapper.HandleStartupException(async () =>
             {
                 var builder = WebApplication.CreateBuilder(args);
-
+            
                 var (configuration, settingsManager) = builder.BuildConfiguration();
-
+            
                 builder.Services.RegisterInfrastructureServices(settingsManager.CurrentValue);
-
+            
                 builder.ConfigureHost(configuration, settingsManager);
-
+            
                 var app = builder.Build();
-
+            
                 await app
                     .Configure()
                     .RunAsync();

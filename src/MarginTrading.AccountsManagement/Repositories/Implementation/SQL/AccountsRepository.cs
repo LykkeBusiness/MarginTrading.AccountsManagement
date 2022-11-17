@@ -161,7 +161,7 @@ JOIN
             return accounts.FirstOrDefault();
         }
 
-        public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
+        public async Task<(string baseAssetId, decimal temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
             string accountId)
         {
             await using var conn = new SqlConnection(ConnectionString);
