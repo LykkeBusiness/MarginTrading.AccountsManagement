@@ -37,7 +37,6 @@ namespace MarginTrading.AccountsManagement.Startup
             app.ConfigureSwagger();
             app.MapControllers();
             app.RegisterHooks();
-            app.UseMiddleware<GlobalErrorHandlerMiddleware>();
             
             return app;
         }

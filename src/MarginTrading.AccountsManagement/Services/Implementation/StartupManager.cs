@@ -17,6 +17,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
         private readonly IComplexityWarningRepository _complexityWarningRepository;
         private readonly IAccountsRepository _accountsRepository;
+        private readonly IAccountHistoryRepository _accountHistoryRepository;
         private readonly ILogger _logger;
         private readonly IEnumerable<IStartable> _startables;
 
@@ -24,6 +25,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IEodTaxFileMissingRepository taxFileMissingRepository,
             IComplexityWarningRepository complexityWarningRepository,
             IAccountsRepository accountsRepository,
+            IAccountHistoryRepository accountHistoryRepository,
             ILogger<StartupManager> logger,
             IEnumerable<IStartable> startables)
         {
@@ -31,6 +33,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _taxFileMissingRepository = taxFileMissingRepository;
             _complexityWarningRepository = complexityWarningRepository;
             _accountsRepository = accountsRepository;
+            _accountHistoryRepository = accountHistoryRepository;
             _logger = logger;
             _startables = startables;
         }
@@ -60,6 +63,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _taxFileMissingRepository.Initialize();
             _complexityWarningRepository.Initialize();
             _accountsRepository.Initialize();
+            _accountHistoryRepository.Initialize();
 
             _logger.LogInformation("Repositories initialization done");
         }

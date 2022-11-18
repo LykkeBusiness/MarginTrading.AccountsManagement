@@ -9,6 +9,8 @@ namespace MarginTrading.AccountsManagement.Repositories
 {
     public interface IAccountHistoryRepository
     {
+        void Initialize();
+        
         Task<IAccountHistoryLossPercentage> CalculateLossPercentageAsync(DateTime from);
     }
 }

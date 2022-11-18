@@ -50,12 +50,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             _logger = logger;
             
             using var conn = new SqlConnection(_settings.Db.ConnectionString);
-            try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to create table {TableName}", TableName);
-                throw;
-            }
+            conn.CreateTableIfDoesntExists(CreateTableScript, TableName);
         }
         
         public async Task<ILossPercentage> GetLastAsync()
@@ -67,6 +62,11 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task AddAsync(ILossPercentage value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException($"{nameof(value)} cannot be null.");
+            }
+
             var entity = _convertService.Convert<LossPercentageEntity>(value);
 
             await using var conn = new SqlConnection(_settings.Db.ConnectionString);
