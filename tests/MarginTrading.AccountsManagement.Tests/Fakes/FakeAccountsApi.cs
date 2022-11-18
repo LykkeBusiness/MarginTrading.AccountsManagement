@@ -12,22 +12,22 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
 {
     internal sealed class FakeAccountsApi: IAccountsApi
     {
-        public async Task<List<AccountStatContract>> GetAllAccountStats()
+        public Task<List<AccountStatContract>> GetAllAccountStats()
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<PaginatedResponseContract<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null, int? take = null)
+        public Task<PaginatedResponseContract<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null, int? take = null)
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<List<string>> GetAllAccountIdsFiltered(ActiveAccountsRequest request)
+        public Task<List<string>> GetAllAccountIdsFiltered(ActiveAccountsRequest request)
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<AccountStatContract> GetAccountStats(string accountId)
+        public Task<AccountStatContract> GetAccountStats(string accountId)
         {
             throw new System.NotImplementedException();
         }
@@ -37,7 +37,7 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
             return Task.FromResult(AccountCapitalFigures.Empty);
         }
 
-        public async Task ResumeLiquidation(string accountId, string comment)
+        public Task ResumeLiquidation(string accountId, string comment)
         {
             throw new System.NotImplementedException();
         }

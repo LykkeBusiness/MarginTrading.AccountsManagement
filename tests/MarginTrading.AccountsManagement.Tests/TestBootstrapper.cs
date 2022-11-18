@@ -16,6 +16,7 @@ using MarginTrading.TradingHistory.Client;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Moq;
 
@@ -58,6 +59,7 @@ namespace MarginTrading.AccountsManagement.Tests
             services.AddSingleton<IBrokerSettingsApi>(new FakeBrokerSettingsApi());
 
             // replace with fake implementation top always get a value from the cache
+            services.RemoveAll<IAccountsCache>();
             services.AddSingleton<IAccountsCache, FakeAccountsCache>();
         }
     }

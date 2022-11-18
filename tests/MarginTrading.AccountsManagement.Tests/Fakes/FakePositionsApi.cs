@@ -13,12 +13,12 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
 {
     internal sealed class FakePositionsApi : IPositionsApi 
     {
-        public async Task<PositionCloseResponse> CloseAsync(string positionId, PositionCloseRequest request = null, string accountId = null)
+        public Task<PositionCloseResponse> CloseAsync(string positionId, PositionCloseRequest request = null, string accountId = null)
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<PositionsGroupCloseResponse> CloseGroupAsync(string assetPairId = null,
+        public Task<PositionsGroupCloseResponse> CloseGroupAsync(string assetPairId = null,
             string accountId = null,
             PositionDirectionContract? direction = null,
             PositionCloseRequest request = null)
@@ -26,7 +26,7 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
             throw new System.NotImplementedException();
         }
 
-        public async Task<OpenPositionContract> GetAsync(string positionId)
+        public Task<OpenPositionContract> GetAsync(string positionId)
         {
             throw new System.NotImplementedException();
         }
@@ -36,7 +36,7 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
             return Task.FromResult(new List<OpenPositionContract>());
         }
 
-        public async Task<PaginatedResponseContract<OpenPositionContract>> ListAsyncByPages(string accountId = null, string assetPairId = null, int? skip = null, int? take = null)
+        public Task<PaginatedResponseContract<OpenPositionContract>> ListAsyncByPages(string accountId = null, string assetPairId = null, int? skip = null, int? take = null)
         {
             throw new System.NotImplementedException();
         }
