@@ -70,9 +70,10 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddTransient<HttpCorrelationHandler>();
 
             services.AddFeatureManagement(settings.MarginTradingAccountManagement.BrokerId);
-            services.AddProductComplexity(settings);
+            services.AddHostedServices(settings);
             services.AddBrokerSettings(settings);
             services.AddEodProcessFinishedSubscriber(settings);
+            services.AddOrderHistoryEventSubscriber(settings);
             
 
             services.AddSingleton<LossPercentagePublisher>();
