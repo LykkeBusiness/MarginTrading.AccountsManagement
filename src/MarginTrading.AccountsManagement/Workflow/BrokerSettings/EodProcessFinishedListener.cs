@@ -1,6 +1,7 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -74,11 +75,13 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         {
             var utcNow = _systemClock.UtcNow.DateTime;
             var lastLossPercentage = await _lossPercentageRepository.GetLastAsync();
-            if (lastLossPercentage == null || lastLossPercentage.Timestamp < utcNow.Subtract(_settings.LossPercentageExpirationCheckPeriod))
+            var expirationCheckPeriod = TimeSpan.FromDays(_settings.LossPercentageExpirationCheckPeriodInDays);
+            if (lastLossPercentage == null || lastLossPercentage.Timestamp < utcNow.Subtract(expirationCheckPeriod))
             {
                 _logger.LogInformation("Calculating loss percentage...");
                 
-                var calculateFrom = utcNow.Subtract(_settings.LossPercentageCalculationPeriod);
+                var calculationPeriod = TimeSpan.FromDays(_settings.LossPercentageCalculationPeriodInDays);
+                var calculateFrom = utcNow.Subtract(calculationPeriod);
                 var calculation = await _accountHistoryRepository.CalculateLossPercentageAsync(calculateFrom);
 
                 var newLossPercentage = new LossPercentage(

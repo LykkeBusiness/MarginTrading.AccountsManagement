@@ -61,7 +61,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
-                    LossPercentageExpirationCheckPeriod = new TimeSpan(2,0,0,0)
+                    LossPercentageExpirationCheckPeriodInDays = 2
                 },
                 _lossPercentageProducerMock.Object,
                 BrokerId);
@@ -81,7 +81,8 @@ namespace MarginTrading.AccountsManagement.Tests
         {
             //arrange
             var utcNow = DateTime.UtcNow;
-            var lossPercentageCalculationPeriod = new TimeSpan(1, 0, 0, 0);
+            var lossPercentageCalculationPeriodInDays = 1;
+            var lossPercentageCalculationPeriod = new TimeSpan(lossPercentageCalculationPeriodInDays, 0, 0, 0);
             _lossPercentageRepositoryMock.Setup(x => x.GetLastAsync())
                 .ReturnsAsync((ILossPercentage)null);
             _systemClockMock.Setup(x => x.UtcNow).Returns(utcNow);
@@ -99,7 +100,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
-                    LossPercentageCalculationPeriod = lossPercentageCalculationPeriod
+                    LossPercentageCalculationPeriodInDays = lossPercentageCalculationPeriodInDays
                 },
                 _lossPercentageProducerMock.Object,
                 BrokerId);
@@ -130,7 +131,8 @@ namespace MarginTrading.AccountsManagement.Tests
         {
             //arrange
             var utcNow = DateTime.UtcNow;
-            var lossPercentageCalculationPeriod = new TimeSpan(1, 0, 0, 0);
+            var lossPercentageCalculationPeriodInDays = 1;
+            var lossPercentageCalculationPeriod = new TimeSpan(lossPercentageCalculationPeriodInDays, 0, 0, 0);
             var lossPercentageMock = new Mock<ILossPercentage>();
             lossPercentageMock.Setup(x => x.Timestamp).Returns(utcNow.AddDays(-2));
             _lossPercentageRepositoryMock.Setup(x => x.GetLastAsync())
@@ -150,8 +152,8 @@ namespace MarginTrading.AccountsManagement.Tests
                 It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
-                    LossPercentageExpirationCheckPeriod = new TimeSpan(1,0,0,0),
-                    LossPercentageCalculationPeriod = lossPercentageCalculationPeriod
+                    LossPercentageExpirationCheckPeriodInDays = 1,
+                    LossPercentageCalculationPeriodInDays = lossPercentageCalculationPeriodInDays
                 },
                 _lossPercentageProducerMock.Object,
                 BrokerId);

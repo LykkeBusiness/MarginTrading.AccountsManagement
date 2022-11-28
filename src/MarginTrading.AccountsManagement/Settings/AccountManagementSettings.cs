@@ -59,10 +59,10 @@ namespace MarginTrading.AccountsManagement.Settings
         public TimeSpan ComplexityWarningExpirationCheckPeriod { get; set; } = TimeSpan.FromMinutes(5);
 
         [Optional]
-        public TimeSpan LossPercentageExpirationCheckPeriod { get; set; } = TimeSpan.FromDays(30 * 3);
+        public int LossPercentageExpirationCheckPeriodInDays { get; set; } = 90;
         
         [Optional]
-        public TimeSpan LossPercentageCalculationPeriod { get; set; } = TimeSpan.FromDays(365);
+        public int LossPercentageCalculationPeriodInDays { get; set; } = 365;
         
         [Optional]
         public bool LossPercentageCalculationEnabled { get; set; } = false;
