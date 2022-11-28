@@ -76,7 +76,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             var utcNow = _systemClock.UtcNow.DateTime;
             var lastLossPercentage = await _lossPercentageRepository.GetLastAsync();
             var expirationCheckPeriod = TimeSpan.FromDays(_settings.LossPercentageExpirationCheckPeriodInDays);
-            if (lastLossPercentage == null || lastLossPercentage.Timestamp < utcNow.Subtract(expirationCheckPeriod))
+            if (lastLossPercentage == null || lastLossPercentage.Timestamp.Date <= utcNow.Subtract(expirationCheckPeriod).Date)
             {
                 _logger.LogInformation("Calculating loss percentage...");
                 
