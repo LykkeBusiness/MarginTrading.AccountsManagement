@@ -90,7 +90,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
                     utcNow);
                 await _lossPercentageRepository.AddAsync(newLossPercentage);
                 var value = newLossPercentage.ClientNumber != 0
-                    ? newLossPercentage.LooserNumber / (decimal)newLossPercentage.ClientNumber
+                    ? Math.Round(newLossPercentage.LooserNumber / (decimal)newLossPercentage.ClientNumber * 100, 2)
                     : 0;
                 
                 _logger.LogInformation($"Loss percentage calculated. Value={value}.");

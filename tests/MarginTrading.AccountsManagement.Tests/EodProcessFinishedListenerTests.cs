@@ -118,13 +118,19 @@ namespace MarginTrading.AccountsManagement.Tests
             _lossPercentageProducerMock.Verify(x =>x.PublishAsync(
                     It.Is<AutoComputedLossPercentageUpdateEvent>(arg => arg.BrokerId == BrokerId
                                                                         && arg.Timestamp == utcNow
-                                                                        && arg.Value == 0.5M)),
+                                                                        && arg.Value == 50M)),
                 Times.Once);
         }
         
-        [TestCase(100, 50, 0.5)]
+        [TestCase(100, 50, 50)]
         [TestCase(0, 0, 0)]
-        public void CalculateLossPercentageIfNeeded_LastLossPercentageNotNullAndExpired_Calculates(
+        [TestCase(100000, 12, 0.01)]
+        [TestCase(100000, 15, 0.02)]
+        [TestCase(100000, 16, 0.02)]
+        [TestCase(100000, 22, 0.02)]
+        [TestCase(100000, 25, 0.02)]
+        [TestCase(100000, 26, 0.03)]
+        public void CalculateLossPercentageIfNeeded_LastLossPercentageNotNullAndExpired_CalculatesAndRoundsIfNeeded(
             int clientNumber,
             int looserNumber,
             decimal lossPercentageValue)
