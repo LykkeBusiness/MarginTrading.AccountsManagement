@@ -101,6 +101,7 @@ namespace MarginTrading.AccountsManagement.Modules
                 rabbitMqSettings.Endpoint.ToString(),
                 rabbitMqSettings.UserName,
                 rabbitMqSettings.Password,
+                true,
                 Register.DefaultEndpointResolver(rabbitMqConventionEndpointResolver),
                 RegisterDefaultRouting(),
                 RegisterWithdrawalSaga(),
