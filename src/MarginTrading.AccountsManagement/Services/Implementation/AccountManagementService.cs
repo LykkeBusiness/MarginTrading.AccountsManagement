@@ -323,14 +323,10 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             var baseAssetIdAndTemporaryCapital =
                 await _accountsRepository.GetBaseAssetIdAndTemporaryCapitalAsync(accountId);
-            
-            // TODO: implement logging with decorators
-            _logger.LogInformation("Temporary capital for account {AccountId} is {TemporaryCapital}", 
-                accountId, 
-                baseAssetIdAndTemporaryCapital.temporaryCapital);
-            
+
             var mtCoreAccountStats = await _accountsApi.GetAccountStats(accountId);
 
+            // todo: implement as decorator
             _logger.LogInformation("MT Core account stats for account {AccountId}: {AccountStatsJson}", 
                 accountId,
                 mtCoreAccountStats.ToJson());
