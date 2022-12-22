@@ -338,7 +338,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return await GetAccountCapitalAsync(accountId,
                 baseAssetIdAndTemporaryCapital.baseAssetId,
                 baseAssetIdAndTemporaryCapital.temporaryCapital ?? 0,
-                mtCoreAccountStats.TotalCapital,
+                mtCoreAccountStats.Balance,
                 mtCoreAccountStats.TotalCapital,
                 mtCoreAccountStats.UsedMargin,
                 useCache);
