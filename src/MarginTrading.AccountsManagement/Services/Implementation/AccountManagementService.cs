@@ -323,7 +323,17 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             var baseAssetIdAndTemporaryCapital =
                 await _accountsRepository.GetBaseAssetIdAndTemporaryCapitalAsync(accountId);
+            
+            // TODO: implement logging with decorators
+            _logger.LogInformation("Temporary capital for account {AccountId} is {TemporaryCapital}", 
+                accountId, 
+                baseAssetIdAndTemporaryCapital.temporaryCapital);
+            
             var mtCoreAccountStats = await _accountsApi.GetAccountStats(accountId);
+
+            _logger.LogInformation("MT Core account stats for account {AccountId}: {AccountStatsJson}", 
+                accountId,
+                mtCoreAccountStats.ToJson());
 
             return await GetAccountCapitalAsync(accountId,
                 baseAssetIdAndTemporaryCapital.baseAssetId,
@@ -369,8 +379,19 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             await Task.WhenAll(realizedProfitTask, unRealizedProfitTask);
 
             var realizedProfit = await realizedProfitTask;
+            _logger.LogInformation("Realized profit for account {AccountId} is {RealizedProfitJson}", 
+                accountId, 
+                realizedProfit.ToJson());
+            
             var unRealizedProfit = await unRealizedProfitTask;
+            _logger.LogInformation("Unrealized profit for account {AccountId} is {UnrealizedProfit}", 
+                accountId, 
+                unRealizedProfit);
+
             var disposableCapitalWithholdPercent = new Percent(_brokerSettingsCache.Get().DisposableCapitalWithholdPercent);
+            _logger.LogInformation("Disposable capital withhold percent for account {AccountId} is {DisposableCapitalWithholdPercent}", 
+                accountId, 
+                disposableCapitalWithholdPercent.ToString());
             
             var result = new AccountCapital(
                 balance, 
