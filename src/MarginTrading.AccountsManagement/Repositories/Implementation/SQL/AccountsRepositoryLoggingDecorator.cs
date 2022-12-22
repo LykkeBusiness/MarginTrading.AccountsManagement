@@ -42,7 +42,9 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             return _decoratee.GetSuggestedListAsync(query, limit);
         }
 
-        public Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null, string search = null, bool showDeleted = false)
+        public Task<IReadOnlyList<IAccount>> GetAllAsync(string clientId = null,
+            string search = null,
+            bool showDeleted = false)
         {
             return _decoratee.GetAllAsync(clientId, search, showDeleted);
         }
@@ -69,8 +71,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public async Task<IEnumerable<IClient>> GetClients(IEnumerable<string> clientIds)
         {
             var result = await _decoratee.GetClients(clientIds);
-            
-            _logger.LogInformation("{Method}:, clientIds={ClientIds} result={Result}", 
+
+            _logger.LogInformation("{Method}:, clientIds={ClientIds} result={Result}",
                 nameof(AccountsRepository.GetClients),
                 string.Join(",", clientIds),
                 result?.ToJson() ?? "null");
@@ -81,9 +83,9 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public async Task<IEnumerable<IClient>> GetAllClients()
         {
             var result = await _decoratee.GetAllClients();
-            
-            _logger.LogInformation("{Method}: result={Result}", 
-                nameof(AccountsRepository.GetAllClients), 
+
+            _logger.LogInformation("{Method}: result={Result}",
+                nameof(AccountsRepository.GetAllClients),
                 result?.ToJson() ?? "null");
 
             return result;
@@ -92,7 +94,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public async Task<IEnumerable<IClientWithAccounts>> GetAllClientsWithAccounts()
         {
             var result = await _decoratee.GetAllClientsWithAccounts();
-            
+
             _logger.LogInformation("{Method}: result={Result}",
                 nameof(AccountsRepository.GetAllClientsWithAccounts),
                 result?.ToJson() ?? "null");
@@ -103,10 +105,10 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public async Task<IClient> GetClient(string clientId, bool includeDeleted = false)
         {
             var result = await _decoratee.GetClient(clientId, includeDeleted);
-            
-            _logger.LogInformation("{Method}: clientId={ClientId}, includeDeleted={IncludeDeleted}, result={Result}", 
+
+            _logger.LogInformation("{Method}: clientId={ClientId}, includeDeleted={IncludeDeleted}, result={Result}",
                 nameof(AccountsRepository.GetClient),
-                clientId, 
+                clientId,
                 includeDeleted,
                 result?.ToJson() ?? "null");
 
@@ -121,10 +123,10 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public async Task<IAccount> GetAsync(string accountId)
         {
             var result = await _decoratee.GetAsync(accountId);
-            
-            _logger.LogInformation("{Method}: accountId={AccountId}, result={Result}", 
-                nameof(AccountsRepository.GetAsync), 
-                accountId, 
+
+            _logger.LogInformation("{Method}: accountId={AccountId}, result={Result}",
+                nameof(AccountsRepository.GetAsync),
+                accountId,
                 result?.ToJson() ?? "null");
 
             return result;
@@ -132,7 +134,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task<IAccount> GetAsync(string accountId, bool includeDeleted)
         {
-            var result =  await _decoratee.GetAsync(accountId, includeDeleted);
+            var result = await _decoratee.GetAsync(accountId, includeDeleted);
 
             _logger.LogInformation(
                 "{Method}: accountId={accountId}, includeDeleted={includeDeleted}, result={resultJson}",
@@ -144,7 +146,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             return result;
         }
 
-        public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(string accountId)
+        public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
+            string accountId)
         {
             var result = await _decoratee.GetBaseAssetIdAndTemporaryCapitalAsync(accountId);
 
@@ -162,7 +165,10 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             return _decoratee.EraseAsync(accountId);
         }
 
-        public Task<IAccount> UpdateBalanceAsync(string operationId, string accountId, decimal amountDelta, bool changeLimit)
+        public Task<IAccount> UpdateBalanceAsync(string operationId,
+            string accountId,
+            decimal amountDelta,
+            bool changeLimit)
         {
             return _decoratee.UpdateBalanceAsync(operationId, accountId, amountDelta, changeLimit);
         }
@@ -182,12 +188,16 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             return _decoratee.DeleteAsync(accountId);
         }
 
-        public Task<IAccount> UpdateAccountTemporaryCapitalAsync(string accountId, Func<string, List<TemporaryCapital>, TemporaryCapital, bool, List<TemporaryCapital>> handler, TemporaryCapital temporaryCapital, bool isAdd)
+        public Task<IAccount> UpdateAccountTemporaryCapitalAsync(string accountId,
+            Func<string, List<TemporaryCapital>, TemporaryCapital, bool, List<TemporaryCapital>> handler,
+            TemporaryCapital temporaryCapital,
+            bool isAdd)
         {
             return _decoratee.UpdateAccountTemporaryCapitalAsync(accountId, handler, temporaryCapital, isAdd);
         }
 
-        public Task<IAccount> RollbackTemporaryCapitalRevokeAsync(string accountId, List<TemporaryCapital> revokedTemporaryCapital)
+        public Task<IAccount> RollbackTemporaryCapitalRevokeAsync(string accountId,
+            List<TemporaryCapital> revokedTemporaryCapital)
         {
             return _decoratee.RollbackTemporaryCapitalRevokeAsync(accountId, revokedTemporaryCapital);
         }
