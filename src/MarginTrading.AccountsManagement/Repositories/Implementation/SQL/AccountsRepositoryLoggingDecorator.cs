@@ -146,7 +146,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             return result;
         }
 
-        public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
+        public async Task<(string baseAssetId, decimal temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
             string accountId)
         {
             var result = await _decoratee.GetBaseAssetIdAndTemporaryCapitalAsync(accountId);
