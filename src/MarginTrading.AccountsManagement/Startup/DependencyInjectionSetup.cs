@@ -12,6 +12,7 @@ using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
+using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
 using MarginTrading.AccountsManagement.Services.Implementation;
@@ -61,7 +62,7 @@ namespace MarginTrading.AccountsManagement.Startup
                 o.InstanceName = "AccountManagement:";
             });
 
-            services.AddSingleton<AccountsCache>();
+            services.AddSingleton<IAccountsCache, AccountsCache>();
 
             var correlationContextAccessor = new CorrelationContextAccessor();
             services.AddSingleton(correlationContextAccessor);

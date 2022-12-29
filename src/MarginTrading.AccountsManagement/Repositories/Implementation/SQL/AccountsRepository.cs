@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Lykke Corp.
+// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -20,7 +20,6 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
@@ -96,10 +95,20 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             await using var conn = new SqlConnection(ConnectionString);
             var whereClause = "WHERE 1=1"
                               + (string.IsNullOrWhiteSpace(clientId) ? "" : " AND a.ClientId = @clientId")
-                              + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
+                              + (string.IsNullOrWhiteSpace(search)
+                                  ? ""
+                                  : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
                               + (showDeleted ? "" : " AND a.IsDeleted = 0");
-            var accounts = await conn.QueryAsync<AccountEntity>(
-                $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on c.Id = a.ClientId {whereClause}", 
+            var accounts = await conn.QueryAsync<AccountEntity>(@$"
+SELECT 
+    a.*, 
+    c.TradingConditionId, 
+    c.UserId 
+FROM 
+    {AccountsTableName} a 
+JOIN 
+    {ClientsTableName} c on c.Id = a.ClientId 
+{whereClause}", 
                 new { clientId, search });
                 
             return accounts.ToList();
@@ -152,19 +161,23 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             return accounts.FirstOrDefault();
         }
 
-        public async Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
+        public async Task<(string baseAssetId, decimal temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
             string accountId)
         {
             await using var conn = new SqlConnection(ConnectionString);
             var whereClause = "WHERE 1=1 " + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND Id = @accountId");
-            var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>(
-                $"SELECT TOP 1 {nameof(AccountEntity.BaseAssetId)}, {nameof(AccountEntity.TemporaryCapital)} FROM {AccountsTableName} {whereClause}", 
+            var account = await conn.QuerySingleOrDefaultAsync<BaseAssetIdAndTemporaryCapital>($@"
+SELECT TOP 1 
+    {nameof(AccountEntity.BaseAssetId)}, 
+    {nameof(AccountEntity.TemporaryCapital)} 
+FROM 
+    {AccountsTableName} {whereClause}",
                 new { accountId });
-
-            var baseAssetId = account?.BaseAssetId;
-            var temporaryCapital = JsonConvert.DeserializeObject<List<TemporaryCapital>>(account?.TemporaryCapital)
-                ?.Sum(x => x.Amount) ?? default;
-            return (baseAssetId, temporaryCapital);
+            
+            var temporaryCapital = DeserializeUtils
+                .DeserializeTemporaryCapital(account?.TemporaryCapital)
+                .Summarize();
+            return (account?.BaseAssetId, temporaryCapital);
         }
 
         public async Task<IAccount> UpdateBalanceAsync(string operationId, string accountId,

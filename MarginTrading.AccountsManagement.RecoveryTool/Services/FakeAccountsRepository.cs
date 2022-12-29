@@ -97,7 +97,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Services
             throw new NotImplementedException();
         }
 
-        public Task<(string baseAssetId, decimal? temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
+        public Task<(string baseAssetId, decimal temporaryCapital)> GetBaseAssetIdAndTemporaryCapitalAsync(
             string accountId)
         {
             throw new NotImplementedException();

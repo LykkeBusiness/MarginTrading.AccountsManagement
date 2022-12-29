@@ -48,7 +48,7 @@ namespace MarginTrading.AccountsManagement.Startup
                     var environment =
                         Environment.GetEnvironmentVariable(
                             "ASPNETCORE_ENVIRONMENT") ?? string.Empty;
-                    
+
                     cfg.ReadFrom.Configuration(configuration)
                         .Enrich.WithProperty("Application", title)
                         .Enrich.WithProperty("Version", version)
