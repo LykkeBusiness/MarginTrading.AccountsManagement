@@ -78,6 +78,10 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                 {
                     _logger.LogWarning(ex, "Validation error while updating balance for account {AccountId}",
                         command.AccountId);
+                    
+                    _logger.LogWarning($"The account balance could not be updated during withdrawal. Reason: Validation error." +
+                        "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount}, Reason: {Reason})",
+                        command.OperationId, command.AccountId, command.AmountDelta);
 
                     publisher.PublishEvent(new AccountBalanceChangeFailedEvent(command.OperationId,
                         _systemClock.UtcNow.UtcDateTime, ex.Message, command.Source));
@@ -106,6 +110,10 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                     command.TradingDay);
 
                 var convertedAccount = Convert(account);
+
+                _logger.LogInformation($"The account balance has been updated after withdrawal. " +
+                    "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: -{Delta}, CurrentBalance: {CurrentBalance})",
+                    command.OperationId, command.AccountId, command.AmountDelta, account.Balance);
 
                 publisher.PublishEvent(
                     new AccountChangedEvent(

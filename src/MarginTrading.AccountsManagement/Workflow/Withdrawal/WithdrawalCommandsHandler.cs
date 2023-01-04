@@ -14,6 +14,7 @@ using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Workflow.Withdrawal.Commands;
 using MarginTrading.AccountsManagement.Workflow.Withdrawal.Events;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
 {
@@ -24,6 +25,7 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
         private readonly IOperationExecutionInfoRepository _executionInfoRepository;
         private readonly IChaosKitty _chaosKitty;
         private readonly IAccountManagementService _accountManagementService;
+        private readonly ILogger<WithdrawalCommandsHandler> _logger;
 
         private const string OperationName = "Withdraw";
 
@@ -32,13 +34,15 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
             IAccountsRepository accountsRepository,
             IOperationExecutionInfoRepository executionInfoRepository,
             IChaosKitty chaosKitty,
-            IAccountManagementService accountManagementService)
+            IAccountManagementService accountManagementService,
+            ILogger<WithdrawalCommandsHandler> logger)
         {
             _systemClock = systemClock;
             _executionInfoRepository = executionInfoRepository;
             _accountsRepository = accountsRepository;
             _chaosKitty = chaosKitty;
             _accountManagementService = accountManagementService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -66,6 +70,10 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
             var account = await _accountsRepository.GetAsync(command.AccountId);
             if(account == null)
             {
+                _logger.LogWarning("The withdrawal couldn't be initiated. Reason: The account couldn't be found. Details: " +
+                    "(OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                    command.OperationId, command.AccountId, command.Amount);
+
                 publisher.PublishEvent(new WithdrawalStartFailedInternalEvent(command.OperationId,
                     _systemClock.UtcNow.UtcDateTime, $"Account {command.AccountId} not found."));
                 return;
@@ -74,22 +82,36 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
             var accountCapital = await _accountManagementService.GetAccountCapitalAsync(account.Id, useCache: false);
             if (accountCapital.Disposable < command.Amount)
             {
+                var reasonStr = $"The account {account.Id} balance {accountCapital.Balance}{accountCapital.AssetId} " +
+                    $"is not enough to withraw {command.Amount}{accountCapital.AssetId}. " +
+                    $"Taking into account the current state of trading account: {accountCapital.ToJson()}.";
+
+                _logger.LogWarning("The withdrawal couldn't be initiated. Reason: {ReasonStr}. Details: " +
+                    "(OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                    reasonStr, command.OperationId, command.AccountId, command.Amount);
+
                 publisher.PublishEvent(new WithdrawalStartFailedInternalEvent(command.OperationId,
-                    _systemClock.UtcNow.UtcDateTime, 
-                    $"Account {account.Id} balance {accountCapital.Balance}{accountCapital.AssetId} is not enough to withdraw {command.Amount}{accountCapital.AssetId}. " +
-                    $"Taking into account the current state of the trading account: {accountCapital.ToJson()}."));
+                    _systemClock.UtcNow.UtcDateTime,
+                    reasonStr));
                 return;
             }
 
             if (account.IsWithdrawalDisabled)
             {
+                _logger.LogWarning("The withdrawal couldn't be initiated. Reason: {ReasonStr}. Details: " +
+                    "(OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                    "Withdrawal is disabled for the account", command.OperationId, command.AccountId, command.Amount);
+
                 publisher.PublishEvent(new WithdrawalStartFailedInternalEvent(command.OperationId,
                     _systemClock.UtcNow.UtcDateTime, "Withdrawal is disabled"));
-                
                 return;
             }
 
             _chaosKitty.Meow(command.OperationId);
+
+            _logger.LogInformation("Withdrawal initiated successfully for the account. " +
+                "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                command.OperationId, command.AccountId, command.Amount);
           
             publisher.PublishEvent(new WithdrawalStartedInternalEvent(command.OperationId, 
                 _systemClock.UtcNow.UtcDateTime));
@@ -110,6 +132,10 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
                 return;
             
             var account = await _accountsRepository.GetAsync(executionInfo.Data.AccountId);
+
+            _logger.LogWarning("The withdrawal has failed. Reason: {ReasonStr}. Details: " +
+                "(OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                command.Reason, command.OperationId, executionInfo.Data.AccountId, executionInfo.Data.Amount);
 
             publisher.PublishEvent(new WithdrawalFailedEvent(
                 command.OperationId,
@@ -135,6 +161,10 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
                 return;
 
             var account = await _accountsRepository.GetAsync(executionInfo.Data.AccountId);
+
+            _logger.LogInformation("The withdrawal operation is finished successfully. Details: " +
+                "(OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                command.OperationId, account.Id, executionInfo.Data.Amount);
 
             publisher.PublishEvent(new WithdrawalSucceededEvent(command.OperationId, _systemClock.UtcNow.UtcDateTime,
                 account?.ClientId, executionInfo.Data.AccountId, executionInfo.Data.Amount));
