@@ -82,7 +82,7 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
             var accountCapital = await _accountManagementService.GetAccountCapitalAsync(account.Id, useCache: false);
             if (accountCapital.Disposable < command.Amount)
             {
-                var reasonStr = $"The account {account.Id} balance {accountCapital.Balance}{accountCapital.AssetId} " +
+                var reasonStr = $"The account {account.Id} balance {accountCapital.Disposable}{accountCapital.AssetId} " +
                     $"is not enough to withraw {command.Amount}{accountCapital.AssetId}. " +
                     $"Taking into account the current state of trading account: {accountCapital.ToJson()}.";
 
