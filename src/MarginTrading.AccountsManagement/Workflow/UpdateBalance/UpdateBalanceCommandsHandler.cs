@@ -79,8 +79,8 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                     _logger.LogWarning(ex, "Validation error while updating balance for account {AccountId}",
                         command.AccountId);
                     
-                    _logger.LogWarning($"The account balance could not be updated during withdrawal. Reason: Validation error." +
-                        "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount}, Reason: {Reason})",
+                    _logger.LogWarning("The account balance could not be updated during withdrawal. Reason: Validation error." +
+                        "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
                         command.OperationId, command.AccountId, command.AmountDelta);
 
                     publisher.PublishEvent(new AccountBalanceChangeFailedEvent(command.OperationId,
