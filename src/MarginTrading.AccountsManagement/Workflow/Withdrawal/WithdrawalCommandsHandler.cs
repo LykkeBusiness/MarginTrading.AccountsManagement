@@ -83,7 +83,7 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
             if (accountCapital.Disposable < command.Amount)
             {
                 var reasonStr = $"The account {account.Id} balance {accountCapital.Disposable}{accountCapital.AssetId} " +
-                    $"is not enough to withraw {command.Amount}{accountCapital.AssetId}. " +
+                    $"is not enough to withdraw {command.Amount}{accountCapital.AssetId}. " +
                     $"Taking into account the current state of trading account: {accountCapital.ToJson()}.";
 
                 _logger.LogWarning("The withdrawal couldn't be initiated. Reason: {ReasonStr}. Details: " +
