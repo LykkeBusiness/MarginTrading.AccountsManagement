@@ -15,13 +15,20 @@ using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
+using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.RabbitMq.Publishers;
+using MarginTrading.AccountsManagement.Services;
+using MarginTrading.AccountsManagement.Repositories;
+using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ProductComplexity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
+
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
@@ -61,7 +68,7 @@ namespace MarginTrading.AccountsManagement.Startup
                 o.InstanceName = "AccountManagement:";
             });
 
-            services.AddSingleton<AccountsCache>();
+            services.AddSingleton<IAccountsCache, AccountsCache>();
 
             var correlationContextAccessor = new CorrelationContextAccessor();
             services.AddSingleton(correlationContextAccessor);
@@ -75,11 +82,21 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddEodProcessFinishedSubscriber(settings);
             services.AddOrderHistoryEventSubscriber(settings);
             
-
             services.AddSingleton<LossPercentagePublisher>();
             services.AddSingleton<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());
             services.AddSingleton<IStartable>(x => x.GetRequiredService<LossPercentagePublisher>());
             services.AddSingleton<IStartStop>(x => x.GetRequiredService<LossPercentagePublisher>());
+
+            // Registering AccountRepository with decorator using ASP.NET Core DI container
+            // just because Autofac way causes errors
+            services.AddSingleton<IAccountsRepository>(x => new AccountsRepositoryLoggingDecorator(
+                new AccountsRepository(
+                    settings.MarginTradingAccountManagement.Db.ConnectionString,
+                    x.GetRequiredService<IConvertService>(),
+                    x.GetRequiredService<ISystemClock>(),
+                    settings.MarginTradingAccountManagement.Db.LongRunningSqlTimeoutSec,
+                    x.GetRequiredService<ILogger<AccountsRepository>>()),
+                x.GetRequiredService<ILogger<AccountsRepositoryLoggingDecorator>>()));
 
             return services;
         }

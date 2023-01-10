@@ -9,17 +9,8 @@ using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Services.Implementation
 {
-    public class AccountsCache
+    public class AccountsCache : IAccountsCache
     {
-        public enum Category
-        {
-            GetBaseAssetIdAndTemporaryCapital,
-            GetCompensations,
-            GetDividends,
-            GetTaxFileMissingDays,
-            GetDeals
-        }
-
         private readonly IDistributedCache _cache;
         private readonly ISystemClock _systemClock;
         private readonly CacheSettings _cacheSettings;
@@ -38,16 +29,15 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             };
         }
 
-
-        public Task<T> Get<T>(string accountId, Category category, Func<Task<T>> getValue)
+        public Task<T> Get<T>(string accountId, AccountsCacheCategory accountsCacheCategory, Func<Task<T>> getValue)
         {
-            return Get(accountId, category, async () => (value: await getValue(), shouldCache: true));
+            return Get(accountId, accountsCacheCategory, async () => (value: await getValue(), shouldCache: true));
         }
 
-        public async Task<T> Get<T>(string accountId, Category category, Func<Task<(T value, bool shouldCache)>> getValue)
+        public async Task<T> Get<T>(string accountId, AccountsCacheCategory accountsCacheCategory, Func<Task<(T value, bool shouldCache)>> getValue)
         {
-            var cacheKey = BuildCacheKey(accountId, category);
-            var cached = await _cache.GetStringAsync(BuildCacheKey(accountId, category));
+            var cacheKey = BuildCacheKey(accountId, accountsCacheCategory);
+            var cached = await _cache.GetStringAsync(BuildCacheKey(accountId, accountsCacheCategory));
 
             if (cached != null)
             {
@@ -63,7 +53,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
                     _logger.LogWarning(e,
                         "Type mismatch while deserialization cache item of category {Category} for {AccountId}. Invalidating cache",
-                        category, accountId);
+                        accountsCacheCategory, accountId);
                 }
             }
 
@@ -82,23 +72,22 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
         public async Task Invalidate(string accountId)
         {
-            foreach (var cat in Enum.GetValues(typeof(Category)).Cast<Category>())
+            foreach (var cat in Enum.GetValues(typeof(AccountsCacheCategory)).Cast<AccountsCacheCategory>())
             {
                 await InvalidateCache(accountId, cat);
             }
         }
 
-
-        private Task InvalidateCache(string accountId, Category category)
+        private Task InvalidateCache(string accountId, AccountsCacheCategory accountsCacheCategory)
         {
-            var cacheKey = BuildCacheKey(accountId, category);
+            var cacheKey = BuildCacheKey(accountId, accountsCacheCategory);
             return _cache.RemoveAsync(cacheKey);
         }
 
-        private string BuildCacheKey(string accountId, Category category)
+        private string BuildCacheKey(string accountId, AccountsCacheCategory accountsCacheCategory)
         {
             var now = _systemClock.UtcNow.Date;
-            return $"ac:{accountId}:{category:G}:{now:yyyy-MM-dd}";
+            return $"ac:{accountId}:{accountsCacheCategory:G}:{now:yyyy-MM-dd}";
         }
     }
 }

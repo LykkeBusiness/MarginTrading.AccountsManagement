@@ -48,7 +48,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IPositionsApi _positionsApi;
         private readonly ITradingInstrumentsApi _tradingInstrumentsApi;
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
-        private readonly AccountsCache _cache;
+        private readonly IAccountsCache _cache;
         private readonly IFeatureManager _featureManager;
         private readonly IAuditService _auditService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
@@ -61,7 +61,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IEventSender eventSender,
             ILogger<AccountManagementService> logger,
             ISystemClock systemClock,
-            AccountsCache cache, 
+            IAccountsCache cache, 
             IAccountBalanceChangesRepository accountBalanceChangesRepository, 
             IDealsApi dealsApi, 
             IEodTaxFileMissingRepository taxFileMissingRepository, 
@@ -246,18 +246,22 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return _accountsRepository.GetAsync(accountId);
         }
 
+        /// <summary>
+        /// Gets account statistics from cache
+        /// </summary>
+        /// <param name="accountId">The account id</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">When account id is empty or
+        /// <see cref="AccountCapital"/> can't be instantiated because of
+        /// some parameters are empty.</exception>
         public async ValueTask<AccountStat> GetCachedAccountStatistics(string accountId)
         {
             if (string.IsNullOrEmpty(accountId))
                 throw new ArgumentNullException(nameof(accountId));
 
             var mtCoreAccountStats = await _accountsApi.GetCapitalFigures(accountId);
-            if (mtCoreAccountStats == null)
-            {
-                return null;
-            }
 
-            var baseAssetIdAndTemporaryCapital = await _cache.Get(accountId, AccountsCache.Category.GetBaseAssetIdAndTemporaryCapital, async() =>
+            var baseAssetIdAndTemporaryCapital = await _cache.Get(accountId, AccountsCacheCategory.GetBaseAssetIdAndTemporaryCapital, async() =>
             {
                 var baseAssetIdAndTemporaryCapitalFromDb = await _accountsRepository.GetBaseAssetIdAndTemporaryCapitalAsync(accountId);
 
@@ -266,7 +270,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var accountCapital = await GetAccountCapitalAsync(accountId,
                 baseAssetIdAndTemporaryCapital.baseAssetId,
-                baseAssetIdAndTemporaryCapital.temporaryCapital ?? 0,
+                baseAssetIdAndTemporaryCapital.temporaryCapital,
                 mtCoreAccountStats.Balance,
                 mtCoreAccountStats.TotalCapital,
                 mtCoreAccountStats.UsedMargin,
@@ -323,12 +327,18 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             var baseAssetIdAndTemporaryCapital =
                 await _accountsRepository.GetBaseAssetIdAndTemporaryCapitalAsync(accountId);
+
             var mtCoreAccountStats = await _accountsApi.GetAccountStats(accountId);
+
+            // todo: implement as decorator
+            _logger.LogInformation("MT Core account stats for account {AccountId}: {AccountStatsJson}", 
+                accountId,
+                mtCoreAccountStats.ToJson());
 
             return await GetAccountCapitalAsync(accountId,
                 baseAssetIdAndTemporaryCapital.baseAssetId,
-                baseAssetIdAndTemporaryCapital.temporaryCapital ?? 0,
-                mtCoreAccountStats.TotalCapital,
+                baseAssetIdAndTemporaryCapital.temporaryCapital,
+                mtCoreAccountStats.Balance,
                 mtCoreAccountStats.TotalCapital,
                 mtCoreAccountStats.UsedMargin,
                 useCache);
@@ -369,8 +379,19 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             await Task.WhenAll(realizedProfitTask, unRealizedProfitTask);
 
             var realizedProfit = await realizedProfitTask;
+            _logger.LogInformation("Realized profit for account {AccountId} is {RealizedProfitJson}", 
+                accountId, 
+                realizedProfit.ToJson());
+            
             var unRealizedProfit = await unRealizedProfitTask;
+            _logger.LogInformation("Unrealized profit for account {AccountId} is {UnrealizedProfit}", 
+                accountId, 
+                unRealizedProfit);
+
             var disposableCapitalWithholdPercent = new Percent(_brokerSettingsCache.Get().DisposableCapitalWithholdPercent);
+            _logger.LogInformation("Disposable capital withhold percent for account {AccountId} is {DisposableCapitalWithholdPercent}", 
+                accountId, 
+                disposableCapitalWithholdPercent.ToString());
             
             var result = new AccountCapital(
                 balance, 
@@ -688,20 +709,22 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             //@avolkov for some use cases (in message handlers) we should not use cache 
             //to not duplicate logic added this ugly hack that will read from db in message handlers and will use cache in http calls
-            Task<T> GetCachedIfAllowed<T>(AccountsCache.Category cat, Func<Task<T>> getValue)
+            Task<T> GetCachedIfAllowed<T>(AccountsCacheCategory cat, Func<Task<T>> getValue)
             {
                 return useCache ? _cache.Get(accountId, cat, getValue) : getValue();
             }
 
-            var taxFileMissingDays = await GetCachedIfAllowed(AccountsCache.Category.GetTaxFileMissingDays, () => _taxFileMissingRepository.GetAllDaysAsync());
+            var taxFileMissingDays = await GetCachedIfAllowed(AccountsCacheCategory.GetTaxFileMissingDays, () => _taxFileMissingRepository.GetAllDaysAsync());
 
-            var missingDaysArray = taxFileMissingDays as DateTime[] ?? taxFileMissingDays.ToArray();
-            
+            var missingDaysArray = taxFileMissingDays == null
+                ? Array.Empty<DateTime>()
+                : taxFileMissingDays.ToArray();
+
             LogWarningForTaxFileMissingDaysIfRequired(accountId, missingDaysArray);
             
-            var getDealsTask = GetCachedIfAllowed(AccountsCache.Category.GetDeals, () => _dealsApi.GetTotalProfit(accountId, missingDaysArray));
-            var compensationsTask = GetCachedIfAllowed(AccountsCache.Category.GetCompensations, () => _accountBalanceChangesRepository.GetCompensationsProfit(accountId, missingDaysArray));
-            var dividendsTask = GetCachedIfAllowed(AccountsCache.Category.GetDividends, () => _accountBalanceChangesRepository.GetDividendsProfit(accountId, missingDaysArray));
+            var getDealsTask = GetCachedIfAllowed(AccountsCacheCategory.GetDeals, () => _dealsApi.GetTotalProfit(accountId, missingDaysArray));
+            var compensationsTask = GetCachedIfAllowed(AccountsCacheCategory.GetCompensations, () => _accountBalanceChangesRepository.GetCompensationsProfit(accountId, missingDaysArray));
+            var dividendsTask = GetCachedIfAllowed(AccountsCacheCategory.GetDividends, () => _accountBalanceChangesRepository.GetDividendsProfit(accountId, missingDaysArray));
 
             await Task.WhenAll(getDealsTask, compensationsTask, dividendsTask);
 

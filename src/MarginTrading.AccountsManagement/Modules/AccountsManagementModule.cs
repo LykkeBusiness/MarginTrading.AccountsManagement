@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Lykke Corp.
+// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -69,12 +69,9 @@ namespace MarginTrading.AccountsManagement.Modules
                 builder.RegisterType<SqlLogRepository>().As<ILogRepository>().SingleInstance();
                 
                 builder.RegisterType<SqlRepos.AccountBalanceChangesRepository>()
-                    .As<IAccountBalanceChangesRepository>().SingleInstance();
-                builder.RegisterType<SqlRepos.AccountsRepository>()
-                    .As<IAccountsRepository>()
-                    .WithParameter(TypedParameter.From(_settings.CurrentValue.MarginTradingAccountManagement.Db.ConnectionString))
-                    .WithParameter(TypedParameter.From(_settings.CurrentValue.MarginTradingAccountManagement.Db.LongRunningSqlTimeoutSec))
+                    .As<IAccountBalanceChangesRepository>()
                     .SingleInstance();
+                
                 builder.RegisterType<SqlRepos.LossPercentageRepository>()
                     .As<ILossPercentageRepository>().SingleInstance();
                 builder.RegisterType<SqlRepos.AccountHistoryRepository>()

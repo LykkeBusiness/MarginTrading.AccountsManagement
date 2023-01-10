@@ -644,9 +644,9 @@ namespace MarginTrading.AccountsManagement.Controllers
                 throw new ArgumentNullException(nameof(accountId), "Account must be set.");
             }
 
-            var stat = await _accountManagementService.GetCachedAccountStatistics(accountId);
-            
-            return stat != null ? _convertService.Convert<AccountStat, AccountStatContract>(stat) : null;
+            AccountStat stat = await _accountManagementService.TryGetCachedAccountStatistics(accountId);
+
+            return _convertService.Convert<AccountStat, AccountStatContract>(stat);
         }
         
         [HttpGet("{accountId}/disposable-capital")]
@@ -657,7 +657,7 @@ namespace MarginTrading.AccountsManagement.Controllers
                 throw new ArgumentNullException(nameof(accountId), "Account must be set.");
             }
 
-            var stat = await _accountManagementService.GetCachedAccountStatistics(accountId);
+            AccountStat stat = await _accountManagementService.TryGetCachedAccountStatistics(accountId);
 
             return stat?.DisposableCapital;
         }

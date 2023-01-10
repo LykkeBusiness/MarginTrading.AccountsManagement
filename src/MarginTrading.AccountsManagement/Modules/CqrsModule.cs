@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Lykke Corp.
+// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -19,7 +19,6 @@ using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
-using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ClosePosition;
 using MarginTrading.AccountsManagement.Workflow.DeleteAccounts;
 using MarginTrading.AccountsManagement.Workflow.DeleteAccounts.Commands;
@@ -102,6 +101,7 @@ namespace MarginTrading.AccountsManagement.Modules
                 rabbitMqSettings.Endpoint.ToString(),
                 rabbitMqSettings.UserName,
                 rabbitMqSettings.Password,
+                true,
                 Register.DefaultEndpointResolver(rabbitMqConventionEndpointResolver),
                 RegisterDefaultRouting(),
                 RegisterWithdrawalSaga(),
