@@ -11,6 +11,8 @@ using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
+using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
+
 using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
@@ -46,6 +48,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                     .ForMember(d => d.Name,
                         o => o.MapFrom(s => s.AccountName));
                 cfg.CreateMap<AccountStat, AccountStatContract>();
+                cfg.CreateMap<ILossPercentage, LossPercentageEntity>();
 
                 //Audit
                 cfg.CreateMap<AuditModel, AuditContract>();

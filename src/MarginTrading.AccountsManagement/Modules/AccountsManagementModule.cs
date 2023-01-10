@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Lykke Corp.
+// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -72,6 +72,10 @@ namespace MarginTrading.AccountsManagement.Modules
                     .As<IAccountBalanceChangesRepository>()
                     .SingleInstance();
                 
+                builder.RegisterType<SqlRepos.LossPercentageRepository>()
+                    .As<ILossPercentageRepository>().SingleInstance();
+                builder.RegisterType<SqlRepos.AccountHistoryRepository>()
+                    .As<IAccountHistoryRepository>().SingleInstance();
                 builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
                     .As<IOperationExecutionInfoRepository>().SingleInstance();
                 builder.RegisterType<SqlRepos.SqlEodTaxFileMissingRepository>()

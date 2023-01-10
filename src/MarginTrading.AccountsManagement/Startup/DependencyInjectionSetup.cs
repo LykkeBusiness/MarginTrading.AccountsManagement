@@ -1,7 +1,11 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Autofac;
+
 using Lykke.Common.ApiLibrary.Swagger;
+using Lykke.RabbitMqBroker;
+using Lykke.RabbitMqBroker.Publisher;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Correlation.Http;
@@ -10,8 +14,10 @@ using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
+using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
+using MarginTrading.AccountsManagement.RabbitMq.Publishers;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
@@ -71,8 +77,15 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddTransient<HttpCorrelationHandler>();
 
             services.AddFeatureManagement(settings.MarginTradingAccountManagement.BrokerId);
-            services.AddProductComplexity(settings);
+            services.AddHostedServices(settings);
             services.AddBrokerSettings(settings);
+            services.AddEodProcessFinishedSubscriber(settings);
+            services.AddOrderHistoryEventSubscriber(settings);
+            
+            services.AddSingleton<LossPercentagePublisher>();
+            services.AddSingleton<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());
+            services.AddSingleton<IStartable>(x => x.GetRequiredService<LossPercentagePublisher>());
+            services.AddSingleton<IStartStop>(x => x.GetRequiredService<LossPercentagePublisher>());
 
             // Registering AccountRepository with decorator using ASP.NET Core DI container
             // just because Autofac way causes errors
