@@ -523,7 +523,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             foreach (var account in afterUpdate)
             {
-                await _accountsRepository.UpdateAccountAsync(account.Id, false, false);
+                await _accountsRepository.UpdateAccountAsync(account.Id, isDisabled: false, isWithdrawalDisabled: false);
 
                 _eventSender.SendAccountChangedEvent(
                     nameof(UpdateClientTradingCondition),
