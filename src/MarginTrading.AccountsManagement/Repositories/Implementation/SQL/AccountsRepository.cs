@@ -20,6 +20,7 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
+using MarginTrading.AccountsManagement.Extensions;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
@@ -99,20 +100,28 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                                   ? ""
                                   : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
                               + (showDeleted ? "" : " AND a.IsDeleted = 0");
+
             var accounts = await conn.QueryAsync<AccountEntity>(@$"
-SELECT 
-    a.*, 
-    c.TradingConditionId, 
-    c.UserId 
-FROM 
-    {AccountsTableName} a 
-JOIN 
-    {ClientsTableName} c on c.Id = a.ClientId 
-{whereClause}", 
+                SELECT 
+                    a.*, 
+                    c.TradingConditionId, 
+                    c.UserId,
+                    c.LastUpdatedAt
+                FROM 
+                    {AccountsTableName} a 
+                JOIN 
+                    {ClientsTableName} c on c.Id = a.ClientId 
+                {whereClause}", 
                 new { clientId, search });
+
+            DateTimeExtensions.OverwriteTimestampWithMostRecent<AccountEntity>(accounts, 
+                getFirstTimeStamp: (a) => a.ModificationTimestamp,
+                getSecondTimestamp: (a) => a.LastUpdatedAt,
+                updateProperty: (a, mostRecent) => a.ModificationTimestamp = mostRecent);
                 
             return accounts.ToList();
         }
+
 
         public async Task<PaginatedResponse<IAccount>> GetByPagesAsync(string search = null, bool showDeleted = false,
             int? skip = null, int? take = null, bool isAscendingOrder = true)
@@ -357,10 +366,12 @@ end
             var sqlParams = new { clientId, tradingConditionId };
 
             await using var conn = new SqlConnection(ConnectionString);
+            
+            var rawSql = $"update {ClientsTableName} " + 
+                          $"set TradingConditionId = @{nameof(sqlParams.tradingConditionId)}, {nameof(ClientEntity.LastUpdatedAt)} = GETUTCDATE() " +
+                          $"where Id = @{nameof(sqlParams.clientId)}";
 
-            var affectedRows = await conn.ExecuteAsync($"update {ClientsTableName} set TradingConditionId = @{nameof(sqlParams.tradingConditionId)} " +
-                                                       $"where Id = @{nameof(sqlParams.clientId)}",
-                sqlParams);
+            var affectedRows = await conn.ExecuteAsync(rawSql, sqlParams);
 
             if (affectedRows != 1)
             {
