@@ -1,5 +1,4 @@
 ﻿using System;
-
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
