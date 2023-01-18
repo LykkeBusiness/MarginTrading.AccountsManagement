@@ -25,7 +25,7 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
-    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="6.0.2" />
+    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="6.0.4" />
   </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>
