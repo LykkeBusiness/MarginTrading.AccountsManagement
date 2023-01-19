@@ -35,6 +35,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public bool IsDeleted { get; set; }
 
         public DateTime ModificationTimestamp { get; set; }
+        
+        public DateTime ClientModificationTimestamp { get; set; }
 
         List<TemporaryCapital> IAccount.TemporaryCapital => 
             DeserializeUtils.DeserializeTemporaryCapital(TemporaryCapital);
@@ -46,7 +48,5 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         AccountAdditionalInfo IAccount.AdditionalInfo => JsonConvert.DeserializeObject<AccountAdditionalInfo>(AdditionalInfo);
         public string AdditionalInfo { get; set; } = "{}";
-
-        public DateTime ClientLastUpdated { get; set; }
     }
 }

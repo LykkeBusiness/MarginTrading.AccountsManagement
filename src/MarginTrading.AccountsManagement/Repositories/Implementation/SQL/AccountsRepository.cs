@@ -111,7 +111,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                     a.*, 
                     c.TradingConditionId, 
                     c.UserId, 
-                    c.ModificationTimestamp as {nameof(AccountEntity.ClientLastUpdated)}
+                    c.ModificationTimestamp as {nameof(AccountEntity.ClientModificationTimestamp)}
                 FROM 
                     {AccountsTableName} a 
                 JOIN 
@@ -163,7 +163,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                               + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId")
                               + (includeDeleted ? "" : " and a.IsDeleted = 0");
             var accounts = await conn.QueryAsync<AccountEntity>(
-                $"SELECT a.*, c.TradingConditionId, c.UserId, c.ModificationTimestamp as {nameof(AccountEntity.ClientLastUpdated)} FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
+                $"SELECT a.*, c.TradingConditionId, c.UserId, c.ModificationTimestamp as {nameof(AccountEntity.ClientModificationTimestamp)} FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
                 new { accountId });
                 
             return accounts.FirstOrDefault();
@@ -413,7 +413,7 @@ end
             try
             {
                 var account = await conn.QuerySingleOrDefaultAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId, c.UserId, c.ModificationTimestamp as {nameof(AccountEntity.ClientLastUpdated)} " +
+                    $"SELECT a.*, c.TradingConditionId, c.UserId, c.ModificationTimestamp as {nameof(AccountEntity.ClientModificationTimestamp)} " +
                     $"FROM {AccountsTableName} a WITH (UPDLOCK) " + 
                     $"join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
 

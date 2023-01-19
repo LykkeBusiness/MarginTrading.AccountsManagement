@@ -23,6 +23,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
             bool isWithdrawalDisabled,
             bool isDeleted,
             DateTime modificationTimestamp,
+            DateTime clientModificationTimestamp,
             string accountName,
             string userId,
             AccountAdditionalInfo additionalInfo)
@@ -39,6 +40,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
             IsWithdrawalDisabled = isWithdrawalDisabled;
             IsDeleted = isDeleted;
             ModificationTimestamp = modificationTimestamp;
+            ClientModificationTimestamp = clientModificationTimestamp;
             AccountName = accountName;
             AdditionalInfo = additionalInfo ?? throw new ArgumentNullException(nameof(additionalInfo));
         }
@@ -66,6 +68,8 @@ namespace MarginTrading.AccountsManagement.InternalModels
         public bool IsDeleted { get; }
 
         public DateTime ModificationTimestamp { get; }
+        
+        public DateTime ClientModificationTimestamp { get; }
         
         public List<TemporaryCapital> TemporaryCapital { get; set; } = new List<TemporaryCapital>(); 
             

@@ -50,8 +50,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     eventType,
                     balanceChangeContract,
                     operationId,
-                    metadata.ToJson(),
-                    clientLastUpdatedAt),
+                    metadata.ToJson()),
                 _contextNames.AccountsManagement);
         }
     }

@@ -528,8 +528,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     account,
                     AccountChangedEventTypeContract.Updated,
                     Guid.NewGuid().ToString("N"),
-                    previousSnapshot: beforeUpdate[account.Id],
-                    clientLastUpdatedAt: account.ClientLastUpdated);
+                    previousSnapshot: beforeUpdate[account.Id]);
             }
 
             var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
@@ -624,6 +623,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 !(_settings.Behavior?.DefaultWithdrawalIsEnabled ?? true),
                 false,
                 DateTime.UtcNow,
+                //todo: find the value of client modification timestamp and pass it here
                 accountName,
                 userId,
                 new AccountAdditionalInfo
