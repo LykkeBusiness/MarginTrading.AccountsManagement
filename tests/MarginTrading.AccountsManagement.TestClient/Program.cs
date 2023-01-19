@@ -80,6 +80,7 @@ namespace MarginTrading.AccountsManagement.TestClient
                 "tetest1",
                 new AccountContract(), 
                 AccountChangedEventTypeContract.BalanceUpdated,
+                DateTime.UtcNow,
                 new AccountBalanceChangeContract(
                     "tetetetest1",
                     DateTime.UtcNow, 

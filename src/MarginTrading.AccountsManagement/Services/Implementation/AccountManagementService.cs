@@ -432,6 +432,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 result,
                 AccountChangedEventTypeContract.Updated,
                 Guid.NewGuid().ToString("N"),
+                account.ClientLastUpdated,
                 previousSnapshot: account);
 
             return result;
@@ -588,6 +589,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 updated,
                 AccountChangedEventTypeContract.Updated,
                 Guid.NewGuid().ToString("N"),
+                updated.ClientLastUpdated,
                 previousSnapshot: previousSnapshot,
                 orderId: orderId);
         }
@@ -635,7 +637,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             account = await _accountsRepository.GetAsync(accountId);
 
             _eventSender.SendAccountChangedEvent(nameof(CreateAccount), account,
-                AccountChangedEventTypeContract.Created, id);
+                AccountChangedEventTypeContract.Created, id, account.ClientLastUpdated);
 
             //todo consider moving to CQRS projection
             if (_settings.Behavior?.DefaultBalance != null && _settings.Behavior.DefaultBalance != default)

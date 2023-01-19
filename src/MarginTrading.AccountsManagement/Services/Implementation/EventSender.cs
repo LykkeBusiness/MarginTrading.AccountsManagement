@@ -29,10 +29,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         }
 
         public void SendAccountChangedEvent(string source, IAccount account, AccountChangedEventTypeContract eventType,
-            string operationId, AccountBalanceChangeContract balanceChangeContract = null, 
+            string operationId, DateTime clientLastUpdatedAt, AccountBalanceChangeContract balanceChangeContract = null, 
             IAccount previousSnapshot = null,
-            string orderId = null,
-            DateTime? clientLastUpdatedAt = null)
+            string orderId = null)
         {
             var metadata = new AccountChangeMetadata {OrderId = orderId};
 
@@ -48,10 +47,10 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     source,
                     _convertService.Convert<IAccount, AccountContract>(account),
                     eventType,
+                    clientLastUpdatedAt,
                     balanceChangeContract,
                     operationId,
-                    metadata.ToJson(),
-                    clientLastUpdatedAt),
+                    metadata.ToJson()),
                 _contextNames.AccountsManagement);
         }
     }

@@ -22,10 +22,10 @@ namespace MarginTrading.AccountsManagement.Contracts.Events
             [NotNull] string source, 
             [NotNull] AccountContract account,
             AccountChangedEventTypeContract eventType, 
+            DateTime clientLastUpdatedAt,
             AccountBalanceChangeContract balanceChange = null, 
             string operationId = null,
-            string activitiesMetadata = null,
-            DateTime? clientLastUpdatedAt = null)
+            string activitiesMetadata = null)
         {
             if (!Enum.IsDefined(typeof(AccountChangedEventTypeContract), eventType))
                 throw new InvalidEnumArgumentException(
@@ -94,6 +94,6 @@ namespace MarginTrading.AccountsManagement.Contracts.Events
         /// The timestamp which the Client last updated at
         /// </summary>
         [Key(7)]
-        public DateTime? ClientLastUpdatedAt { get; }
+        public DateTime ClientLastUpdatedAt { get; }
     }
 }
