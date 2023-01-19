@@ -35,7 +35,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         private static readonly PropertyInfo[] AccountProperties = AccountDataType
             .GetProperties()
-            .Where(p => p.Name != nameof(IAccount.TradingConditionId) && p.Name != nameof(IAccount.UserId))
+            .Where(p => p.Name != nameof(IAccount.TradingConditionId) && p.Name != nameof(IAccount.UserId) && p.Name != nameof(IAccount.ClientModificationTimestamp))
             .ToArray();
 
         private static readonly PropertyInfo[] ClientProperties = ClientDataType
