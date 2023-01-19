@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Common;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
@@ -30,7 +31,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         public void SendAccountChangedEvent(string source, IAccount account, AccountChangedEventTypeContract eventType,
             string operationId, AccountBalanceChangeContract balanceChangeContract = null, 
             IAccount previousSnapshot = null,
-            string orderId = null)
+            string orderId = null,
+            DateTime? clientLastUpdatedAt = null)
         {
             var metadata = new AccountChangeMetadata {OrderId = orderId};
 
@@ -48,7 +50,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     eventType,
                     balanceChangeContract,
                     operationId,
-                    metadata.ToJson()),
+                    metadata.ToJson(),
+                    clientLastUpdatedAt),
                 _contextNames.AccountsManagement);
         }
     }

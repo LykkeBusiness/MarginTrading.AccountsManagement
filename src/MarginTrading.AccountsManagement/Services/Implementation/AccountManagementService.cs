@@ -528,7 +528,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     account,
                     AccountChangedEventTypeContract.Updated,
                     Guid.NewGuid().ToString("N"),
-                    previousSnapshot: beforeUpdate[account.Id]);
+                    previousSnapshot: beforeUpdate[account.Id],
+                    clientLastUpdatedAt: DateTime.UtcNow);
             }
 
             var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
