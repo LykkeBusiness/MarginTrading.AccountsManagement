@@ -125,7 +125,6 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                         result,
                         AccountChangedEventTypeContract.Updated,
                         $"{command.OperationId}_{accountToBlock}",
-                        account.ClientLastUpdated,
                         previousSnapshot: account);
                 }
                 catch (Exception exception)
@@ -191,7 +190,6 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                             OperationName,
                             _convertService.Convert<IAccount, AccountContract>(account),
                             AccountChangedEventTypeContract.Deleted,
-                            account.ClientLastUpdated,
                             null,
                             command.OperationId,
                             null));
@@ -221,7 +219,6 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                         result,
                         AccountChangedEventTypeContract.Updated,
                         $"{command.OperationId}_{failedAccountId}",
-                        account.ClientLastUpdated,
                         previousSnapshot: account);
                 }
                 catch (Exception exception)

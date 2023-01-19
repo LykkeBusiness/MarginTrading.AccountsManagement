@@ -432,7 +432,6 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 result,
                 AccountChangedEventTypeContract.Updated,
                 Guid.NewGuid().ToString("N"),
-                account.ClientLastUpdated,
                 previousSnapshot: account);
 
             return result;
@@ -588,7 +587,6 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 updated,
                 AccountChangedEventTypeContract.Updated,
                 Guid.NewGuid().ToString("N"),
-                updated.ClientLastUpdated,
                 previousSnapshot: previousSnapshot,
                 orderId: orderId);
         }
@@ -625,7 +623,6 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 !(_settings.Behavior?.DefaultWithdrawalIsEnabled ?? true),
                 false,
                 DateTime.UtcNow,
-                //todo: find the value of client modification timestamp and pass it here
                 accountName,
                 userId,
                 new AccountAdditionalInfo
@@ -637,7 +634,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             account = await _accountsRepository.GetAsync(accountId);
 
             _eventSender.SendAccountChangedEvent(nameof(CreateAccount), account,
-                AccountChangedEventTypeContract.Created, id, account.ClientLastUpdated);
+                AccountChangedEventTypeContract.Created, id);
 
             //todo consider moving to CQRS projection
             if (_settings.Behavior?.DefaultBalance != null && _settings.Behavior.DefaultBalance != default)

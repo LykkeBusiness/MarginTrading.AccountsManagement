@@ -123,7 +123,6 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                         command.Source,
                         convertedAccount,
                         AccountChangedEventTypeContract.BalanceUpdated,
-                        account.ClientLastUpdated,
                         change,
                         command.OperationId)
                 );

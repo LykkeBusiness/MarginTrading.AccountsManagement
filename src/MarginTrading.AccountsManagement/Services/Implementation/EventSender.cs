@@ -29,7 +29,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         }
 
         public void SendAccountChangedEvent(string source, IAccount account, AccountChangedEventTypeContract eventType,
-            string operationId, DateTime clientLastUpdatedAt, AccountBalanceChangeContract balanceChangeContract = null, 
+            string operationId, AccountBalanceChangeContract balanceChangeContract = null, 
             IAccount previousSnapshot = null,
             string orderId = null)
         {
@@ -41,16 +41,16 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     _convertService.Convert<IAccount, AccountContract>(previousSnapshot);
             }
 
-            CqrsEngine.PublishEvent(
-                new AccountChangedEvent(
+            var @event = new AccountChangedEvent(
                     account.ModificationTimestamp,
                     source,
                     _convertService.Convert<IAccount, AccountContract>(account),
                     eventType,
-                    clientLastUpdatedAt,
                     balanceChangeContract,
                     operationId,
-                    metadata.ToJson()),
+                    metadata.ToJson());
+
+            CqrsEngine.PublishEvent(@event,
                 _contextNames.AccountsManagement);
         }
     }
