@@ -42,6 +42,8 @@ namespace MarginTrading.AccountsManagement.InternalModels.Interfaces
         string AccountName { get; }
 
         public AccountAdditionalInfo AdditionalInfo { get; }
+
+        public DateTime ClientLastUpdated { get; set; }
     }
 
 
