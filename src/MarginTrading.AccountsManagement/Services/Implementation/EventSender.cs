@@ -4,6 +4,7 @@
 using Common;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
+using Lykke.Snow.Common.Extensions;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Infrastructure;
@@ -40,15 +41,16 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     _convertService.Convert<IAccount, AccountContract>(previousSnapshot);
             }
 
-            CqrsEngine.PublishEvent(
-                new AccountChangedEvent(
-                    account.ModificationTimestamp,
+            var @event = new AccountChangedEvent(
+                    account.ModificationTimestamp.AssumeUtcIfUnspecified(),
                     source,
                     _convertService.Convert<IAccount, AccountContract>(account),
                     eventType,
                     balanceChangeContract,
                     operationId,
-                    metadata.ToJson()),
+                    metadata.ToJson());
+
+            CqrsEngine.PublishEvent(@event,
                 _contextNames.AccountsManagement);
         }
     }
