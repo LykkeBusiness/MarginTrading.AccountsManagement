@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 using Autofac;
 
+using Lykke.Cqrs;
+
 using MarginTrading.AccountsManagement.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +22,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IAccountHistoryRepository _accountHistoryRepository;
         private readonly ILogger _logger;
         private readonly IEnumerable<IStartable> _startables;
+        private readonly ICqrsEngine _cqrsEngine;
 
         public StartupManager(IAuditRepository auditRepository,
             IEodTaxFileMissingRepository taxFileMissingRepository,
@@ -27,7 +30,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IAccountsRepository accountsRepository,
             IAccountHistoryRepository accountHistoryRepository,
             ILogger<StartupManager> logger,
-            IEnumerable<IStartable> startables)
+            IEnumerable<IStartable> startables,
+            ICqrsEngine cqrsEngine)
         {
             _auditRepository = auditRepository;
             _taxFileMissingRepository = taxFileMissingRepository;
@@ -36,6 +40,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _accountHistoryRepository = accountHistoryRepository;
             _logger = logger;
             _startables = startables;
+            _cqrsEngine = cqrsEngine;
         }
 
         public void Start()
@@ -58,14 +63,17 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             }
             
             _logger.LogInformation("Initializing repositories");
-            
             _auditRepository.Initialize();
             _taxFileMissingRepository.Initialize();
             _complexityWarningRepository.Initialize();
             _accountsRepository.Initialize();
             _accountHistoryRepository.Initialize();
-
             _logger.LogInformation("Repositories initialization done");
+            
+            
+            _logger.LogInformation("Initializing CQRS engine");
+            _cqrsEngine.StartAll();
+            _logger.LogInformation("CQRS engine initialized");
         }
     }
 }
