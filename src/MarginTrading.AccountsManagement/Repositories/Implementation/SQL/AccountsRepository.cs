@@ -285,13 +285,13 @@ FROM
         private async Task InsertClientIfNotExists(ClientEntity client)
         {
             var sql = $@"
-begin
-   if not exists (select 1 from {ClientsTableName} where Id = @{nameof(ClientEntity.Id)})
-   begin
-       insert into {ClientsTableName} (Id, TradingConditionId, UserId) values (@{nameof(ClientEntity.Id)}, @{nameof(ClientEntity.TradingConditionId)}, @{nameof(ClientEntity.UserId)}) 
-   end
-end
-";
+                begin
+                   if not exists (select 1 from {ClientsTableName} where Id = @{nameof(ClientEntity.Id)})
+                   begin
+                       insert into {ClientsTableName} (Id, TradingConditionId, UserId, ModificationTimestamp) values (@{nameof(ClientEntity.Id)}, @{nameof(ClientEntity.TradingConditionId)}, @{nameof(ClientEntity.UserId)}, @{nameof(ClientEntity.ModificationTimestamp)}) 
+                   end
+                end
+                ";
             await using var conn = new SqlConnection(ConnectionString);
             await conn.ExecuteAsync(sql, client);
         }

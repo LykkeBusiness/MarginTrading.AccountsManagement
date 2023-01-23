@@ -16,7 +16,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             {
                 Id = account.ClientId,
                 TradingConditionId = account.TradingConditionId,
-                UserId = account.UserId
+                UserId = account.UserId,
+                ModificationTimestamp = DateTime.UtcNow
             };
         }
     }
