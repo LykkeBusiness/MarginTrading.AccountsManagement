@@ -67,6 +67,8 @@ namespace MarginTrading.AccountsManagement.InternalModels
 
         public DateTime ModificationTimestamp { get; }
         
+        public DateTime ClientModificationTimestamp { get; }
+        
         public List<TemporaryCapital> TemporaryCapital { get; set; } = new List<TemporaryCapital>(); 
             
         public List<string> LastExecutedOperations { get; set; } = new List<string>();
