@@ -23,14 +23,12 @@ namespace MarginTrading.AccountsManagement.TestClient
         private const string DefaultRoute = "self";
         private const string DefaultPipeline = "commands";
         private readonly CqrsSettings _settings;
-        private readonly ILogger<CqrsFake> _logger;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsFake(CqrsSettings settings, ILogger<CqrsFake> logger)
+        public CqrsFake(CqrsSettings settings)
         {
             _settings = settings;
-            _logger = logger;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
         }
