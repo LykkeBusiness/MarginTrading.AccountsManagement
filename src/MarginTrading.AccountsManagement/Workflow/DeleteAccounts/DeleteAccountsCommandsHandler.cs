@@ -108,15 +108,20 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
 
             var failedAccounts = await ValidateAccountsAsync(executionInfo.Data.AccountIds);
             
-            foreach (var accountToBlock in command.AccountIds.Except(failedAccounts.Keys))
+            foreach (var accountIdToBlock in command.AccountIds.Except(failedAccounts.Keys))
             {
+                if (string.IsNullOrWhiteSpace(accountIdToBlock))
+                {
+                    continue;
+                }
+                
                 try
                 {
-                    var account = (await _accountsRepository.GetAsync(accountToBlock))
-                        .RequiredNotNull(nameof(accountToBlock), $"Account {accountToBlock} does not exist.");
+                    var account = (await _accountsRepository.GetAsync(accountIdToBlock))
+                        .RequiredNotNull(nameof(accountIdToBlock), $"Account {accountIdToBlock} does not exist.");
 
                     var result = await _accountsRepository.UpdateAccountAsync(
-                        accountToBlock,
+                        accountIdToBlock,
                         true,
                         true);
             
@@ -124,13 +129,13 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                         nameof(DeleteAccountsCommand),
                         result,
                         AccountChangedEventTypeContract.Updated,
-                        $"{command.OperationId}_{accountToBlock}",
+                        $"{command.OperationId}_{accountIdToBlock}",
                         previousSnapshot: account);
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "Failed to delete account {AccountId}", accountToBlock);
-                    failedAccounts.Add(accountToBlock, exception.Message);
+                    _logger.LogError(exception, "Failed to delete account {AccountId}", accountIdToBlock);
+                    failedAccounts.Add(accountIdToBlock, exception.Message);
                 }
             }
 
