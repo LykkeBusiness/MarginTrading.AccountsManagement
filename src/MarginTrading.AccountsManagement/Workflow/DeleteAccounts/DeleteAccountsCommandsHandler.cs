@@ -281,6 +281,11 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
             
             foreach (var accountId in accountIdsToValidate)
             {
+                if (string.IsNullOrWhiteSpace(accountId))
+                {
+                    continue;
+                }
+                
                 var account = await _accountsRepository.GetAsync(accountId);
 
                 if (account == null)
