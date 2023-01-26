@@ -285,19 +285,19 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
 
                 if (account == null)
                 {
-                    failedAccounts.Add(accountId, $"Account [{accountId}] does not exist");
+                    failedAccounts.TryAdd(accountId, $"Account [{accountId}] does not exist");
                     continue;
                 }
 
                 if (account.IsDeleted)
                 {
-                    failedAccounts.Add(accountId, $"Account [{accountId}] is deleted. No operations are permitted.");
+                    failedAccounts.TryAdd(accountId, $"Account [{accountId}] is deleted. No operations are permitted.");
                     continue;
                 }
 
                 if (account.Balance != 0)
                 {
-                    failedAccounts.Add(accountId, 
+                    failedAccounts.TryAdd(accountId, 
                         $"Account [{accountId}] balance is non-zero, so it cannot be deleted.");
                     continue;
                 }
@@ -306,7 +306,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                     _systemClock.UtcNow.UtcDateTime.Date);
                 if (todayTransactions.Any())
                 {
-                    failedAccounts.Add(accountId, $"Account [{accountId}] had {todayTransactions.Count} transactions today. Please try to delete an account tomorrow.");
+                    failedAccounts.TryAdd(accountId, $"Account [{accountId}] had {todayTransactions.Count} transactions today. Please try to delete an account tomorrow.");
                     continue;
                 }
             }
