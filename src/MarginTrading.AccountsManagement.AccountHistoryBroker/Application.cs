@@ -73,6 +73,9 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 
                 if (accountHistory.ChangeAmount != 0)
                 {
+                    // TODO: Remove - added for diagnosing purposes.
+                    _logger.LogInformation($"{accountChangedEvent.Account.Id} AccountBalance history is being inserted...");
+
                     await _accountHistoryRepository.InsertAsync(accountHistory);
                     await InvalidateCache(accountHistory.AccountId);
                 }
