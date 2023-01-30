@@ -79,7 +79,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task AddAsync(IAccount account)
         {
-            await InsertClientIfNotExists(ClientEntity.From(account));
+            await InsertClientIfNotExists(ClientEntity.InitializeFromAccount(account));
             await using var conn = new SqlConnection(ConnectionString);
             await conn.ExecuteAsync($"insert into {AccountsTableName} ({GetAccountColumns}) values ({GetAccountFields})", Convert(account));
         }

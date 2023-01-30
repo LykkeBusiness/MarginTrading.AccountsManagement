@@ -10,14 +10,14 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public string UserId { get; set; }
         public DateTime ModificationTimestamp { get; set; }
 
-        public static ClientEntity From(IAccount account)
+        public static ClientEntity InitializeFromAccount(IAccount account)
         {
             return new ClientEntity
             {
                 Id = account.ClientId,
                 TradingConditionId = account.TradingConditionId,
                 UserId = account.UserId,
-                ModificationTimestamp = DateTime.UtcNow
+                ModificationTimestamp = account.ModificationTimestamp
             };
         }
     }

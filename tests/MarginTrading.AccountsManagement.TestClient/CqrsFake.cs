@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2019 Lykke Corp.
+// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Messaging.Serialization;
+using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Settings;
@@ -23,12 +24,14 @@ namespace MarginTrading.AccountsManagement.TestClient
         private const string DefaultRoute = "self";
         private const string DefaultPipeline = "commands";
         private readonly CqrsSettings _settings;
+        private readonly NullLoggerFactory _loggerFactory;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsFake(CqrsSettings settings)
+        public CqrsFake(CqrsSettings settings, NullLoggerFactory loggerFactory)
         {
             _settings = settings;
+            _loggerFactory = loggerFactory;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
         }
@@ -46,7 +49,7 @@ namespace MarginTrading.AccountsManagement.TestClient
             };
             
             return new RabbitMqCqrsEngine(
-                NullLoggerFactory.Instance,
+                _loggerFactory,
                 new AutofacDependencyResolver(Mock.Of<IComponentContext>()),
                 new DefaultEndpointProvider(),
                 rabbitMqSettings.Endpoint.ToString(),
