@@ -62,7 +62,7 @@ namespace MarginTrading.AccountsManagement.TestClient
 
         private static void CheckBrokerRetries()
         {
-            var logger = new NullLogger<CqrsFake>();
+            var loggerFactory = new NullLoggerFactory();
             
             var cqrsEngine = new CqrsFake(new CqrsSettings
             {
@@ -70,9 +70,9 @@ namespace MarginTrading.AccountsManagement.TestClient
                 ContextNames = new CqrsContextNamesSettings(),
                 EnvironmentName = "andreev",
                 RetryDelay = TimeSpan.FromSeconds(5),
-            }, logger).CreateEngine();
+            }, loggerFactory).CreateEngine();
             
-            logger.LogInformation("waiting 5 sec for cqrsEngine");
+            Console.WriteLine("waiting 5 sec for cqrsEngine");
             Thread.Sleep(5000);
 
             cqrsEngine.PublishEvent(new AccountChangedEvent(
