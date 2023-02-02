@@ -99,18 +99,21 @@ namespace MarginTrading.AccountsManagement.Tests
         [FsCheck.NUnit.Property]
         public Property Check_When_AccountIsInLiquidation_ShouldNotCompensate()
         {
-            var sendBalanceCommandsService = new FakeSendBalanceCommandsService();
-            var sut = new NegativeProtectionService(sendBalanceCommandsService,
-                new SystemClock(),
-                new AccountManagementSettings { NegativeProtectionAutoCompensation = true },
-                // emulating core requests which return any account with IsInLiquidation = true
-                new AlwaysInLiquidationAccountApi());
+            var gen = from change in Arb.Default.NegativeInt().Generator
+                from newBalance in Gens.LessThan(change.Get)
+                from autoCompensation in Gen.OneOf(Gen.Constant(true), Gen.Constant(false))
+                select (newBalance: newBalance, change: change.Item, autoCompensation: autoCompensation);
 
             return Prop.ForAll(
-                (from change in Arb.Default.NegativeInt().Generator
-                    from newBalance in Gens.LessThan(change.Get)
-                    select (newBalance: newBalance, change: change.Item)).ToArbitrary(), t =>
+                gen.ToArbitrary(), t =>
                 {
+                    var sendBalanceCommandsService = new FakeSendBalanceCommandsService();
+                    var sut = new NegativeProtectionService(sendBalanceCommandsService,
+                        new SystemClock(),
+                        new AccountManagementSettings { NegativeProtectionAutoCompensation = t.autoCompensation },
+                        // emulating core requests which return any account with IsInLiquidation = true
+                        new AlwaysInLiquidationAccountApi());
+
                     var compensationAmount = sut.CheckAsync("operationId", "accountId", t.newBalance, t.change).Result;
 
                     // compensation amount has to be calculated
