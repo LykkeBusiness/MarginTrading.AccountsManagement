@@ -33,9 +33,14 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             if (newBalance >= 0 || changeAmount > 0)
                 return null;
 
-            // If the balance had already been negative before change happened we compensate only changeAmount
-            // If the balance had been positive before change happened we compensate the difference 
-            var compensationAmount = newBalance < changeAmount ? Abs(changeAmount) : Abs(newBalance); 
+            var compensationAmount =
+                // If the balance had already been negative before change happened
+                newBalance < changeAmount
+                    // we compensate only changeAmount
+                    ? Abs(changeAmount)
+                    // If the balance had been positive before change happened
+                    // we compensate the difference
+                    : Abs(newBalance);
 
             if (_negativeProtectionAutoCompensation)
             {
