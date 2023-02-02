@@ -33,8 +33,11 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _accountsApi = accountsApi;
             _negativeProtectionAutoCompensation = accountManagementSettings.NegativeProtectionAutoCompensation;
         }
-        
-        public async Task<decimal?> CheckAsync(string operationId, string accountId, decimal newBalance, decimal changeAmount)
+
+        public async Task<decimal?> CheckAsync(string operationId,
+            string accountId,
+            decimal newBalance,
+            decimal changeAmount)
         {
             if (newBalance >= 0 || changeAmount > 0)
                 return null;
@@ -50,20 +53,24 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             if (_negativeProtectionAutoCompensation)
             {
-                var auditLog = CreateCompensationAuditLog(DateTime.UtcNow);
-                
-                await _sendBalanceCommandsService.ChargeManuallyAsync(
-                    accountId,
-                    compensationAmount, 
-                    $"{operationId}-negative-protection",
-                    "Negative protection",
-                    NegativeProtectionSaga.CompensationTransactionSource,
-                    auditLog.ToJson(),
-                    AccountBalanceChangeReasonType.CompensationPayments,
-                    operationId,
-                    null,
-                    _systemClock.UtcNow.UtcDateTime
-                );
+                var accountStats = await _accountsApi.GetAccountStats(accountId);
+                if (!accountStats.IsInLiquidation)
+                {
+                    var auditLog = CreateCompensationAuditLog(DateTime.UtcNow);
+
+                    await _sendBalanceCommandsService.ChargeManuallyAsync(
+                        accountId,
+                        compensationAmount,
+                        $"{operationId}-negative-protection",
+                        "Negative protection",
+                        NegativeProtectionSaga.CompensationTransactionSource,
+                        auditLog.ToJson(),
+                        AccountBalanceChangeReasonType.CompensationPayments,
+                        operationId,
+                        null,
+                        _systemClock.UtcNow.UtcDateTime
+                    );   
+                }
             }
 
             return compensationAmount;
