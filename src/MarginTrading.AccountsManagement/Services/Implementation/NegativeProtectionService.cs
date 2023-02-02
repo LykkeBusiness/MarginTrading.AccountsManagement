@@ -5,9 +5,12 @@ using System;
 using static System.Math;
 using System.Threading.Tasks;
 using Common;
+
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.NegativeProtection;
+using MarginTrading.Backend.Contracts;
+
 using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.AccountsManagement.Services.Implementation
@@ -17,14 +20,17 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ISendBalanceCommandsService _sendBalanceCommandsService;
         private readonly ISystemClock _systemClock;
         private readonly bool _negativeProtectionAutoCompensation;
+        private readonly IAccountsApi _accountsApi;
         
         public NegativeProtectionService(
             ISendBalanceCommandsService sendBalanceCommandsService,
             ISystemClock systemClock,
-            AccountManagementSettings accountManagementSettings)
+            AccountManagementSettings accountManagementSettings,
+            IAccountsApi accountsApi)
         {
             _sendBalanceCommandsService = sendBalanceCommandsService;
             _systemClock = systemClock;
+            _accountsApi = accountsApi;
             _negativeProtectionAutoCompensation = accountManagementSettings.NegativeProtectionAutoCompensation;
         }
         

@@ -1,7 +1,7 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
+using static System.Math;
 
 using FluentAssertions;
 
@@ -58,7 +58,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 {
                     var compensationAmount = sut.CheckAsync("operationId", "accountId", t.newBalance, t.change).Result;
 
-                    compensationAmount.Should().Be(Math.Abs(t.change));
+                    compensationAmount.Should().Be(Abs(t.change));
                 });
         }
         
@@ -74,7 +74,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 {
                     var compensationAmount = sut.CheckAsync("operationId", "accountId", t.newBalance, t.change).Result;
 
-                    compensationAmount.Should().Be(Math.Abs(t.newBalance));
+                    compensationAmount.Should().Be(Abs(t.newBalance));
                 });
         }
         
@@ -104,7 +104,8 @@ namespace MarginTrading.AccountsManagement.Tests
                 new AccountManagementSettings
                 {
                     NegativeProtectionAutoCompensation = negativeProtectionAutoCompensation
-                });
+                },
+                new FakeAccountsApi());
         }
     }
 }
