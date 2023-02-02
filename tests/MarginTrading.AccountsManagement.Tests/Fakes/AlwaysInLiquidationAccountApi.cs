@@ -10,16 +10,25 @@ using MarginTrading.Backend.Contracts.Common;
 
 namespace MarginTrading.AccountsManagement.Tests.Fakes
 {
-    internal sealed class FakeAccountsApi: IAccountsApi
+    public class AlwaysInLiquidationAccountApi : IAccountsApi
     {
+        private static AccountStatContract CreateAccountStatContract(string accountId = null) =>
+            new AccountStatContract { AccountId = accountId ?? "fake account id", IsInLiquidation = true };
+
         public Task<List<AccountStatContract>> GetAllAccountStats()
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(new List<AccountStatContract> { CreateAccountStatContract() });
         }
 
         public Task<PaginatedResponseContract<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null, int? take = null)
         {
-            throw new System.NotImplementedException();
+            var result = new PaginatedResponseContract<AccountStatContract>(
+                new List<AccountStatContract>
+                {
+                    CreateAccountStatContract()
+                }, 0, 1, 1);
+
+            return Task.FromResult(result);
         }
 
         public Task<List<string>> GetAllAccountIdsFiltered(ActiveAccountsRequest request)
@@ -29,12 +38,12 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
 
         public Task<AccountStatContract> GetAccountStats(string accountId)
         {
-            return Task.FromResult(new AccountStatContract { AccountId = "fake account id" });
+            return Task.FromResult(CreateAccountStatContract(accountId));
         }
 
         public Task<AccountCapitalFigures> GetCapitalFigures(string accountId)
         {
-            return Task.FromResult(AccountCapitalFigures.Empty);
+            throw new System.NotImplementedException();
         }
 
         public Task ResumeLiquidation(string accountId, string comment)
