@@ -33,16 +33,14 @@ namespace MarginTrading.AccountsManagement.InternalModels.Interfaces
         
         DateTime ModificationTimestamp { get; }
         
+        DateTime ClientModificationTimestamp { get; }
         
         List<TemporaryCapital> TemporaryCapital { get; }
-        
-        
+
         List<string> LastExecutedOperations { get; }
 
         string AccountName { get; }
 
         public AccountAdditionalInfo AdditionalInfo { get; }
     }
-
-
 }

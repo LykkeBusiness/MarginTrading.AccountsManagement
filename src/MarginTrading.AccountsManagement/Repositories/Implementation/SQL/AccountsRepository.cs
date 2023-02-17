@@ -31,15 +31,22 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         private const string DeleteProcName = "DeleteAccountData";
 
         private static Type AccountDataType => typeof(IAccount);
+        private static Type ClientDataType => typeof(IClient);
 
         private static readonly PropertyInfo[] AccountProperties = AccountDataType
             .GetProperties()
-            .Where(p => p.Name != nameof(IAccount.TradingConditionId) && p.Name != nameof(IAccount.UserId))
+            .Where(p => p.Name != nameof(IAccount.TradingConditionId) && p.Name != nameof(IAccount.UserId) && p.Name != nameof(IAccount.ClientModificationTimestamp))
+            .ToArray();
+
+        private static readonly PropertyInfo[] ClientProperties = ClientDataType
+            .GetProperties()
+            .Where(p => p.Name != nameof(ClientEntity.Id) && p.Name != nameof(ClientEntity.UserId))
             .ToArray();
 
         private static readonly string GetAccountColumns = string.Join(",", AccountProperties.Select(x => x.Name));
         private static readonly string GetAccountFields = string.Join(",", AccountProperties.Select(x => "@" + x.Name));
         private static readonly string GetAccountUpdateClause = string.Join(",", AccountProperties.Select(x => "[" + x.Name + "]=@" + x.Name));
+        private static readonly string GetClientUpdateClause = string.Join(",", ClientProperties.Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly StoredProcedure _searchClients = new StoredProcedure("searchClients", "AccountsManagement", "dbo", null);
         private readonly StoredProcedure _getAllClients = new StoredProcedure("getAllClients", "AccountsManagement", "dbo", null);
@@ -72,7 +79,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task AddAsync(IAccount account)
         {
-            await InsertClientIfNotExists(ClientEntity.From(account));
+            await InsertClientIfNotExists(ClientEntity.InitializeFromAccount(account));
             await using var conn = new SqlConnection(ConnectionString);
             await conn.ExecuteAsync($"insert into {AccountsTableName} ({GetAccountColumns}) values ({GetAccountFields})", Convert(account));
         }
@@ -100,16 +107,17 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                                   : " AND (a.AccountName LIKE @search OR a.Id LIKE @search)")
                               + (showDeleted ? "" : " AND a.IsDeleted = 0");
             var accounts = await conn.QueryAsync<AccountEntity>(@$"
-SELECT 
-    a.*, 
-    c.TradingConditionId, 
-    c.UserId 
-FROM 
-    {AccountsTableName} a 
-JOIN 
-    {ClientsTableName} c on c.Id = a.ClientId 
-{whereClause}", 
-                new { clientId, search });
+                SELECT 
+                    a.*, 
+                    c.TradingConditionId, 
+                    c.UserId, 
+                    c.ModificationTimestamp as {nameof(AccountEntity.ClientModificationTimestamp)}
+                FROM 
+                    {AccountsTableName} a 
+                JOIN 
+                    {ClientsTableName} c on c.Id = a.ClientId 
+                {whereClause}", 
+                    new { clientId, search });
                 
             return accounts.ToList();
         }
@@ -157,7 +165,7 @@ JOIN
                               + (string.IsNullOrWhiteSpace(accountId) ? "" : " AND a.Id = @accountId")
                               + (includeDeleted ? "" : " and a.IsDeleted = 0");
             var accounts = await conn.QueryAsync<AccountEntity>(
-                $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
+                $"SELECT a.*, c.TradingConditionId, c.UserId, c.ModificationTimestamp as {nameof(AccountEntity.ClientModificationTimestamp)} FROM {AccountsTableName} a join {ClientsTableName} c on a.ClientId=c.Id {whereClause}", 
                 new { accountId });
                 
             return accounts.FirstOrDefault();
@@ -279,13 +287,13 @@ FROM
         private async Task InsertClientIfNotExists(ClientEntity client)
         {
             var sql = $@"
-begin
-   if not exists (select 1 from {ClientsTableName} where Id = @{nameof(ClientEntity.Id)})
-   begin
-       insert into {ClientsTableName} (Id, TradingConditionId, UserId) values (@{nameof(ClientEntity.Id)}, @{nameof(ClientEntity.TradingConditionId)}, @{nameof(ClientEntity.UserId)}) 
-   end
-end
-";
+                begin
+                   if not exists (select 1 from {ClientsTableName} where Id = @{nameof(ClientEntity.Id)})
+                   begin
+                       insert into {ClientsTableName} (Id, TradingConditionId, UserId, ModificationTimestamp) values (@{nameof(ClientEntity.Id)}, @{nameof(ClientEntity.TradingConditionId)}, @{nameof(ClientEntity.UserId)}, @{nameof(ClientEntity.ModificationTimestamp)}) 
+                   end
+                end
+                ";
             await using var conn = new SqlConnection(ConnectionString);
             await conn.ExecuteAsync(sql, client);
         }
@@ -360,19 +368,10 @@ end
         
         public async Task UpdateClientTradingCondition(string clientId, string tradingConditionId)
         {
-            var sqlParams = new { clientId, tradingConditionId };
-
-            await using var conn = new SqlConnection(ConnectionString);
-
-            var affectedRows = await conn.ExecuteAsync($"update {ClientsTableName} set TradingConditionId = @{nameof(sqlParams.tradingConditionId)} " +
-                                                       $"where Id = @{nameof(sqlParams.clientId)}",
-                sqlParams);
-
-            if (affectedRows != 1)
+            await UpdateClient(clientId, client =>
             {
-                throw new InvalidOperationException($"Unexpected affected rows count {affectedRows} during {nameof(UpdateClientTradingCondition)}. " +
-                                                    $"Sql params: {sqlParams.ToJson()}");
-            }
+                client.TradingConditionId = tradingConditionId;
+            });
         }
 
         #endregion
@@ -420,7 +419,9 @@ end
             try
             {
                 var account = await conn.QuerySingleOrDefaultAsync<AccountEntity>(
-                    $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a WITH (UPDLOCK) join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
+                    $"SELECT a.*, c.TradingConditionId, c.UserId, c.ModificationTimestamp as {nameof(AccountEntity.ClientModificationTimestamp)} " +
+                    $"FROM {AccountsTableName} a WITH (UPDLOCK) " + 
+                    $"join {ClientsTableName} c on c.Id=a.ClientId WHERE a.Id = @accountId", new {accountId}, transaction);
 
                 if (account == null)
                 {
@@ -484,6 +485,28 @@ end
             };
         }
         
+        private async Task UpdateClient(string clientId, Action<ClientEntity> handler)
+        {
+            var clientEntity = new ClientEntity();
+            clientEntity.Id = clientId;
+
+            handler(clientEntity);
+
+            clientEntity.ModificationTimestamp = _systemClock.UtcNow.UtcDateTime;
+
+            await using var conn = new SqlConnection(ConnectionString);
+
+            var rawSql = $"update {ClientsTableName} set {GetClientUpdateClause} where Id=@Id";
+
+            var affectedRows = await conn.ExecuteAsync(rawSql, clientEntity);
+
+            if (affectedRows != 1)
+            {
+                throw new InvalidOperationException($"Unexpected affected rows count {affectedRows} during {nameof(UpdateClient)}. " +
+                                                    $"Sql params: {clientEntity.ToJson()}");
+            }
+        }
+
         #endregion
     }
 }

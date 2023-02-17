@@ -4,7 +4,7 @@
     <AssemblyName>MarginTrading.AccountsManagement.AccountHistoryBroker</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>MarginTrading.AccountsManagement.AccountHistoryBroker</PackageId>
-    <Version>2.11.5</Version>
+    <Version>2.11.8</Version>
     <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
@@ -25,7 +25,7 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
-    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="6.0.2" />
+    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="6.0.4" />
   </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>

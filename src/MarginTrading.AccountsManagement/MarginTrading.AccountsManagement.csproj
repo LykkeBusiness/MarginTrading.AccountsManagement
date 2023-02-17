@@ -5,7 +5,7 @@
         <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
         <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <Version>2.11.5</Version>
+        <Version>2.11.8</Version>
         <LangVersion>8.0</LangVersion>
         <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
         <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
@@ -53,7 +53,9 @@
         <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
         <PackageReference Include="LykkeBiz.Logs.MsSql" Version="3.0.0" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
+        <PackageReference Include="LykkeBiz.Messaging" Version="7.1.0" />
+        <PackageReference Include="LykkeBiz.Messaging.RabbitMq" Version="3.1.0" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.3.3" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
@@ -86,7 +88,7 @@
         <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
         <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <Version>2.11.5</Version>
+        <Version>2.11.8</Version>
         <LangVersion>8.0</LangVersion>
         <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
         <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
@@ -135,7 +137,7 @@
         <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
         <PackageReference Include="LykkeBiz.Logs.MsSql" Version="3.0.0" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.3.3" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />

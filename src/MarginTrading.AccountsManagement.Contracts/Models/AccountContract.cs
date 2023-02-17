@@ -52,5 +52,8 @@ namespace MarginTrading.AccountsManagement.Contracts.Models
         
         [Key(13)] 
         public decimal TemporaryCapital { get; set; }
+        
+        [Key(14)]
+        public DateTime ClientModificationTimestamp { get; set; }
     }
 }

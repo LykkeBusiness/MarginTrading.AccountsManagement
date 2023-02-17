@@ -6,11 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using JetBrains.Annotations;
+using Lykke.Snow.Common.Extensions;
 using MarginTrading.AccountsManagement.Contracts.Audit;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
+using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
+
 using Newtonsoft.Json;
 
 namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
@@ -32,6 +35,8 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 cfg.CreateMap<IAccount, AccountContract>()
                     .ForMember(p => p.AdditionalInfo,
                         s => s.MapFrom(x => x.AdditionalInfo.Serialize()))
+                    .ForMember(p => p.ClientModificationTimestamp,
+                        s => s.MapFrom(x => x.ClientModificationTimestamp.AssumeUtcIfUnspecified()))
                     .ForMember(p => p.TemporaryCapital,
                         s => s.MapFrom(x => x.TemporaryCapital.Sum(x => x.Amount)));
                 cfg.CreateMap<IClient, ClientTradingConditionsContract>()
@@ -46,6 +51,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                     .ForMember(d => d.Name,
                         o => o.MapFrom(s => s.AccountName));
                 cfg.CreateMap<AccountStat, AccountStatContract>();
+                cfg.CreateMap<ILossPercentage, LossPercentageEntity>();
 
                 //Audit
                 cfg.CreateMap<AuditModel, AuditContract>();

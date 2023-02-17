@@ -8,8 +8,13 @@ namespace MarginTrading.AccountsManagement.Settings
     [UsedImplicitly]
     public class RabbitMqSettings
     {
-        public SubscriptionSettings OrderHistory { get;set; }
+        public SubscriptionSettings OrderHistory { get; set; }
         
-        public SubscriptionSettings BrokerSettings { get;set; }
+        public SubscriptionSettings BrokerSettings { get; set; }
+        
+        public SubscriptionSettings EodProcessFinished { get; set; }
+        
+        public SubscriptionSettings LossPercentageUpdated { get; set; }
+
     }
 }
