@@ -92,7 +92,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
 
         /// <summary>
-        /// Gets all accounts, optionally paginated. Both skip and take must be set or unset.
+        /// Gets all accounts, optionally paginated. 
         /// </summary>ListByPages
         [HttpGet]
         [Route("by-pages")]
@@ -100,16 +100,6 @@ namespace MarginTrading.AccountsManagement.Controllers
         public Task<Contracts.PaginatedResponseContract<AccountContract>> ListByPages([FromQuery] string search = null,
             [FromQuery] int? skip = null, [FromQuery] int? take = null, bool showDeleted = false, bool isAscendingOrder = true)
         {
-            if ((skip.HasValue && !take.HasValue) || (!skip.HasValue && take.HasValue))
-            {
-                throw new ArgumentOutOfRangeException(nameof(skip), "Both skip and take must be set or unset");
-            }
-
-            if (take.HasValue && (take <= 0 || skip < 0))
-            {
-                throw new ArgumentOutOfRangeException(nameof(skip), "Skip must be >= 0, take must be > 0");
-            }
-
             return Convert(_accountManagementService.ListByPagesAsync(search, showDeleted, skip, take, isAscendingOrder));
         }
 
@@ -157,11 +147,6 @@ namespace MarginTrading.AccountsManagement.Controllers
         public async Task<Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>>
             SearchByClient([FromQuery] string query, [FromQuery] int skip = 0, [FromQuery] int take = 20)
         {
-            if (take <= 0 || skip < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(skip), "Skip must be >= 0, take must be > 0");
-            }
-            
             var result = await _accountManagementService.SearchByClientAsync(query, skip, take);
 
             return new Contracts.PaginatedResponseContract<ClientTradingConditionsSearchResultContract>(
@@ -185,17 +170,12 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
 
         /// <summary>
-        /// Gets paginated client trading conditions optionally filtered by trading condition. Both skip and take must be set or unset.
+        /// Gets paginated client trading conditions optionally filtered by trading condition. 
         /// </summary>
         [HttpGet]
         [Route("client-trading-conditions")]
         public async Task<Contracts.PaginatedResponseContract<ClientTradingConditionsContract>> ListClientsTradingConditions([FromQuery] string tradingConditionId, [FromQuery] int skip = 0, [FromQuery] int take = 20)
         {
-            if (take <= 0 || skip < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(skip), "Skip must be >= 0, take must be > 0");
-            }
-
             var result = await _accountManagementService.ListClientsByPagesAsync(tradingConditionId, skip, take);
             return new Contracts.PaginatedResponseContract<ClientTradingConditionsContract>(
                 result.Contents.Select(x=> _convertService.Convert<IClient,ClientTradingConditionsContract>(x)).ToList(),
