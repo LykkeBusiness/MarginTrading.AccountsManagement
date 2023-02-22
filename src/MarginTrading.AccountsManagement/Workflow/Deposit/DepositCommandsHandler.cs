@@ -77,9 +77,22 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
         /// Handles the command to fail deposit
         /// </summary>
         [UsedImplicitly]
-        private void Handle(FailDepositInternalCommand c, IEventPublisher publisher)
+        private async Task Handle(FailDepositInternalCommand c, IEventPublisher publisher)
         {
-            publisher.PublishEvent(new DepositFailedEvent(c.OperationId, _systemClock.UtcNow.UtcDateTime));
+            var executionInfo = await _executionInfoRepository.GetAsync<WithdrawalDepositData>(
+                OperationName, c.OperationId);
+            
+            if(executionInfo == null)
+                return;
+            
+            var account = await _accountsRepository.GetAsync(executionInfo.Data.AccountId);
+            
+            publisher.PublishEvent(new DepositFailedEvent(
+                operationId: c.OperationId, 
+                eventTimestamp: _systemClock.UtcNow.UtcDateTime,
+                clientId: account?.ClientId,
+                accountId: executionInfo.Data.AccountId,
+                amount: executionInfo.Data.Amount));
         }
 
         /// <summary>
