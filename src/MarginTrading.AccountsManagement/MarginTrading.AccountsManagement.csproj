@@ -46,7 +46,7 @@
         <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
         <PackageReference Include="Lykke.Middlewares" Version="3.6.0" />
         <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
-        <PackageReference Include="Lykke.Snow.Common" Version="1.52.0" />
+        <PackageReference Include="Lykke.Snow.Common" Version="1.55.0" />
         <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.0.1" />
         <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.25.0" />
         <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.2.4" />
@@ -130,7 +130,7 @@
         <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
         <PackageReference Include="Lykke.Middlewares" Version="3.6.0" />
         <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
-        <PackageReference Include="Lykke.Snow.Common" Version="1.52.0" />
+        <PackageReference Include="Lykke.Snow.Common" Version="1.55.0" />
         <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.0.1" />
         <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.25.0" />
         <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.2.4" />
