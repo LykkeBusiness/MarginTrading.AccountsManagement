@@ -70,6 +70,9 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                 IAccount account = null;
                 try
                 {
+                    // TODO: Remove temporary code
+                    throw new ValidationException();
+
                     account = await _accountsRepository.UpdateBalanceAsync(
                         command.OperationId,
                         command.AccountId,
