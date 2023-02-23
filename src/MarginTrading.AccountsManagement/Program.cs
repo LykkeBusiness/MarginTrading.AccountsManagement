@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Lykke.Logs.Serilog;
 using MarginTrading.AccountsManagement.Startup;
 using Microsoft.AspNetCore.Builder;
 
@@ -14,7 +13,7 @@ namespace MarginTrading.AccountsManagement
     {
         public static async Task Main(string[] args)
         {
-            await StartupLoggingWrapper.HandleStartupException(async () =>
+            await StartupWrapper.StartAsync(async () =>
             {
                 var builder = WebApplication.CreateBuilder(args);
             
@@ -29,7 +28,7 @@ namespace MarginTrading.AccountsManagement
                 await app
                     .Configure()
                     .RunAsync();
-            }, "accounts");
+            });
         }
     }
 }
