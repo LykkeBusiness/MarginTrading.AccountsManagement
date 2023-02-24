@@ -6,6 +6,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Dapper.Contrib.Extensions;
+
+using Lykke.Snow.Common;
+
 using MarginTrading.AccountsManagement.Dal.Common;
 using MarginTrading.AccountsManagement.InternalModels;
 using Microsoft.Data.SqlClient;
@@ -40,7 +43,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         public async Task<PaginatedResponse<AuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
         {
-            take = PaginationHelper.GetTake(take);
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var sqlFilter = filter.AddSqlLikeWildcards();
 

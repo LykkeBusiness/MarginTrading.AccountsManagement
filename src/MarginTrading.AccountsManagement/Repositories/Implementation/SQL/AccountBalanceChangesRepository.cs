@@ -15,6 +15,7 @@ using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Settings;
 
 using Microsoft.Extensions.Logging;
+using Lykke.Snow.Common;
 
 namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 {
@@ -73,7 +74,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType[] reasonTypes = null, 
             string assetPairId = null, int? skip = null, int? take = null, bool isAscendingOrder = true)
         {
-            take = PaginationHelper.GetTake(take);
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
 
             var whereClause = "WHERE 1=1 " 
                                 + (!string.IsNullOrWhiteSpace(accountId) ? " AND AccountId=@accountId" : "")
