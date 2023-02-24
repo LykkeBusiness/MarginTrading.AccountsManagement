@@ -29,7 +29,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         private readonly IAccountHistoryRepository _accountHistoryRepository;
         private readonly ISystemClock _systemClock;
         private readonly ILogger<EodProcessFinishedListener> _logger;
-        private readonly RabbitMqSubscriber<EodProcessFinishedEvent> _eodProcessFinishedSubscriber;
+        private readonly RabbitMqPullingSubscriber<EodProcessFinishedEvent> _eodProcessFinishedSubscriber;
         private readonly AccountManagementSettings _settings;
         private readonly IRabbitPublisher<AutoComputedLossPercentageUpdateEvent> _lossPercentageProducer;
         private readonly string _brokerId;
@@ -39,7 +39,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             IAccountHistoryRepository accountHistoryRepository,
             ISystemClock systemClock,
             ILogger<EodProcessFinishedListener> logger,
-            RabbitMqSubscriber<EodProcessFinishedEvent> eodProcessFinishedSubscriber,
+            RabbitMqPullingSubscriber<EodProcessFinishedEvent> eodProcessFinishedSubscriber,
             AccountManagementSettings settings,
             IRabbitPublisher<AutoComputedLossPercentageUpdateEvent> lossPercentageProducer,
             string brokerId)

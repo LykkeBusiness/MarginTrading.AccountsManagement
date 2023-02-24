@@ -70,7 +70,7 @@ namespace MarginTrading.AccountsManagement.TestClient
                 ContextNames = new CqrsContextNamesSettings(),
                 EnvironmentName = "andreev",
                 RetryDelay = TimeSpan.FromSeconds(5),
-            }, logger).CreateEngine();
+            }).CreateEngine();
             
             logger.LogInformation("waiting 5 sec for cqrsEngine");
             Thread.Sleep(5000);

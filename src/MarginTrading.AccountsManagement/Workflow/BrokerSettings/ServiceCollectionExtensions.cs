@@ -25,8 +25,8 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         public static void AddBrokerSettings(this IServiceCollection services, AppSettings settings)
         {
             services.AddSingleton(ctx =>
-                new RabbitMqSubscriber<BrokerSettingsChangedEvent>(
-                        ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<BrokerSettingsChangedEvent>>(),
+                new RabbitMqPullingSubscriber<BrokerSettingsChangedEvent>(
+                        ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqPullingSubscriber<BrokerSettingsChangedEvent>>(),
                         settings.MarginTradingAccountManagement.RabbitMq.BrokerSettings)
                     .SetMessageDeserializer(new MessagePackMessageDeserializer<BrokerSettingsChangedEvent>())
                     .SetMessageReadStrategy(new MessageReadQueueStrategy())
@@ -39,8 +39,8 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         public static void AddEodProcessFinishedSubscriber(this IServiceCollection services, AppSettings settings)
         {
             services.AddSingleton(ctx =>
-                new RabbitMqSubscriber<EodProcessFinishedEvent>(
-                        ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
+                new RabbitMqPullingSubscriber<EodProcessFinishedEvent>(
+                        ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqPullingSubscriber<EodProcessFinishedEvent>>(),
                         settings.MarginTradingAccountManagement.RabbitMq.EodProcessFinished)
                     .SetMessageDeserializer(new MessagePackMessageDeserializer<EodProcessFinishedEvent>())
                     .SetMessageReadStrategy(new MessageReadQueueStrategy())
@@ -52,8 +52,8 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         
         public static void AddOrderHistoryEventSubscriber(this IServiceCollection services, AppSettings settings)
         {  
-            services.AddSingleton(ctx => new RabbitMqSubscriber<OrderHistoryEvent>(
-                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqSubscriber<OrderHistoryEvent>>(),
+            services.AddSingleton(ctx => new RabbitMqPullingSubscriber<OrderHistoryEvent>(
+                    ctx.GetRequiredService<ILoggerFactory>().CreateLogger<RabbitMqPullingSubscriber<OrderHistoryEvent>>(),
                     settings.MarginTradingAccountManagement.RabbitMq.OrderHistory)
                 .SetMessageDeserializer(new JsonMessageDeserializer<OrderHistoryEvent>())
                 .SetMessageReadStrategy(new MessageReadQueueStrategy())

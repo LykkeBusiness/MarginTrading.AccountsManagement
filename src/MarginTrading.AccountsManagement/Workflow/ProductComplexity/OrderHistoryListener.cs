@@ -27,14 +27,14 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
         private readonly IFeatureManager _featureManager;
         private readonly AccountManagementSettings _settings;
         private readonly ILogger<OrderHistoryListener> _log;
-        private readonly RabbitMqSubscriber<OrderHistoryEvent> _subscriber;
+        private readonly RabbitMqPullingSubscriber<OrderHistoryEvent> _subscriber;
 
         public OrderHistoryListener(IComplexityWarningRepository complexityWarningRepository, 
             IAccountManagementService accountManagementService,
             IFeatureManager featureManager,
             AccountManagementSettings settings, 
             ILogger<OrderHistoryListener> log,
-            RabbitMqSubscriber<OrderHistoryEvent> subscriber):base(new DefaultLogLevelMapper(), log)
+            RabbitMqPullingSubscriber<OrderHistoryEvent> subscriber):base(new DefaultLogLevelMapper(), log)
         {
             _complexityWarningRepository = complexityWarningRepository;
             _accountManagementService = accountManagementService;
