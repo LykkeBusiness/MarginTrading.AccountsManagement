@@ -58,7 +58,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 _accountHistoryRepositoryMock.Object,
                 _systemClockMock.Object,
                 _loggerMock.Object,
-                It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
+                It.IsAny<RabbitMqPullingSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
                     LossPercentageExpirationCheckPeriodInDays = 2
@@ -97,7 +97,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 _accountHistoryRepositoryMock.Object,
                 _systemClockMock.Object,
                 _loggerMock.Object,
-                It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
+                It.IsAny<RabbitMqPullingSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
                     LossPercentageCalculationPeriodInDays = lossPercentageCalculationPeriodInDays
@@ -155,7 +155,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 _accountHistoryRepositoryMock.Object,
                 _systemClockMock.Object,
                 _loggerMock.Object,
-                It.IsAny<RabbitMqSubscriber<EodProcessFinishedEvent>>(),
+                It.IsAny<RabbitMqPullingSubscriber<EodProcessFinishedEvent>>(),
                 new AccountManagementSettings
                 {
                     LossPercentageExpirationCheckPeriodInDays = 1,
