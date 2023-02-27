@@ -12,6 +12,7 @@ using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Workflow.Deposit.Commands;
 using MarginTrading.AccountsManagement.Workflow.Deposit.Events;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Workflow.Deposit
 {
@@ -22,17 +23,20 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
         private readonly IAccountsRepository _accountsRepository;
         private const string OperationName = "Deposit";
         private readonly IChaosKitty _chaosKitty;
+        private readonly ILogger<DepositCommandsHandler> _logger;
 
         public DepositCommandsHandler(
-            ISystemClock systemClock, 
+            ISystemClock systemClock,
             IOperationExecutionInfoRepository executionInfoRepository,
             IAccountsRepository accountsRepository,
-            IChaosKitty chaosKitty)
+            IChaosKitty chaosKitty,
+            ILogger<DepositCommandsHandler> logger)
         {
             _systemClock = systemClock;
             _executionInfoRepository = executionInfoRepository;
             _accountsRepository = accountsRepository;
             _chaosKitty = chaosKitty;
+            _logger = logger;
         }
 
         /// <summary>
@@ -83,7 +87,10 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
                 OperationName, c.OperationId);
             
             if(executionInfo == null)
+            {
+                _logger.LogWarning("Couldn't find execution info for OperationId {OperationId}", c.OperationId);
                 return;
+            }
             
             var account = await _accountsRepository.GetAsync(executionInfo.Data.AccountId);
             
