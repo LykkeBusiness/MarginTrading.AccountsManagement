@@ -5,13 +5,9 @@ using System;
 using System.Linq;
 using System.Threading;
 using AsyncFriendlyStackTrace;
-using Microsoft.Extensions.Logging;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Settings;
-
-using Microsoft.Extensions.Logging.Abstractions;
-
 using Newtonsoft.Json;
 using Refit;
 
@@ -62,15 +58,13 @@ namespace MarginTrading.AccountsManagement.TestClient
 
         private static void CheckBrokerRetries()
         {
-            var loggerFactory = new NullLoggerFactory();
-            
             var cqrsEngine = new CqrsFake(new CqrsSettings
             {
                 ConnectionString = "rabbit connstr here",
                 ContextNames = new CqrsContextNamesSettings(),
                 EnvironmentName = "andreev",
                 RetryDelay = TimeSpan.FromSeconds(5),
-            }, loggerFactory).CreateEngine();
+            }).CreateEngine();
             
             Console.WriteLine("waiting 5 sec for cqrsEngine");
             Thread.Sleep(5000);
