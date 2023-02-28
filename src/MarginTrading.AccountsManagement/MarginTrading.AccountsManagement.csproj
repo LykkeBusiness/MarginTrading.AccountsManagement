@@ -5,7 +5,7 @@
         <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
         <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <Version>2.12.1</Version>
+        <Version>2.12.2</Version>
         <LangVersion>8.0</LangVersion>
         <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
         <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
@@ -49,8 +49,8 @@
         <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
         <PackageReference Include="LykkeBiz.Logs.MsSql" Version="3.0.0" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="11.3.0" />
-        <PackageReference Include="LykkeBiz.SettingsReader" Version="7.0.0" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.3.3" />
+        <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
