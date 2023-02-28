@@ -42,7 +42,6 @@
         <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.46.0" />
         <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
         <PackageReference Include="Lykke.Middlewares" Version="3.6.0" />
-        <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
         <PackageReference Include="Lykke.Snow.Common" Version="1.56.0" />
         <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.6.0" />
         <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.25.0" />
@@ -50,8 +49,8 @@
         <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
         <PackageReference Include="LykkeBiz.Logs.MsSql" Version="3.0.0" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="11.3.0" />
-        <PackageReference Include="LykkeBiz.SettingsReader" Version="7.0.0" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.3.3" />
+        <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
