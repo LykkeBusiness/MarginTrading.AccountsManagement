@@ -51,7 +51,7 @@
         <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
         <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.3.3" />
         <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
-        <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
+        <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.9" />
