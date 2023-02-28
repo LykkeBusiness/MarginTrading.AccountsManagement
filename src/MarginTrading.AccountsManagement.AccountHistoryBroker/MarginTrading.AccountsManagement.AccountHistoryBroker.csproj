@@ -24,10 +24,10 @@
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="11.3.0" />
-    <PackageReference Include="LykkeBiz.SettingsReader" Version="7.0.0" />
+    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.3.3" />
+    <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
-    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="7.0.2" />
+    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="6.0.4" />
   </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>
