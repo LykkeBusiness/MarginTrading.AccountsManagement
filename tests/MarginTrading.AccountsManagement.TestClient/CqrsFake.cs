@@ -3,16 +3,15 @@
 
 using System;
 using Autofac;
-using Microsoft.Extensions.Logging;
+
+using Common.Log;
+
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Messaging.Serialization;
-using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Settings;
-
-using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 using AutofacDependencyResolver = Lykke.Cqrs.AutofacDependencyResolver;
@@ -24,14 +23,12 @@ namespace MarginTrading.AccountsManagement.TestClient
         private const string DefaultRoute = "self";
         private const string DefaultPipeline = "commands";
         private readonly CqrsSettings _settings;
-        private readonly NullLoggerFactory _loggerFactory;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsFake(CqrsSettings settings, NullLoggerFactory loggerFactory)
+        public CqrsFake(CqrsSettings settings)
         {
             _settings = settings;
-            _loggerFactory = loggerFactory;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
         }
@@ -47,9 +44,9 @@ namespace MarginTrading.AccountsManagement.TestClient
             {
                 Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
             };
-            
+
             return new RabbitMqCqrsEngine(
-                _loggerFactory,
+                EmptyLog.Instance,
                 new AutofacDependencyResolver(Mock.Of<IComponentContext>()),
                 new DefaultEndpointProvider(),
                 rabbitMqSettings.Endpoint.ToString(),
