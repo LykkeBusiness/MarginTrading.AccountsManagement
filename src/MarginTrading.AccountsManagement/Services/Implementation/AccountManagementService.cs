@@ -312,13 +312,13 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         {
             var account = await GetByIdAsync(accountId);
 
-            //account.RequiredNotNull(nameof(account), $"Account [{accountId}] does not exist");
+            account.RequiredNotNull(nameof(account), $"Account [{accountId}] does not exist");
 
-            //if (!skipDeleteValidation && account.IsDeleted)
-            //{
-            //    throw new ValidationException(
-            //        $"Account [{account.Id}] is deleted. No operations are permitted.");
-            //}
+            if (!skipDeleteValidation && account.IsDeleted)
+            {
+                throw new ValidationException(
+                    $"Account [{account.Id}] is deleted. No operations are permitted.");
+            }
 
             return account;
         }
