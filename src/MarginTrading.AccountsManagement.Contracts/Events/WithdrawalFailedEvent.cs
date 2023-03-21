@@ -25,14 +25,18 @@ namespace MarginTrading.AccountsManagement.Contracts.Events
         [Key(5)]
         public decimal Amount { get; }
 
+        [Key(6)]
+        public string Currency { get; }
+
         public WithdrawalFailedEvent([NotNull] string operationId, DateTime eventTimestamp, string reason,
-            string accountId, string clientId, decimal amount)
+            string accountId, string clientId, decimal amount, string currency)
             : base(operationId, eventTimestamp)
         {
             Reason = reason;
             AccountId = accountId;
             ClientId = clientId;
             Amount = amount;
+            Currency = currency;
         }
     }
 }
