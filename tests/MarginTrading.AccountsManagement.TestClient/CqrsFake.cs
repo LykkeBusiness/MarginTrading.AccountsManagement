@@ -1,4 +1,4 @@
-// Copyright (c) 2019 Lykke Corp.
+﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
 using System;
@@ -12,6 +12,9 @@ using Lykke.Messaging.Serialization;
 using Lykke.Snow.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Settings;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Moq;
 using AutofacDependencyResolver = Lykke.Cqrs.AutofacDependencyResolver;
@@ -46,7 +49,7 @@ namespace MarginTrading.AccountsManagement.TestClient
             };
 
             return new RabbitMqCqrsEngine(
-                EmptyLog.Instance,
+                NullLoggerFactory.Instance,
                 new AutofacDependencyResolver(Mock.Of<IComponentContext>()),
                 new DefaultEndpointProvider(),
                 rabbitMqSettings.Endpoint.ToString(),

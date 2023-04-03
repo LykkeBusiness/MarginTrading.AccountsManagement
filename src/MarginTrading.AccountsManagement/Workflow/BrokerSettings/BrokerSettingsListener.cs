@@ -16,13 +16,13 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
     public class BrokerSettingsListener : HostedServiceMiddleware, IHostedService
     {
         private readonly ILogger<BrokerSettingsListener> logger;
-        private readonly RabbitMqSubscriber<BrokerSettingsChangedEvent> brokerSettingsChangedSubscriber;
+        private readonly RabbitMqPullingSubscriber<BrokerSettingsChangedEvent> brokerSettingsChangedSubscriber;
         private readonly IBrokerSettingsCache brokerSettingsCache;
         private readonly string brokerId;
 
         public BrokerSettingsListener(
             ILogger<BrokerSettingsListener> logger,
-            RabbitMqSubscriber<BrokerSettingsChangedEvent> brokerSettingsChangedSubscriber,
+            RabbitMqPullingSubscriber<BrokerSettingsChangedEvent> brokerSettingsChangedSubscriber,
             IBrokerSettingsCache brokerSettingsCache,
             string brokerId)
             : base(new DefaultLogLevelMapper(), logger)
