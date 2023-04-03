@@ -143,7 +143,8 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
                 command.Reason,
                 executionInfo.Data.AccountId,
                 account?.ClientId,
-                executionInfo.Data.Amount));
+                executionInfo.Data.Amount,
+                currency: account?.BaseAssetId));
         }
 
         /// <summary>
@@ -166,8 +167,13 @@ namespace MarginTrading.AccountsManagement.Workflow.Withdrawal
                 "(OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
                 command.OperationId, account.Id, executionInfo.Data.Amount);
 
-            publisher.PublishEvent(new WithdrawalSucceededEvent(command.OperationId, _systemClock.UtcNow.UtcDateTime,
-                account?.ClientId, executionInfo.Data.AccountId, executionInfo.Data.Amount));
+            publisher.PublishEvent(new WithdrawalSucceededEvent(
+                operationId: command.OperationId, 
+                eventTimestamp: _systemClock.UtcNow.UtcDateTime,
+                clientId: account?.ClientId, 
+                accountId: executionInfo.Data.AccountId, 
+                amount: executionInfo.Data.Amount,
+                currency: account?.BaseAssetId));
         }
     }
 }

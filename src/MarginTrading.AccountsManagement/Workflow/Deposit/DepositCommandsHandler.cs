@@ -12,6 +12,7 @@ using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Workflow.Deposit.Commands;
 using MarginTrading.AccountsManagement.Workflow.Deposit.Events;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Workflow.Deposit
 {
@@ -22,17 +23,20 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
         private readonly IAccountsRepository _accountsRepository;
         private const string OperationName = "Deposit";
         private readonly IChaosKitty _chaosKitty;
+        private readonly ILogger<DepositCommandsHandler> _logger;
 
         public DepositCommandsHandler(
-            ISystemClock systemClock, 
+            ISystemClock systemClock,
             IOperationExecutionInfoRepository executionInfoRepository,
             IAccountsRepository accountsRepository,
-            IChaosKitty chaosKitty)
+            IChaosKitty chaosKitty,
+            ILogger<DepositCommandsHandler> logger)
         {
             _systemClock = systemClock;
             _executionInfoRepository = executionInfoRepository;
             _accountsRepository = accountsRepository;
             _chaosKitty = chaosKitty;
+            _logger = logger;
         }
 
         /// <summary>
@@ -77,9 +81,26 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
         /// Handles the command to fail deposit
         /// </summary>
         [UsedImplicitly]
-        private void Handle(FailDepositInternalCommand c, IEventPublisher publisher)
+        private async Task Handle(FailDepositInternalCommand c, IEventPublisher publisher)
         {
-            publisher.PublishEvent(new DepositFailedEvent(c.OperationId, _systemClock.UtcNow.UtcDateTime));
+            var executionInfo = await _executionInfoRepository.GetAsync<WithdrawalDepositData>(
+                OperationName, c.OperationId);
+
+            if (executionInfo == null)
+            {
+                _logger.LogWarning("Couldn't find execution info for OperationId {OperationId}", c.OperationId);
+                return;
+            }
+
+            var account = await _accountsRepository.GetAsync(executionInfo.Data.AccountId);
+
+            publisher.PublishEvent(new DepositFailedEvent(
+                operationId: c.OperationId,
+                eventTimestamp: _systemClock.UtcNow.UtcDateTime,
+                clientId: account?.ClientId,
+                accountId: executionInfo.Data.AccountId,
+                amount: executionInfo.Data.Amount,
+                currency: account?.BaseAssetId));
         }
 
         /// <summary>
@@ -98,8 +119,13 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
 
             var account = await _accountsRepository.GetAsync(executionInfo.Data.AccountId);
 
-            publisher.PublishEvent(new DepositSucceededEvent(c.OperationId, _systemClock.UtcNow.UtcDateTime,
-                account?.ClientId, executionInfo.Data.AccountId, executionInfo.Data.Amount));
+            publisher.PublishEvent(new DepositSucceededEvent(
+                operationId: c.OperationId, 
+                eventTimestamp: _systemClock.UtcNow.UtcDateTime,
+                clientId: account?.ClientId, 
+                accountId: executionInfo.Data.AccountId, 
+                amount: executionInfo.Data.Amount,
+                currency: account?.BaseAssetId));
         }
     }
 }

@@ -29,7 +29,7 @@ namespace MarginTrading.AccountsManagement.Startup
             catch (Exception ex)
             {
                 log?.LogCritical(ex, "Error on startup");
-                throw;
+                app.StopAsync().GetAwaiter().GetResult();
             }
         }
     }

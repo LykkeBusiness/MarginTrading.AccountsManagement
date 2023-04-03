@@ -130,12 +130,14 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                 search = "%" + search + "%";
             }
 
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
+
             await using var conn = new SqlConnection(ConnectionString);
             var whereClause = "WHERE a.ClientId=c.Id"
                               + (string.IsNullOrWhiteSpace(search) ? "" : " AND (a.AccountName LIKE @search OR a.Id LIKE @search OR c.Id LIKE @search OR c.UserId LIKE @search)")
                               + (showDeleted ? "" : " AND a.IsDeleted = 0");
 
-            var paginationClause = $" ORDER BY [Id] {(isAscendingOrder ? "ASC" : "DESC")} OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+            var paginationClause = $" ORDER BY [Id] {(isAscendingOrder ? "ASC" : "DESC")} OFFSET {skip ?? 0} ROWS FETCH NEXT {take} ROWS ONLY";
             var gridReader = await conn.QueryMultipleAsync(
                 $"SELECT a.*, c.TradingConditionId, c.UserId FROM {AccountsTableName} a, {ClientsTableName} c {whereClause} {paginationClause}; " +
                 $"SELECT COUNT(*) FROM {AccountsTableName} a, {ClientsTableName} c {whereClause}",
@@ -298,9 +300,11 @@ FROM
 
         public async Task<PaginatedResponse<IClient>> GetClientsByPagesAsync(string tradingConditionId, int skip, int take)
         {
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
+
             await using var conn = new SqlConnection(ConnectionString);
             var whereClause = $"WHERE exists (select 1 from MarginTradingAccounts a where a.ClientId = c.Id){(string.IsNullOrEmpty(tradingConditionId) ? "" : " and c.TradingConditionId = @tradingConditionId")}";
-            var paginationClause = $" ORDER BY [Id] ASC OFFSET {skip} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+            var paginationClause = $" ORDER BY [Id] ASC OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
             var gridReader = await conn.QueryMultipleAsync($"SELECT * FROM {ClientsTableName} c {whereClause} {paginationClause}; " +
                                                            $"SELECT COUNT(*) FROM {ClientsTableName} c {whereClause}", new {tradingConditionId});
             var clients = (await gridReader.ReadAsync<ClientEntity>()).ToList();
@@ -316,6 +320,8 @@ FROM
 
         public async Task<PaginatedResponse<IClientWithAccounts>> SearchByClientAsync(string query, int skip, int take)
         {
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
+
             var result = await base.GetAllAsync(_searchClients, skip, take, false,
                 new[]
                 {
