@@ -12,7 +12,6 @@ using Lykke.Cqrs.Configuration.Saga;
 using Lykke.Cqrs.Middleware.Logging;
 using Lykke.Messaging.Serialization;
 using Lykke.Snow.Common.Correlation.Cqrs;
-using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Commands;
 using MarginTrading.AccountsManagement.Contracts.Events;
@@ -91,10 +90,10 @@ namespace MarginTrading.AccountsManagement.Modules
                 Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
             };
             
-            var log = new LykkeLoggerAdapter<CqrsModule>(ctx.Resolve<ILogger<CqrsModule>>());
+            var loggerFactory = ctx.Resolve<ILoggerFactory>();
             
             var engine = new RabbitMqCqrsEngine(
-                log,
+                loggerFactory,
                 ctx.Resolve<IDependencyResolver>(),
                 new DefaultEndpointProvider(),
                 rabbitMqSettings.Endpoint.ToString(),
@@ -111,8 +110,8 @@ namespace MarginTrading.AccountsManagement.Modules
                 RegisterRevokeTemporaryCapitalSaga(),
                 RegisterDeleteAccountsSaga(),
                 RegisterContext(),
-                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(log)),
-                Register.EventInterceptors(new DefaultEventLoggingInterceptor(log)));
+                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(loggerFactory)),
+                Register.EventInterceptors(new DefaultEventLoggingInterceptor(loggerFactory)));
             var correlationManager = ctx.Resolve<CqrsCorrelationManager>();
             engine.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
             engine.SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);
