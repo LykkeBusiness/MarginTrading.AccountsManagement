@@ -63,11 +63,9 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                     new  OperationData { State = OperationState.Created },
                     _systemClock.UtcNow.UtcDateTime));
             
-            var amountWithdrawn = Math.Abs(command.AmountDelta);
-
             if (SwitchState(executionInfo.Data, OperationState.Created, OperationState.Started))
             {
-                IAccount account = null;
+                IAccount account;
                 try
                 {
                     account = await _accountsRepository.UpdateBalanceAsync(
@@ -80,10 +78,10 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
                 {
                     _logger.LogWarning(ex, "Validation error while updating balance for account {AccountId}",
                         command.AccountId);
-                    
-                    _logger.LogWarning("The account balance could not be updated during withdrawal. Reason: Validation error." +
-                        "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
-                        command.OperationId, command.AccountId, amountWithdrawn);
+
+                    _logger.LogWarning(
+                        "The account balance could not be updated during [{OperationType}] operation. Reason: Validation error. Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount})",
+                        command.ChangeReasonType.ToString(), command.OperationId, command.AccountId, Math.Abs(command.AmountDelta));
 
                     publisher.PublishEvent(new AccountBalanceChangeFailedEvent(command.OperationId,
                         _systemClock.UtcNow.UtcDateTime, ex.Message, command.Source));
@@ -113,9 +111,9 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
 
                 var convertedAccount = Convert(account);
 
-                _logger.LogInformation($"The account balance has been updated after withdrawal. " +
-                    "Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount}, CurrentBalance: {CurrentBalance})",
-                    command.OperationId, command.AccountId, amountWithdrawn, account.Balance);
+                _logger.LogInformation(
+                    "The account balance has been updated after [{OperationType}] operation. Details: (OperationId: {OperationId}, AccountId: {AccountId}, Amount: {Amount}, CurrentBalance: {CurrentBalance})",
+                    command.ChangeReasonType.ToString(), command.OperationId, command.AccountId, Math.Abs(command.AmountDelta), account.Balance);
 
                 publisher.PublishEvent(
                     new AccountChangedEvent(
