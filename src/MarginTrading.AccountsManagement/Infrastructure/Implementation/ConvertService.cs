@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using JetBrains.Annotations;
+using Lykke.Snow.Common.Extensions;
 using MarginTrading.AccountsManagement.Contracts.Audit;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
@@ -34,6 +35,8 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 cfg.CreateMap<IAccount, AccountContract>()
                     .ForMember(p => p.AdditionalInfo,
                         s => s.MapFrom(x => x.AdditionalInfo.Serialize()))
+                    .ForMember(p => p.ClientModificationTimestamp,
+                        s => s.MapFrom(x => x.ClientModificationTimestamp.AssumeUtcIfUnspecified()))
                     .ForMember(p => p.TemporaryCapital,
                         s => s.MapFrom(x => x.TemporaryCapital.Sum(x => x.Amount)));
                 cfg.CreateMap<IClient, ClientTradingConditionsContract>()

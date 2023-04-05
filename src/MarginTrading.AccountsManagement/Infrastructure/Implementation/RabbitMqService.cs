@@ -106,7 +106,7 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 IsDurable = isDurable,
             };
 
-            var rabbitMqPullingSubscriber = new RabbitMqPullingSubscriber<TMessage>(
+            var rabbitMqSubscriber = new RabbitMqPullingSubscriber<TMessage>(
                     _loggerFactory.CreateLogger<RabbitMqPullingSubscriber<TMessage>>(),
                     subscriptionSettings)
                 .SetMessageDeserializer(new JsonMessageDeserializer<TMessage>(JsonSerializerSettings))
@@ -115,13 +115,13 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                     _loggerFactory.CreateLogger<ExceptionSwallowMiddleware<TMessage>>()))
                 .SetReadHeadersAction(_correlationManager.FetchCorrelationIfExists);
 
-            if (!_subscribers.TryAdd(subscriptionSettings.QueueName, rabbitMqPullingSubscriber))
+            if (!_subscribers.TryAdd(subscriptionSettings.QueueName, rabbitMqSubscriber))
             {
                 throw new InvalidOperationException(
                     $"A subscriber for queue {subscriptionSettings.QueueName} was already initialized");
             }
 
-            rabbitMqPullingSubscriber.Start();
+            rabbitMqSubscriber.Start();
         }
 
         /// <remarks>

@@ -108,15 +108,20 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
 
             var failedAccounts = await ValidateAccountsAsync(executionInfo.Data.AccountIds);
             
-            foreach (var accountToBlock in command.AccountIds.Except(failedAccounts.Keys))
+            foreach (var accountIdToBlock in command.AccountIds.Except(failedAccounts.Keys))
             {
+                if (string.IsNullOrWhiteSpace(accountIdToBlock))
+                {
+                    continue;
+                }
+                
                 try
                 {
-                    var account = (await _accountsRepository.GetAsync(accountToBlock))
-                        .RequiredNotNull(nameof(accountToBlock), $"Account {accountToBlock} does not exist.");
+                    var account = (await _accountsRepository.GetAsync(accountIdToBlock))
+                        .RequiredNotNull(nameof(accountIdToBlock), $"Account {accountIdToBlock} does not exist.");
 
                     var result = await _accountsRepository.UpdateAccountAsync(
-                        accountToBlock,
+                        accountIdToBlock,
                         true,
                         true);
             
@@ -124,13 +129,13 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                         nameof(DeleteAccountsCommand),
                         result,
                         AccountChangedEventTypeContract.Updated,
-                        $"{command.OperationId}_{accountToBlock}",
+                        $"{command.OperationId}_{accountIdToBlock}",
                         previousSnapshot: account);
                 }
                 catch (Exception exception)
                 {
-                    _logger.LogError(exception, "Failed to delete account {AccountId}", accountToBlock);
-                    failedAccounts.Add(accountToBlock, exception.Message);
+                    _logger.LogError(exception, "Failed to delete account {AccountId}", accountIdToBlock);
+                    failedAccounts.Add(accountIdToBlock, exception.Message);
                 }
             }
 
@@ -281,23 +286,28 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
             
             foreach (var accountId in accountIdsToValidate)
             {
+                if (string.IsNullOrWhiteSpace(accountId))
+                {
+                    continue;
+                }
+                
                 var account = await _accountsRepository.GetAsync(accountId);
 
                 if (account == null)
                 {
-                    failedAccounts.Add(accountId, $"Account [{accountId}] does not exist");
+                    failedAccounts.TryAdd(accountId, $"Account [{accountId}] does not exist");
                     continue;
                 }
 
                 if (account.IsDeleted)
                 {
-                    failedAccounts.Add(accountId, $"Account [{accountId}] is deleted. No operations are permitted.");
+                    failedAccounts.TryAdd(accountId, $"Account [{accountId}] is deleted. No operations are permitted.");
                     continue;
                 }
 
                 if (account.Balance != 0)
                 {
-                    failedAccounts.Add(accountId, 
+                    failedAccounts.TryAdd(accountId, 
                         $"Account [{accountId}] balance is non-zero, so it cannot be deleted.");
                     continue;
                 }
@@ -306,7 +316,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
                     _systemClock.UtcNow.UtcDateTime.Date);
                 if (todayTransactions.Any())
                 {
-                    failedAccounts.Add(accountId, $"Account [{accountId}] had {todayTransactions.Count} transactions today. Please try to delete an account tomorrow.");
+                    failedAccounts.TryAdd(accountId, $"Account [{accountId}] had {todayTransactions.Count} transactions today. Please try to delete an account tomorrow.");
                     continue;
                 }
             }

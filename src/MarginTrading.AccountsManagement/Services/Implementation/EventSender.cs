@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Common;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
@@ -40,15 +41,16 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     _convertService.Convert<IAccount, AccountContract>(previousSnapshot);
             }
 
-            CqrsEngine.PublishEvent(
-                new AccountChangedEvent(
-                    account.ModificationTimestamp,
+            var @event = new AccountChangedEvent(
+                    DateTime.UtcNow,
                     source,
                     _convertService.Convert<IAccount, AccountContract>(account),
                     eventType,
                     balanceChangeContract,
                     operationId,
-                    metadata.ToJson()),
+                    metadata.ToJson());
+
+            CqrsEngine.PublishEvent(@event,
                 _contextNames.AccountsManagement);
         }
     }
