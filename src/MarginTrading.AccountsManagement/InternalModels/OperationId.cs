@@ -7,14 +7,16 @@ using System.Globalization;
 namespace MarginTrading.AccountsManagement.InternalModels
 {
     /// <summary>
-    /// The operation identifier
+    /// The immutable operation identifier with MaxLength = 128
     /// </summary>
     public sealed class OperationId : IEquatable<OperationId>
     {
         internal const int MaxLength = 128;
-        private const string Separator = "-";
+        private const string PostfixSeparator = "-";
+
+        private string Value { get; }
         
-        public string Value { get; }
+        # region IEquatable implementation
         
         public bool Equals(OperationId other)
         {
@@ -45,13 +47,17 @@ namespace MarginTrading.AccountsManagement.InternalModels
         {
             return !Equals(left, right);
         }
+        
+        #endregion
 
         /// <summary>
-        /// Creates a new instance of <see cref="OperationId"/> from string
+        /// Creates a new instance of <see cref="OperationId"/> from any string
         /// </summary>
         /// <param name="value"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException">When value is empty or null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// When value length is greater than <see cref="MaxLength"/>
+        /// </exception>
         public OperationId(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -72,12 +78,16 @@ namespace MarginTrading.AccountsManagement.InternalModels
         }
         
         /// <summary>
-        /// Adds a postfix to the operation id. Apart from postfix itself, the separator (1 symbol) is added.
+        /// Creates operation id from the current one but adds a postfix.
+        /// Apart from postfix itself, the separator (1 symbol) is added.
+        /// If postfix is already present, the current instance is returned.
         /// </summary>
         /// <param name="postfix"></param>
         /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        /// <exception cref="ArgumentNullException">When postfix is empty or null</exception> 
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// When postfix length is greater than <see cref="MaxLength"/>
+        /// </exception>
         internal OperationId Extend(string postfix)
         {
             if (string.IsNullOrWhiteSpace(postfix))
@@ -90,13 +100,14 @@ namespace MarginTrading.AccountsManagement.InternalModels
             if (Value.EndsWith(postfix, StringComparison.InvariantCultureIgnoreCase))
                 return this;
             
-            return new OperationId($"{Value}{Separator}{postfix}");
+            return new OperationId($"{Value}{PostfixSeparator}{postfix}");
         }
         
         private static string CreateDigitsGuid() => Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
 
         /// <summary>
-        /// Extends the operation id with "update-balance" postfix if it is not already extended
+        /// Creates new operation id (extends the existing one) with "update-balance" postfix
+        /// if it is not already extended
         /// </summary>
         /// <returns></returns>
         public OperationId ExtendWithUpdateBalance()
@@ -105,7 +116,8 @@ namespace MarginTrading.AccountsManagement.InternalModels
         }
         
         /// <summary>
-        /// Extends the operation id with "negative-protection" postfix if it is not already extended
+        /// Creates new operation id (extends the existing one) with "negative-protection" postfix
+        /// if it is not already extended
         /// </summary>
         /// <returns></returns>
         public OperationId ExtendWithNegativeProtection()
