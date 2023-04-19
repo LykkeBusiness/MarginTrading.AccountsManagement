@@ -34,7 +34,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _negativeProtectionAutoCompensation = accountManagementSettings.NegativeProtectionAutoCompensation;
         }
 
-        public async Task<decimal?> CheckAsync(string operationId,
+        public async Task<decimal?> CheckAsync(OperationId operationId,
             string accountId,
             decimal newBalance,
             decimal changeAmount)
@@ -61,7 +61,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     await _sendBalanceCommandsService.ChargeManuallyAsync(
                         accountId,
                         compensationAmount,
-                        $"{operationId}-negative-protection",
+                        operationId.ExtendWithNegativeProtection(),
                         "Negative protection",
                         NegativeProtectionSaga.CompensationTransactionSource,
                         auditLog.ToJson(),
@@ -69,7 +69,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                         operationId,
                         null,
                         _systemClock.UtcNow.UtcDateTime
-                    );   
+                    );
                 }
             }
 

@@ -12,9 +12,9 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
     internal sealed class FakeSendBalanceCommandsService : ISendBalanceCommandsService
     {
         public bool ChargeManuallyAsyncWasCalled { get; private set; }
-        public Task<string> ChargeManuallyAsync(string accountId,
+        public Task<OperationId> ChargeManuallyAsync(string accountId,
             decimal amountDelta,
-            string operationId,
+            OperationId operationId,
             string reason,
             string source,
             string auditLog,

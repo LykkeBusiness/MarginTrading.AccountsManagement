@@ -24,11 +24,12 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _cqrsContextNamesSettings = cqrsContextNamesSettings;
         }
 
-        public Task<string> ChargeManuallyAsync(string accountId, decimal amountDelta,
-            [CanBeNull] string operationId, string reason, string source, string auditLog,
+        public Task<OperationId> ChargeManuallyAsync(string accountId, decimal amountDelta,
+            OperationId operationId, string reason, string source, string auditLog,
             AccountBalanceChangeReasonType type, string eventSourceId, string assetPairId, DateTime tradingDay)
         {
-            operationId = operationId ?? Guid.NewGuid().ToString();
+            operationId ??= new OperationId();
+            
             _cqrsEngine.SendCommand(
                 new UpdateBalanceInternalCommand(
                     operationId,
@@ -43,13 +44,15 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     tradingDay),
                 _cqrsContextNamesSettings.AccountsManagement,
                 _cqrsContextNamesSettings.AccountsManagement);
+            
             return Task.FromResult(operationId);
         }
 
         public Task<string> WithdrawAsync(string accountId, decimal amountDelta,
             [CanBeNull] string operationId, string reason, string auditLog)
         {
-            operationId = operationId ?? Guid.NewGuid().ToString();
+            operationId ??= new OperationId();
+            
             _cqrsEngine.SendCommand(
                 new WithdrawCommand(
                     operationId,
@@ -60,13 +63,15 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     auditLog),
                 _cqrsContextNamesSettings.AccountsManagement,
                 _cqrsContextNamesSettings.AccountsManagement);
+            
             return Task.FromResult(operationId);
         }
 
         public Task<string> DepositAsync(string accountId, decimal amountDelta,
             [CanBeNull] string operationId, string reason, string auditLog)
         {
-            operationId = operationId ?? Guid.NewGuid().ToString();
+            operationId ??= new OperationId();
+            
             _cqrsEngine.SendCommand(
                 new DepositCommand(
                     operationId,
@@ -77,6 +82,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     auditLog),
                 _cqrsContextNamesSettings.AccountsManagement,
                 _cqrsContextNamesSettings.AccountsManagement);
+            
             return Task.FromResult(operationId);
         }
 

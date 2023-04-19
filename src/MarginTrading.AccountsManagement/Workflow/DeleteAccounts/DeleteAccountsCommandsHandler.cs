@@ -69,7 +69,7 @@ namespace MarginTrading.AccountsManagement.Workflow.DeleteAccounts
         {
             if (string.IsNullOrWhiteSpace(command.OperationId))
             {
-                command.OperationId = Guid.NewGuid().ToString("N");
+                command.OperationId = new OperationId();
             }
 
             if (command.AccountIds == null || !command.AccountIds.Any())

@@ -3,13 +3,16 @@
 
 using System;
 using System.Threading.Tasks;
+
+using JetBrains.Annotations;
+
 using MarginTrading.AccountsManagement.InternalModels;
 
 namespace MarginTrading.AccountsManagement.Services
 {
     public interface ISendBalanceCommandsService
     {
-        Task<string> ChargeManuallyAsync(string accountId, decimal amountDelta, string operationId,
+        Task<OperationId> ChargeManuallyAsync(string accountId, decimal amountDelta, [CanBeNull] OperationId operationId,
             string reason, string source, string auditLog, AccountBalanceChangeReasonType type, string eventSourceId,
             string assetPairId, DateTime tradingDate);
 

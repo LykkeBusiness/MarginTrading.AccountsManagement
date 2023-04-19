@@ -341,7 +341,7 @@ namespace MarginTrading.AccountsManagement.Controllers
 
             _cqrsSender.SendCommandToSelf(new DeleteAccountsCommand
             {
-                OperationId = Guid.NewGuid().ToString("N"),
+                OperationId = new OperationId(),
                 Timestamp = _systemClock.UtcNow.UtcDateTime,
                 AccountIds = accountIds,
                 Comment = "Started from API for test purposes.",
