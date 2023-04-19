@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
+
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.UpdateBalance.Commands;

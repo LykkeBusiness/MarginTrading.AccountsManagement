@@ -12,9 +12,8 @@ namespace MarginTrading.AccountsManagement.InternalModels
     public sealed class OperationId : IEquatable<OperationId>
     {
         internal const int MaxLength = 128;
-        private const string PostfixSeparator = "-";
 
-        private string Value { get; }
+        internal string Value { get; }
         
         # region IEquatable implementation
         
@@ -76,55 +75,9 @@ namespace MarginTrading.AccountsManagement.InternalModels
         public OperationId():this(CreateDigitsGuid())
         {
         }
-        
-        /// <summary>
-        /// Creates operation id from the current one but adds a postfix.
-        /// Apart from postfix itself, the separator (1 symbol) is added.
-        /// If postfix is already present, the current instance is returned.
-        /// </summary>
-        /// <param name="postfix"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException">When postfix is empty or null</exception> 
-        /// <exception cref="ArgumentOutOfRangeException">
-        /// When postfix length is greater than <see cref="MaxLength"/>
-        /// </exception>
-        internal OperationId Extend(string postfix)
-        {
-            if (string.IsNullOrWhiteSpace(postfix))
-                throw new ArgumentNullException(nameof(postfix));
 
-            if (postfix.Length > MaxLength)
-                throw new ArgumentOutOfRangeException(nameof(postfix),
-                    $"The length of {nameof(postfix)} must be less than {MaxLength}.");
-            
-            if (Value.EndsWith(postfix, StringComparison.InvariantCultureIgnoreCase))
-                return this;
-            
-            return new OperationId($"{Value}{PostfixSeparator}{postfix}");
-        }
-        
         private static string CreateDigitsGuid() => Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture);
 
-        /// <summary>
-        /// Creates new operation id (extends the existing one) with "update-balance" postfix
-        /// if it is not already extended
-        /// </summary>
-        /// <returns></returns>
-        public OperationId ExtendWithUpdateBalance()
-        {
-            return Extend("update-balance");
-        }
-        
-        /// <summary>
-        /// Creates new operation id (extends the existing one) with "negative-protection" postfix
-        /// if it is not already extended
-        /// </summary>
-        /// <returns></returns>
-        public OperationId ExtendWithNegativeProtection()
-        {
-            return Extend("negative-protection");
-        }
-        
         public static implicit operator string(OperationId operationId)
         {
             return operationId.Value;

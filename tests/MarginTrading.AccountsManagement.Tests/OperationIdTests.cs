@@ -5,6 +5,7 @@ using System;
 
 using FsCheck;
 
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.InternalModels;
 
 using NUnit.Framework;

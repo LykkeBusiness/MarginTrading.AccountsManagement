@@ -6,6 +6,7 @@ using static System.Math;
 using System.Threading.Tasks;
 using Common;
 
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.NegativeProtection;
