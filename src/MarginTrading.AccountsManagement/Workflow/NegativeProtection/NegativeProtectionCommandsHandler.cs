@@ -1,10 +1,10 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Events;
+using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.NegativeProtection.Commands;
 
@@ -25,7 +25,7 @@ namespace MarginTrading.AccountsManagement.Workflow.NegativeProtection
         public void Handle(NotifyNegativeProtectionInternalCommand command, IEventPublisher publisher)
         {
             publisher.PublishEvent(new NegativeProtectionEvent(
-                Guid.NewGuid().ToString("N"),
+                new OperationId(),
                 command.CorrelationId,
                 command.CausationId,
                 command.EventTimestamp,

@@ -1,12 +1,12 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
+using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Settings;
@@ -56,7 +56,7 @@ namespace MarginTrading.AccountsManagement.Workflow.NegativeProtection
             }
             
             sender.SendCommand(new NotifyNegativeProtectionInternalCommand(
-                    Guid.NewGuid().ToString("N"),
+                    new OperationId(),
                     evt.OperationId,
                     evt.OperationId,
                     _systemClock.UtcNow.UtcDateTime,

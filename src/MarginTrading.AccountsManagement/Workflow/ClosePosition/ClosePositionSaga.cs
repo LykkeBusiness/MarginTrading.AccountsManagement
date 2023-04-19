@@ -26,8 +26,8 @@ namespace MarginTrading.AccountsManagement.Workflow.ClosePosition
         [UsedImplicitly]
         private void Handle(PositionClosedEvent evt, ICommandSender sender)
         {
-            var operationId = evt.PositionId + "-update-balance";
-            
+            var operationId = new OperationId(evt.PositionId).ExtendWithUpdateBalance();
+
             sender.SendCommand(
                 new UpdateBalanceInternalCommand(
                     operationId,

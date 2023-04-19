@@ -3,6 +3,8 @@
 
 using System.Threading.Tasks;
 
+using MarginTrading.AccountsManagement.InternalModels;
+
 namespace MarginTrading.AccountsManagement.Services
 {
     /// <summary>
@@ -20,6 +22,6 @@ namespace MarginTrading.AccountsManagement.Services
         /// <param name="newBalance">The new balance value</param>
         /// <param name="changeAmount">The balance change amount led to new balance value</param>
         /// <returns></returns>
-        Task<decimal?> CheckAsync(string operationId, string accountId, decimal newBalance, decimal changeAmount);
+        Task<decimal?> CheckAsync(OperationId operationId, string accountId, decimal newBalance, decimal changeAmount);
     }
 }
