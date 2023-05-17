@@ -38,11 +38,11 @@
         <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
         <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
         <PackageReference Include="JsonDiffPatch.Net" Version="2.3.0" />
-        <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" Version="9.7.6" />
+        <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" Version="11.3.0" />
         <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.46.0" />
         <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
         <PackageReference Include="Lykke.Middlewares" Version="3.6.0" />
-        <PackageReference Include="Lykke.Snow.Common" Version="1.56.0" />
+        <PackageReference Include="Lykke.Snow.Common" Version="2.6.0" />
         <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.6.0" />
         <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.25.0" />
         <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.2.4" />
