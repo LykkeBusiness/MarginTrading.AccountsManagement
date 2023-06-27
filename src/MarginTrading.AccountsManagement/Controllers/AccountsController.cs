@@ -261,6 +261,7 @@ namespace MarginTrading.AccountsManagement.Controllers
                 AccountId = request.AccountId,
                 TradingConditionId = request.TradingConditionId,
                 BaseAssetId = request.BaseAssetId,
+                ReferenceAccount = String.Empty
             });
         }
 
@@ -280,7 +281,8 @@ namespace MarginTrading.AccountsManagement.Controllers
                         request.TradingConditionId,
                         request.BaseAssetId.RequiredNotNullOrWhiteSpace(nameof(request.BaseAssetId)),
                         request.AccountName,
-                        request.UserId));
+                        request.UserId,
+                        request.ReferenceAccount));
                 
                 return StatusCode((int) HttpStatusCode.Created, account);
             }

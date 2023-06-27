@@ -101,7 +101,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             string tradingConditionId,
             string baseAssetId, 
             string accountName, 
-            string userId)
+            string userId,
+            string referenceAccount)
         {
             #region Validations
 
@@ -134,6 +135,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 baseAssetId,
                 tradingConditionId,
                 legalEntity,
+                referenceAccount,
                 accountId,
                 accountName,
                 userId);
@@ -167,7 +169,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             {
                 try
                 {
-                    var account = await CreateAccount(clientId, baseAsset, tradingConditionId, legalEntity);
+                    var account = await CreateAccount(clientId, baseAsset, tradingConditionId, legalEntity, string.Empty);
                     newAccounts.Add(account);
                 }
                 catch (Exception e)
@@ -197,7 +199,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             {
                 try
                 {
-                    var account = await CreateAccount(group.Key, baseAssetId, tradingConditionId, legalEntity);
+                    var account = await CreateAccount(group.Key, baseAssetId, tradingConditionId, legalEntity, string.Empty);
                     result.Add(account);
                 }
                 catch (Exception e)
@@ -601,6 +603,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             string baseAssetId, 
             string tradingConditionId,
             string legalEntityId, 
+            string referenceAccount,
             string accountId = null, 
             string accountName = null, 
             string userId = null)
@@ -628,7 +631,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 new AccountAdditionalInfo
                 {
                     ShouldShowProductComplexityWarning = shouldShowProductComplexityWarning
-                });
+                },
+                referenceAccount);
 
             await _accountsRepository.AddAsync(account);
             account = await _accountsRepository.GetAsync(accountId);
