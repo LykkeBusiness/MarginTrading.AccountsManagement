@@ -482,6 +482,7 @@ FROM
                 AccountName = account.AccountName,
                 AdditionalInfo = account.AdditionalInfo.ToJson(true),
                 UserId = account.UserId,
+                ReferenceAccount = account.ReferenceAccount
             };
         }
         

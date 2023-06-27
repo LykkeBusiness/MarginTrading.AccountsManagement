@@ -48,5 +48,6 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
         AccountAdditionalInfo IAccount.AdditionalInfo => JsonConvert.DeserializeObject<AccountAdditionalInfo>(AdditionalInfo);
         public string AdditionalInfo { get; set; } = "{}";
+        public string ReferenceAccount { get; set; }
     }
 }

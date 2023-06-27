@@ -42,5 +42,7 @@ namespace MarginTrading.AccountsManagement.InternalModels.Interfaces
         string AccountName { get; }
 
         public AccountAdditionalInfo AdditionalInfo { get; }
+
+        string ReferenceAccount { get; }
     }
 }

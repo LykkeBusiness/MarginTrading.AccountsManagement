@@ -55,5 +55,8 @@ namespace MarginTrading.AccountsManagement.Contracts.Models
         
         [Key(14)]
         public DateTime ClientModificationTimestamp { get; set; }
+        
+        [Key(15)]
+        public string ReferenceAccount { get; set; }
     }
 }

@@ -19,5 +19,7 @@ namespace MarginTrading.AccountsManagement.Contracts.Api
         public string AccountName { get; set; }
         [CanBeNull]
         public string UserId { get; set; }
+        [NotNull]
+        public string ReferenceAccount { get; set; }
     }
 }
