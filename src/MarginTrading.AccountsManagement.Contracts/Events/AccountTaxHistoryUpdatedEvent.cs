@@ -36,6 +36,5 @@ namespace MarginTrading.AccountsManagement.Contracts.Events
             ChangeTimestamp = changeTimestamp;
             Account = account;
         }
-
     } 
 }

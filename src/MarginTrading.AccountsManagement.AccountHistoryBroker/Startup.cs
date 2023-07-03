@@ -15,15 +15,6 @@ using MarginTrading.AccountsManagement.Contracts;
 using Microsoft.Extensions.Configuration;
 using SqlRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.SqlRepositories;
 using Microsoft.Extensions.Hosting;
-using Common;
-using Microsoft.Extensions.Logging;
-using Lykke.Snow.Common.Correlation.RabbitMq;
-using Lykke.RabbitMqBroker;
-using Lykke.RabbitMqBroker.Publisher.Serializers;
-using Lykke.RabbitMqBroker.Publisher;
-using Lykke.RabbitMqBroker.Publisher.Strategies;
-using Common.Log;
-using MarginTrading.AccountsManagement.Contracts.Commands;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 {
@@ -61,31 +52,5 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 
             builder.RegisterType<TaxHistoryInsertedPublisher>();
         }
-        
-        // TODO: remove
-        // private static Lykke.RabbitMqBroker.Publisher.IMessageProducer<TMessage> GetProducer<TMessage>(
-        //    ILoggerFactory loggerFactory,
-        //    RabbitMqCorrelationManager correlationManager,
-        //    RabbitMqSubscriptionSettings settings,
-        //    IRabbitMqSerializer<TMessage> serializer, ILog logger, IRabbitMqPublishStrategy publishStrategy,
-        //    IApplicationLifetime applicationLifetime,
-        //    IPublishingQueueRepository publishingQueueRepository = null)
-        // {
-        //    var publisher = new RabbitMqPublisher<TMessage>(loggerFactory, settings);
-
-        //    if (settings.IsDurable && publishingQueueRepository != null)
-        //        publisher.SetQueueRepository(publishingQueueRepository);
-        //    else
-        //        publisher.DisableInMemoryQueuePersistence();
-        //        
-        //    applicationLifetime.ApplicationStopping.Register(obj => ((IDisposable)obj).Dispose(), publisher);
-
-        //    var result = publisher
-        //        .SetSerializer(serializer)
-        //        .SetPublishStrategy(publishStrategy)
-        //        .SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);
-        //    result.Start();
-        //    return result;
-        // }
     }
 }
