@@ -1,12 +1,7 @@
-using System;
 using System.Threading.Tasks;
-
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
-using Lykke.RabbitMqBroker.Publisher.Strategies;
-
 using MarginTrading.AccountsManagement.Contracts.Events;
-
 using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
