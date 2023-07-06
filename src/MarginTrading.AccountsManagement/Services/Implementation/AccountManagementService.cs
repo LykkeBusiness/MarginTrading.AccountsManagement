@@ -279,6 +279,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 mtCoreAccountStats.Balance,
                 mtCoreAccountStats.TotalCapital,
                 mtCoreAccountStats.UsedMargin,
+                mtCoreAccountStats.UnconfirmedMargin,
                 useCache: true);
 
             var result = new AccountStat(
@@ -346,6 +347,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 mtCoreAccountStats.Balance,
                 mtCoreAccountStats.TotalCapital,
                 mtCoreAccountStats.UsedMargin,
+                mtCoreAccountStats.UnconfirmedMargin,
                 useCache);
         }
 
@@ -373,7 +375,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         }
 
         private async Task<AccountCapital> GetAccountCapitalAsync(string accountId,
-            string baseAssetId, decimal temporaryCapital, decimal balance, decimal totalCapital, decimal usedMargin, bool useCache)
+            string baseAssetId, decimal temporaryCapital, decimal balance, decimal totalCapital, decimal usedMargin, decimal unconfirmedMargin, bool useCache)
         {
             if (string.IsNullOrWhiteSpace((accountId)))
                 throw new ArgumentNullException(nameof(accountId));
@@ -408,6 +410,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 realizedProfit.dividends,
                 baseAssetId,
                 usedMargin,
+                unconfirmedMargin,
                 disposableCapitalWithholdPercent);
 
             return result;
