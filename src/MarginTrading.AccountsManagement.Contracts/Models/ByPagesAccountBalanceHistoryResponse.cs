@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 
+using Lykke.Contracts.Responses;
+
 namespace MarginTrading.AccountsManagement.Contracts.Models
 {
-    public class ByPagesAccountBalanceHistoryResponse: PaginatedResponseContract<AccountBalanceChangeContract>
+    public class ByPagesAccountBalanceHistoryResponse: PaginatedResponse<AccountBalanceChangeContract>
     {
         public ByPagesAccountBalanceHistoryResponse(IReadOnlyList<AccountBalanceChangeContract> contents, int start, int size, int totalSize, decimal totalAmount)
             : base(contents, start, size, totalSize)

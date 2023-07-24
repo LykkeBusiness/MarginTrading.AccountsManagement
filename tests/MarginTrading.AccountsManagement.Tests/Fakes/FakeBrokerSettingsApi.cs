@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Lykke.Contracts.Responses;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Requests;
@@ -45,6 +46,22 @@ namespace MarginTrading.AccountsManagement.Tests.Fakes
         }
 
         public Task<GetBrokerSettingsScheduleResponse> GetScheduleInfoByIdAsync(string id)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<ErrorCodeResponse<BrokerChannelErrorCodesContract>> AddOrUpdateBrokerChannelAsync(string id, BrokerChannelType? channelType, string username,
+            AddOrUpdateBrokerChannelRequest request)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<ErrorCodeResponse<BrokerChannelErrorCodesContract>> DeleteBrokerChannelAsync(string id, BrokerChannelType? channelType, string username)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<GetBrokerChannelsByIdResponse> ListBrokerChannelsAsync(string id)
         {
             throw new System.NotImplementedException();
         }

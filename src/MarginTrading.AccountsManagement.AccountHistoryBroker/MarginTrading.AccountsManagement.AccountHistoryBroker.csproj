@@ -4,7 +4,7 @@
     <AssemblyName>MarginTrading.AccountsManagement.AccountHistoryBroker</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>MarginTrading.AccountsManagement.AccountHistoryBroker</PackageId>
-    <Version>2.14.1</Version>
+    <Version>2.14.2</Version>
     <LangVersion>8.0</LangVersion>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
@@ -24,11 +24,10 @@
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="Lykke.Snow.Common" Version="2.7.3" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="11.4.0" />
     <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
-    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="7.0.2" />
+    <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" Version="7.0.3" />
   </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>
