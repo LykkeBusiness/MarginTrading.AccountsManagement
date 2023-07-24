@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AccountsManagement.Contracts.Api;
 using MarginTrading.AccountsManagement.Contracts.ErrorCodes;
 using MarginTrading.AccountsManagement.Contracts.Models;
@@ -34,7 +37,7 @@ namespace MarginTrading.AccountsManagement.Contracts
         /// Gets all accounts, optionally paginated. Both skip and take must be set or unset.
         /// </summary>
         [Get("/api/accounts/by-pages")]
-        Task<PaginatedResponseContract<AccountContract>> ListByPages([Query] [CanBeNull] string search = null,
+        Task<PaginatedResponse<AccountContract>> ListByPages([Query] [CanBeNull] string search = null,
             [Query] [CanBeNull] int? skip = null, [Query] [CanBeNull] int? take = null, bool showDeleted = false, bool isAscendingOrder = true);
 
         /// <summary>
@@ -160,7 +163,7 @@ namespace MarginTrading.AccountsManagement.Contracts
         /// Gets client trading conditions
         /// </summary>
         [Get("/api/accounts/client-trading-conditions")]
-        Task<PaginatedResponseContract<ClientTradingConditionsContract>> ListClientsTradingConditions([Query] string tradingConditionId, [Query] int skip = 0, [Query] int take = 20);
+        Task<PaginatedResponse<ClientTradingConditionsContract>> ListClientsTradingConditions([Query] string tradingConditionId, [Query] int skip = 0, [Query] int take = 20);
         
         /// <summary>
         /// Gets all client trading conditions

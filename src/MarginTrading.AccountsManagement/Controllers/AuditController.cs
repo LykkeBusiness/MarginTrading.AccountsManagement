@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
 using MarginTrading.AccountsManagement.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Audit;
 using MarginTrading.AccountsManagement.Infrastructure;
@@ -36,13 +37,13 @@ namespace MarginTrading.AccountsManagement.Controllers
         /// <param name="take"></param>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(PaginatedResponseContract<AuditContract>), (int)HttpStatusCode.OK)]
-        public async Task<PaginatedResponseContract<AuditContract>> GetAuditTrailAsync([FromQuery] GetAuditLogsRequest request, int? skip = null, int? take = null)
+        [ProducesResponseType(typeof(Lykke.Contracts.Responses.PaginatedResponse<AuditContract>), (int)HttpStatusCode.OK)]
+        public async Task<Lykke.Contracts.Responses.PaginatedResponse<AuditContract>> GetAuditTrailAsync([FromQuery] GetAuditLogsRequest request, int? skip = null, int? take = null)
         {
             var filter = _convertService.Convert<GetAuditLogsRequest, AuditLogsFilterDto>(request);
             var result = await _auditService.GetAll(filter, skip, take);
 
-            return new PaginatedResponseContract<AuditContract>(
+            return new Lykke.Contracts.Responses.PaginatedResponse<AuditContract>(
                 result.Contents.Select(i => _convertService.Convert<AuditModel, AuditContract>(i)).ToList(),
                 result.Start,
                 result.Size,
