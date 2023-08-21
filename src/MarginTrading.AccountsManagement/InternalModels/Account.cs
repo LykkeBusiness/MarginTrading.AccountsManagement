@@ -25,7 +25,8 @@ namespace MarginTrading.AccountsManagement.InternalModels
             DateTime modificationTimestamp,
             string accountName,
             string userId,
-            AccountAdditionalInfo additionalInfo)
+            AccountAdditionalInfo additionalInfo,
+            [NotNull] string referenceAccount)
         {
             Id = id.RequiredNotNullOrWhiteSpace(nameof(id));
             ClientId = clientId.RequiredNotNullOrWhiteSpace(nameof(clientId));
@@ -41,6 +42,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
             ModificationTimestamp = modificationTimestamp;
             AccountName = accountName;
             AdditionalInfo = additionalInfo ?? throw new ArgumentNullException(nameof(additionalInfo));
+            ReferenceAccount = referenceAccount;
         }
 
         public string Id { get; }
@@ -75,5 +77,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
 
         public string AccountName { get; }
         public AccountAdditionalInfo AdditionalInfo { get; }
+
+        public string ReferenceAccount { get; }
     }
 }
