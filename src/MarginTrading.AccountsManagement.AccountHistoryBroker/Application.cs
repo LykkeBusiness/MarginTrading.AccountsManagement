@@ -78,16 +78,8 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                 if (accountHistory.ChangeAmount != 0)
                 {
                     await _accountHistoryRepository.InsertAsync(accountHistory);
-                
                     await InvalidateCache(accountHistory.AccountId);
-                    
-                    if(accountHistory.ReasonType == AccountBalanceChangeReasonType.Tax)
-                    {
-                        var taxHistoryUpdatedEvent = new AccountTaxHistoryUpdatedEvent(operationId: accountChangedEvent.OperationId,
-                            changeTimestamp: DateTime.UtcNow, account: accountChangedEvent.Account);
-
-                        await _taxHistoryInsertedPublisher.PublishAsync(taxHistoryUpdatedEvent);
-                    }
+                    await PublishTaxHistoryEventIfApplicable(accountHistory, accountChangedEvent);
                 }
             }
             catch (Exception exception)
@@ -97,6 +89,16 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
         }
 
+        private async Task PublishTaxHistoryEventIfApplicable(AccountHistory accountHistory, AccountChangedEvent accountChangedEvent)
+        {
+            if(accountHistory.ReasonType == AccountBalanceChangeReasonType.Tax)
+            {
+                var taxHistoryUpdatedEvent = new AccountTaxHistoryUpdatedEvent(operationId: accountChangedEvent.OperationId,
+                    changeTimestamp: DateTime.UtcNow, account: accountChangedEvent.Account);
+
+                await _taxHistoryInsertedPublisher.PublishAsync(taxHistoryUpdatedEvent);
+            }
+        }
 
         private async Task InvalidateCache(string accountId)
         {

@@ -1,12 +1,8 @@
-using System;
 using System.Threading.Tasks;
-
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
 using Lykke.RabbitMqBroker.Publisher.Strategies;
-
 using MarginTrading.AccountsManagement.Contracts.Events;
-
 using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.AccountHistoryBroker
@@ -34,7 +30,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             _publisher = new RabbitMqPublisher<AccountTaxHistoryUpdatedEvent>(
                 _loggerFactory, _settings.RabbitMq.AccountTaxHistoryUpdated)
                 .SetSerializer(new MessagePackMessageSerializer<AccountTaxHistoryUpdatedEvent>())
-                .SetPublishStrategy(new PropertiesWithMessageTypeTopicPublishStrategy(_settings.RabbitMq.AccountTaxHistoryUpdated))
+                .SetPublishStrategy(new TopicPublishStrategy(_settings.RabbitMq.AccountTaxHistoryUpdated))
                 .DisableInMemoryQueuePersistence()
                 .PublishSynchronously();
 
