@@ -75,7 +75,7 @@ namespace MarginTrading.AccountsManagement.Workflow.Deposit
                         e.OperationId,
                         executionInfo.Data.AccountId,
                         executionInfo.Data.Amount,
-                        "Funds deposit " + executionInfo.Data.Comment,
+                        executionInfo.Data.Comment,
                         executionInfo.Data.AuditLog,
                         OperationName,
                         AccountBalanceChangeReasonType.Deposit,
