@@ -27,6 +27,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         private readonly Settings _settings;
         private readonly ILogger _logger;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly TaxHistoryInsertedPublisher _taxHistoryInsertedPublisher;
 
         public Application(
             CorrelationContextAccessor correlationContextAccessor,
@@ -36,14 +37,17 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             ILogger<Application> logger,
             Settings settings,
             CurrentApplicationInfo applicationInfo,
-            IAccountsApi accountsApi)
-            : base(correlationManager, loggerFactory, logger, applicationInfo, MessageFormat.MessagePack)
+            IAccountsApi accountsApi, 
+            TaxHistoryInsertedPublisher taxHistoryInsertedPublisher) : base(correlationManager, loggerFactory, logger, applicationInfo, MessageFormat.MessagePack) 
         {
             _correlationContextAccessor = correlationContextAccessor;
             _accountHistoryRepository = accountHistoryRepository;
             _logger = logger;
             _settings = settings;
             _accountsApi = accountsApi;
+            _taxHistoryInsertedPublisher = taxHistoryInsertedPublisher;
+
+            _taxHistoryInsertedPublisher.Start();
         }
 
         protected override BrokerSettingsBase Settings => _settings;
@@ -75,6 +79,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                 {
                     await _accountHistoryRepository.InsertAsync(accountHistory);
                     await InvalidateCache(accountHistory.AccountId);
+                    await PublishTaxHistoryEventIfApplicable(accountHistory, accountChangedEvent);
                 }
             }
             catch (Exception exception)
@@ -84,6 +89,16 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
         }
 
+        private async Task PublishTaxHistoryEventIfApplicable(AccountHistory accountHistory, AccountChangedEvent accountChangedEvent)
+        {
+            if(accountHistory.ReasonType == AccountBalanceChangeReasonType.Tax)
+            {
+                var taxHistoryUpdatedEvent = new AccountTaxHistoryUpdatedEvent(operationId: accountChangedEvent.OperationId,
+                    changeTimestamp: DateTime.UtcNow, account: accountChangedEvent.Account);
+
+                await _taxHistoryInsertedPublisher.PublishAsync(taxHistoryUpdatedEvent);
+            }
+        }
 
         private async Task InvalidateCache(string accountId)
         {

@@ -49,6 +49,8 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             {
                 throw new InvalidOperationException("Azure storage mode is not supported");
             }
+
+            builder.RegisterType<TaxHistoryInsertedPublisher>();
         }
     }
 }
