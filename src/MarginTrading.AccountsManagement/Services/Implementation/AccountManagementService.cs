@@ -598,6 +598,31 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
         #endregion
 
+
+        #region 871mWarning
+
+        public async Task Update871mWarningFlag(string accountId, bool shouldShow871mWarning,
+            string orderId = null)
+        {
+            var previousSnapshot = await EnsureAccountValidAsync(accountId, skipDeleteValidation: true);
+            if (previousSnapshot.IsDeleted) return;
+
+            var updated= await _accountsRepository.UpdateAdditionalInfo(previousSnapshot.Id, s =>
+            {
+                s.ShouldShow871mWarning = shouldShow871mWarning;
+            });
+
+            _eventSender.SendAccountChangedEvent(
+                nameof(Update871mWarningFlag),
+                updated,
+                AccountChangedEventTypeContract.Updated,
+                Guid.NewGuid().ToString("N"),
+                previousSnapshot: previousSnapshot,
+                orderId: orderId);
+        }
+
+        #endregion
+        
         #endregion
 
         #region Helpers

@@ -89,5 +89,11 @@ namespace MarginTrading.AccountsManagement.Services
         Task UpdateComplexityWarningFlag(string accountId, bool shouldShowProductComplexityWarning, string orderId = null);
 
         #endregion
+
+        #region 871mWarning
+
+        Task Update871mWarningFlag(string accountId, bool shouldShow871mWarning, string orderId = null);
+
+        #endregion
     }
 }
