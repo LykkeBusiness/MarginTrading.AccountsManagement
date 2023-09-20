@@ -6,6 +6,8 @@ using Lykke.Middlewares;
 using Lykke.Middlewares.Mappers;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
+
+using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.Extensions.AdditionalInfo;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
@@ -101,6 +103,13 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
             }
 
             await _complexityWarningRepository.Save(entity);
+
+            if (order.Warning871mConfirmed())
+            {
+                await _accountManagementService.Update871mWarningFlag(order.AccountId, shouldShow871mWarning: false, order.Id);
+
+                _log.LogInformation($"Flag {nameof(AccountAdditionalInfo.ShouldShow871mWarning)} for account {entity.AccountId} is switched to off"); 
+            }
         }
     }
 }
