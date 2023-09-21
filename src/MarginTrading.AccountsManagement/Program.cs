@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MarginTrading.AccountsManagement.Startup;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
 
 namespace MarginTrading.AccountsManagement
 {
@@ -19,7 +20,7 @@ namespace MarginTrading.AccountsManagement
             
                 var (configuration, settingsManager) = builder.BuildConfiguration();
             
-                builder.Services.RegisterInfrastructureServices(settingsManager.CurrentValue);
+                builder.Services.RegisterInfrastructureServices(settingsManager.CurrentValue, builder.Environment);
             
                 builder.ConfigureHost(configuration, settingsManager);
             
