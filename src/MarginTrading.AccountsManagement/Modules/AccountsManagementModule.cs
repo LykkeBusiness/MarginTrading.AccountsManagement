@@ -114,6 +114,7 @@ namespace MarginTrading.AccountsManagement.Modules
             builder.RegisterType<BrokerSettingsCache>().As<IBrokerSettingsCache>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.MarginTradingAccountManagement.BrokerId))
                 .SingleInstance();
+            builder.RegisterType<MeteorSender>().As<IMeteorSender>().SingleInstance();
         }
     }
 }

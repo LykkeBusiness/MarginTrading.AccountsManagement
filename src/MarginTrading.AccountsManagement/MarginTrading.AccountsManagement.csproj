@@ -52,6 +52,7 @@
         <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
+        <PackageReference Include="Meteor.Client" Version="1.5.1" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.12" />
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.9" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />

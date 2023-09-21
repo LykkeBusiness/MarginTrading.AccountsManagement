@@ -12,9 +12,11 @@ using Lykke.Snow.Common.Correlation.Http;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
+using Lykke.Snow.Common.Startup.HttpClientGenerator;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.RabbitMq.Publishers;
@@ -98,6 +100,10 @@ namespace MarginTrading.AccountsManagement.Startup
                     x.GetRequiredService<ILogger<AccountsRepository>>()),
                 x.GetRequiredService<ILogger<AccountsRepositoryLoggingDecorator>>()));
 
+            services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
+
+            services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());
+            
             return services;
         }
     }
