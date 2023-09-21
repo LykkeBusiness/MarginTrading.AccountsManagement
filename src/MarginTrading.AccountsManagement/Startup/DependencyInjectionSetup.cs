@@ -28,6 +28,7 @@ using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ProductComplexity;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
@@ -41,7 +42,7 @@ namespace MarginTrading.AccountsManagement.Startup
         private static readonly string ApiName = "Nova 2 Accounts Management API";
 
         public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, 
-            AppSettings settings)
+            AppSettings settings, IHostEnvironment environment)
         {
             services
                 .AddApplicationInsightsTelemetry()
@@ -100,9 +101,11 @@ namespace MarginTrading.AccountsManagement.Startup
                     x.GetRequiredService<ILogger<AccountsRepository>>()),
                 x.GetRequiredService<ILogger<AccountsRepositoryLoggingDecorator>>()));
 
-            services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
-
-            services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());
+            if (!environment.IsTest())
+            {
+                services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
+                services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());   
+            }
             
             return services;
         }

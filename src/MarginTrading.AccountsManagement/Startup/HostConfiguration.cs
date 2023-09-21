@@ -8,6 +8,8 @@ using Autofac.Extensions.DependencyInjection;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Serilog;
+
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.Modules;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.AspNetCore.Builder;
@@ -28,7 +30,7 @@ namespace MarginTrading.AccountsManagement.Startup
                 .ConfigureContainer<ContainerBuilder>((ctx, cBuilder) =>
                 {
                     cBuilder.RegisterModule(new AccountsManagementModule(settings));
-                    if (!ctx.HostingEnvironment.IsEnvironment("test"))
+                    if (!ctx.HostingEnvironment.IsTest())
                     {
                         cBuilder.RegisterModule(new AccountsManagementExternalServicesModule(settings));
                         cBuilder.RegisterModule(
