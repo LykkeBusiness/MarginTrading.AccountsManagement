@@ -23,5 +23,7 @@ namespace MarginTrading.AccountsManagement.Settings
         public OptionalClientSettings MtBackendServiceClient { get; set; }
         
         public OptionalClientSettings TradingHistoryClient { get; set; }
+        
+        public OptionalClientSettings MeteorServiceClient { get; set; }
     }
 }
