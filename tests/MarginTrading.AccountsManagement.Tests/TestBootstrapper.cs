@@ -13,6 +13,8 @@ using MarginTrading.AssetService.Contracts;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.TradingHistory.Client;
 
+using Meteor.Client;
+
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +59,8 @@ namespace MarginTrading.AccountsManagement.Tests
                             
             // replace with fake broker settings since the feature management is requires it
             services.AddSingleton<IBrokerSettingsApi>(new FakeBrokerSettingsApi());
+            
+            services.AddSingleton<IMeteorClient>(new FakeMeteorClient());
 
             // replace with fake implementation top always get a value from the cache
             services.RemoveAll<IAccountsCache>();
