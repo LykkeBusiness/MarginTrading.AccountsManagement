@@ -83,32 +83,37 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
                 }
                 .Contains(order.Type);
 
-            if (!isBasicOrder || !order.ProductComplexityConfirmationReceived())
+            if (!isBasicOrder)
             {
                 return;
             }
 
-            _log.LogInformation($"Product complexity confirmation received for account {order.AccountId} and orderId {order.Id}");
-
-            var entity = await _complexityWarningRepository.GetOrCreate(order.AccountId,
-                () => ComplexityWarningState.Start(order.AccountId));
-
-            entity.OnConfirmedOrderReceived(order.Id, order.CreatedTimestamp, _settings.ComplexityWarningsCount, out var confirmationFlagShouldBeSwitched);
-
-            if (confirmationFlagShouldBeSwitched)
+            if (order.ProductComplexityConfirmationReceived())
             {
-                await _accountManagementService.UpdateComplexityWarningFlag(order.AccountId, shouldShowProductComplexityWarning: false, order.Id);
+                _log.LogInformation($"Product complexity confirmation received for account {order.AccountId} and orderId {order.Id}");
 
-                _log.LogInformation($"Flag {BrokerFeature.ProductComplexityWarning} for account {entity.AccountId} is switched to off");
+                var entity = await _complexityWarningRepository.GetOrCreate(order.AccountId,
+                    () => ComplexityWarningState.Start(order.AccountId));
+
+                entity.OnConfirmedOrderReceived(order.Id, order.CreatedTimestamp, _settings.ComplexityWarningsCount, out var confirmationFlagShouldBeSwitched);
+
+                if (confirmationFlagShouldBeSwitched)
+                {
+                    await _accountManagementService.UpdateComplexityWarningFlag(order.AccountId, shouldShowProductComplexityWarning: false, order.Id);
+
+                    _log.LogInformation($"Flag {BrokerFeature.ProductComplexityWarning} for account {entity.AccountId} is switched to off");
+                }
+
+                await _complexityWarningRepository.Save(entity);   
             }
-
-            await _complexityWarningRepository.Save(entity);
 
             if (order.Warning871mConfirmed())
             {
+                _log.LogInformation($"871m warning confirmation received for account {order.AccountId} and orderId {order.Id}");
+                
                 await _accountManagementService.Update871mWarningFlag(order.AccountId, shouldShow871mWarning: false, order.Id);
 
-                _log.LogInformation($"Flag {nameof(AccountAdditionalInfo.ShouldShow871mWarning)} for account {entity.AccountId} is switched to off"); 
+                _log.LogInformation($"Flag {nameof(AccountAdditionalInfo.ShouldShow871mWarning)} for account {order.AccountId} is switched to off"); 
             }
         }
     }
