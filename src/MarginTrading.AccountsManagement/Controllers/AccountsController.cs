@@ -27,9 +27,11 @@ using Microsoft.Extensions.Internal;
 using Refit;
 using MarginTrading.AccountsManagement.Exceptions;
 using MarginTrading.AccountsManagement.Contracts.ErrorCodes;
+using MarginTrading.AccountsManagement.Filters;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.ErrorCodes;
+using MarginTrading.AccountsManagement.Services.Implementation;
 
 namespace MarginTrading.AccountsManagement.Controllers
 {
@@ -610,8 +612,6 @@ namespace MarginTrading.AccountsManagement.Controllers
             return Convert(account);
         }
 
-
-
         #endregion System actions
 
         /// <summary>
@@ -633,7 +633,11 @@ namespace MarginTrading.AccountsManagement.Controllers
         }
         
         [HttpGet("{accountId}/disposable-capital")]
-        public async Task<decimal?> GetDisposableCapital(string accountId)
+        [TypeFilter(
+            typeof(PersistModelToContextFilter<GetDisposableCapitalRequest>),
+            Arguments = new object[] { AccountsApiDecorator.HttpContextDisposableCapitalKey })]
+        public async Task<decimal?> GetDisposableCapital(string accountId,
+            [FromQuery] [CanBeNull] GetDisposableCapitalRequest request = null)
         {
             if (string.IsNullOrWhiteSpace(accountId))
             {
@@ -644,7 +648,7 @@ namespace MarginTrading.AccountsManagement.Controllers
 
             return stat?.DisposableCapital;
         }
-        
+
         /// <summary>
         /// Recalculates account statistics
         /// </summary>
