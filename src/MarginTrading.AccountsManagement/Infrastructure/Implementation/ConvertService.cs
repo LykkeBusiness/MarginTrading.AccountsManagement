@@ -7,14 +7,20 @@ using System.Linq;
 using AutoMapper;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Extensions;
+
+using MarginTrading.AccountsManagement.Contracts.Api;
 using MarginTrading.AccountsManagement.Contracts.Audit;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
+using MarginTrading.Backend.Contracts.Account;
 
 using Newtonsoft.Json;
+
+using AccountBalanceChangeReasonType = MarginTrading.AccountsManagement.InternalModels.AccountBalanceChangeReasonType;
+using AccountStatContract = MarginTrading.AccountsManagement.Contracts.Models.AccountStatContract;
 
 namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
 {
@@ -56,6 +62,8 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 //Audit
                 cfg.CreateMap<AuditModel, AuditContract>();
                 cfg.CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
+
+                cfg.CreateMap<GetDisposableCapitalRequest.AccountCapitalFigures, AccountCapitalFigures>();
             }).CreateMapper();
         }
 
