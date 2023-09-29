@@ -3,11 +3,13 @@
 
 using Autofac;
 
+using Lykke.HttpClientGenerator;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Startup.Authorization;
 using Lykke.Snow.Common.Startup.HttpClientGenerator;
 using Lykke.Snow.Mdm.Contracts.Api;
 
+using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.AssetService.Contracts;
