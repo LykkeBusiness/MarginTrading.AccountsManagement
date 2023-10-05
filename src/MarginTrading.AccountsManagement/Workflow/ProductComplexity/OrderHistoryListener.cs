@@ -83,7 +83,7 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
                 }
                 .Contains(order.Type);
 
-            if (!isBasicOrder)
+            if (!isBasicOrder || e.Type != OrderHistoryTypeContract.Place)
             {
                 return;
             }
