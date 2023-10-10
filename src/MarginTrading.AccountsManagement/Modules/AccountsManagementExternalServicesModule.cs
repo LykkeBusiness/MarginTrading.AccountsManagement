@@ -2,12 +2,13 @@
 // See the LICENSE file in the project root for more information.
 
 using Autofac;
-using Autofac.Extensions.DependencyInjection;
+
 using Lykke.HttpClientGenerator;
 using Lykke.SettingsReader;
+using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Common.Startup.Authorization;
 using Lykke.Snow.Common.Startup.HttpClientGenerator;
-using Lykke.Snow.Mdm.Contracts.Api;
+
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.Backend.Contracts;
@@ -16,13 +17,10 @@ using MarginTrading.TradingHistory.Client;
 
 using Meteor.Client;
 
-using Microsoft.Extensions.DependencyInjection;
-
 namespace MarginTrading.AccountsManagement.Modules
 {
     internal class AccountsManagementExternalServicesModule : Module
     {
-        private readonly IServiceCollection _services = new ServiceCollection();
         private readonly IReloadingManager<AppSettings> _settings;
 
         public AccountsManagementExternalServicesModule(IReloadingManager<AppSettings> settings)
@@ -32,48 +30,39 @@ namespace MarginTrading.AccountsManagement.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            var settingsClientGeneratorBuilder = HttpClientGenerator
-                .BuildForUrl(_settings.CurrentValue.MarginTradingSettingsServiceClient.ServiceUrl)
-                .WithServiceName<LykkeErrorResponse>(
-                    $"MT Settings [{_settings.CurrentValue.MarginTradingSettingsServiceClient.ServiceUrl}]");
-            
-            if (!string.IsNullOrWhiteSpace(_settings.CurrentValue.MarginTradingSettingsServiceClient.ApiKey))
-            {
-                settingsClientGeneratorBuilder = settingsClientGeneratorBuilder
-                    .WithApiKey(_settings.CurrentValue.MarginTradingSettingsServiceClient.ApiKey);
-            }
-
-            var settingsClientGenerator = settingsClientGeneratorBuilder.Create();
+            # region Asset Service Clients
+            var settingsClientGenerator = HttpClientGeneratorFactory.Create(
+                "MT Settings",
+                _settings.CurrentValue.MarginTradingSettingsServiceClient);
 
             builder.RegisterInstance(settingsClientGenerator.Generate<IAssetsApi>());
             builder.RegisterInstance(settingsClientGenerator.Generate<ITradingConditionsApi>());
             builder.RegisterInstance(settingsClientGenerator.Generate<ITradingInstrumentsApi>());
             builder.RegisterInstance(settingsClientGenerator.Generate<IScheduleSettingsApi>());
+            # endregion
 
-            var mtCoreClientGenerator = HttpClientGenerator
-                .BuildForUrl(_settings.CurrentValue.MtBackendServiceClient.ServiceUrl)
-                .WithApiKey(_settings.CurrentValue.MtBackendServiceClient.ApiKey)
-                .WithServiceName<LykkeErrorResponse>(
-                    $"MT Trading Core [{_settings.CurrentValue.MtBackendServiceClient.ServiceUrl}]")
-                .Create();
+            # region Trading Core Clients
+            var mtCoreClientGenerator = HttpClientGeneratorFactory.Create(
+                "MT Trading Core", 
+                _settings.CurrentValue.MtBackendServiceClient);
 
             builder.RegisterInstance(mtCoreClientGenerator.Generate<IOrdersApi>());
             builder.RegisterInstance(mtCoreClientGenerator.Generate<IPositionsApi>());
-            builder.RegisterInstance(mtCoreClientGenerator.Generate<IAccountsApi>());
+            // <see cref="IAccountsApi"/> is decorated with <see cref="AccountsApiHttpContextDecorator"/>
+            // and registered in <see cref="DependencyInjectionSetup" with ASP.NET Core DI container/>
+            # endregion
             
-            var mtTradingHistoryClientGenerator = HttpClientGenerator
-                .BuildForUrl(_settings.CurrentValue.TradingHistoryClient.ServiceUrl)
-                .WithServiceName<LykkeErrorResponse>("MT Core History Service")
-                .WithOptionalApiKey(_settings.CurrentValue.TradingHistoryClient.ApiKey)
-                .Create();
+            # region Trading History Clients
+            var mtTradingHistoryClientGenerator = HttpClientGeneratorFactory.Create(
+                "MT Core History Service",
+                _settings.CurrentValue.TradingHistoryClient);
 
             builder.RegisterInstance(mtTradingHistoryClientGenerator.Generate<IDealsApi>());
+            # endregion
 
-            var mdmClientGenerator = HttpClientGenerator
-                .BuildForUrl(_settings.CurrentValue.MdmServiceClient.ServiceUrl)
-                .WithServiceName<LykkeErrorResponse>("Mdm Service")
-                .WithOptionalApiKey(_settings.CurrentValue.MdmServiceClient.ApiKey)
-                .Create();
+            # region Mdm Service Clients
+            var mdmClientGenerator =
+                HttpClientGeneratorFactory.Create("Mdm Service", _settings.CurrentValue.MdmServiceClient);
 
             builder.RegisterInstance(mdmClientGenerator.Generate<IBrokerSettingsApi>());
             
@@ -92,7 +81,7 @@ namespace MarginTrading.AccountsManagement.Modules
                 .As<IMeteorClient>()
                 .SingleInstance();
 
-            builder.Populate(_services);
+            # endregion
         }
     }
 }

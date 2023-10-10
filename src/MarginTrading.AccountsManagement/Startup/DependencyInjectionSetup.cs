@@ -19,6 +19,7 @@ using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
+using MarginTrading.AccountsManagement.Modules;
 using MarginTrading.AccountsManagement.RabbitMq.Publishers;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Repositories;
@@ -27,6 +28,9 @@ using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ProductComplexity;
+using MarginTrading.Backend.Contracts;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
@@ -107,6 +111,19 @@ namespace MarginTrading.AccountsManagement.Startup
                 services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());   
             }
             
+            // Registering IAccountsApi with decorator using ASP.NET Core DI container
+            // just because Autofac way causes errors
+            services.AddScoped<IAccountsApi>(x =>
+            {
+                var mtCoreClientsGenerator =
+                    HttpClientGeneratorFactory.Create("MT Trading Core", settings.MtBackendServiceClient);
+                
+                return new AccountsApiDecorator(
+                    mtCoreClientsGenerator.Generate<IAccountsApi>(),
+                    x.GetRequiredService<IHttpContextAccessor>(),
+                    x.GetRequiredService<IConvertService>());
+            });
+
             return services;
         }
     }
