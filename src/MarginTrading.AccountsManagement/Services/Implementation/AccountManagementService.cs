@@ -53,6 +53,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IAuditService _auditService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
         private readonly IBrokerSettingsCache _brokerSettingsCache;
+        private readonly IMeteorSender _meteorSender;
 
         public AccountManagementService(IAccountsRepository accountsRepository,
             ITradingConditionsService tradingConditionsService,
@@ -71,7 +72,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IFeatureManager featureManager,
             IAuditService auditService,
             CorrelationContextAccessor correlationContextAccessor,
-            IBrokerSettingsCache brokerSettingsCache)
+            IBrokerSettingsCache brokerSettingsCache,
+            IMeteorSender meteorSender)
         {
             _accountsRepository = accountsRepository;
             _tradingConditionsService = tradingConditionsService;
@@ -91,6 +93,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _auditService = auditService;
             _correlationContextAccessor = correlationContextAccessor;
             _brokerSettingsCache = brokerSettingsCache;
+            _meteorSender = meteorSender;
         }
 
 
@@ -595,6 +598,32 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
         #endregion
 
+
+        #region 871mWarning
+
+        public async Task Update871mWarningFlag(string accountId, bool shouldShow871mWarning,
+            string orderId = null)
+        {
+            var previousSnapshot = await EnsureAccountValidAsync(accountId, skipDeleteValidation: true);
+            if (previousSnapshot.IsDeleted) return;
+
+            var updated= await _accountsRepository.UpdateAdditionalInfo(previousSnapshot.Id, s =>
+            {
+                s.ShouldShow871mWarning = shouldShow871mWarning;
+            });
+
+            _eventSender.SendAccountChangedEvent(
+                nameof(Update871mWarningFlag),
+                updated,
+                AccountChangedEventTypeContract.Updated,
+                Guid.NewGuid().ToString("N"),
+                previousSnapshot: previousSnapshot,
+                orderId: orderId);
+            await _meteorSender.Send871mWarningConfirmed(accountId);
+        }
+
+        #endregion
+        
         #endregion
 
         #region Helpers

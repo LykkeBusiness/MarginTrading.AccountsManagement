@@ -3,13 +3,19 @@
 
 using Autofac;
 
+using Lykke.HttpClientGenerator;
 using Lykke.SettingsReader;
 using Lykke.Snow.Mdm.Contracts.Api;
+using Lykke.Snow.Common.Startup.Authorization;
+using Lykke.Snow.Common.Startup.HttpClientGenerator;
 
+using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.TradingHistory.Client;
+
+using Meteor.Client;
 
 namespace MarginTrading.AccountsManagement.Modules
 {
@@ -59,6 +65,22 @@ namespace MarginTrading.AccountsManagement.Modules
                 HttpClientGeneratorFactory.Create("Mdm Service", _settings.CurrentValue.MdmServiceClient);
 
             builder.RegisterInstance(mdmClientGenerator.Generate<IBrokerSettingsApi>());
+            
+            builder.Register(ctx =>
+                {
+                    var meteorClientGenerator = HttpClientGenerator
+                        .BuildForUrl(_settings.CurrentValue.MeteorServiceClient.ServiceUrl)
+                        .WithServiceName<LykkeErrorResponse>("Meteor Service")
+                        .WithAdditionalDelegatingHandler(ctx.Resolve<AccessTokenDelegatingHandler>())
+                        .WithAdditionalDelegatingHandler(
+                            ctx.Resolve<NotSuccessStatusCodeDelegatingHandler>())
+                        .Create();
+
+                    return meteorClientGenerator.Generate<IMeteorClient>();
+                })
+                .As<IMeteorClient>()
+                .SingleInstance();
+
             # endregion
         }
     }

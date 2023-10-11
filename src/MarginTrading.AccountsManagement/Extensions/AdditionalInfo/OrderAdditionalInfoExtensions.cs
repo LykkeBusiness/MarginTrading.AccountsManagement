@@ -22,5 +22,22 @@ namespace MarginTrading.AccountsManagement.Extensions.AdditionalInfo
                 return defaultValue;
             }
         }
+        public static bool Warning871mConfirmed(this OrderContract order, bool defaultValue = false)
+        {
+            try
+            {
+                var model = JsonConvert.DeserializeAnonymousType(order.AdditionalInfo,
+                    new
+                    {
+                        Warning871mConfirmed = (bool?)null
+                    });
+
+                return model.Warning871mConfirmed ?? defaultValue;
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
     }
 }

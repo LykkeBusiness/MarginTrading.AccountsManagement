@@ -12,9 +12,11 @@ using Lykke.Snow.Common.Correlation.Http;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
+using Lykke.Snow.Common.Startup.HttpClientGenerator;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
 using MarginTrading.AccountsManagement.Contracts.Events;
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.Modules;
@@ -30,6 +32,7 @@ using MarginTrading.Backend.Contracts;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Logging;
 
@@ -43,7 +46,7 @@ namespace MarginTrading.AccountsManagement.Startup
         private static readonly string ApiName = "Nova 2 Accounts Management API";
 
         public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, 
-            AppSettings settings)
+            AppSettings settings, IHostEnvironment environment)
         {
             services
                 .AddApplicationInsightsTelemetry()
@@ -102,6 +105,12 @@ namespace MarginTrading.AccountsManagement.Startup
                     x.GetRequiredService<ILogger<AccountsRepository>>()),
                 x.GetRequiredService<ILogger<AccountsRepositoryLoggingDecorator>>()));
 
+            if (!environment.IsTest())
+            {
+                services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
+                services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());   
+            }
+            
             // Registering IAccountsApi with decorator using ASP.NET Core DI container
             // just because Autofac way causes errors
             services.AddScoped<IAccountsApi>(x =>
