@@ -105,6 +105,12 @@ namespace MarginTrading.AccountsManagement.Startup
                     x.GetRequiredService<ILogger<AccountsRepository>>()),
                 x.GetRequiredService<ILogger<AccountsRepositoryLoggingDecorator>>()));
 
+            if (!environment.IsTest())
+            {
+                services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
+                services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());   
+            }
+            
             // Registering IAccountsApi with decorator using ASP.NET Core DI container
             // just because Autofac way causes errors
             services.AddScoped<IAccountsApi>(x =>
@@ -117,12 +123,6 @@ namespace MarginTrading.AccountsManagement.Startup
                     x.GetRequiredService<IHttpContextAccessor>(),
                     x.GetRequiredService<IConvertService>());
             });
-
-            if (!environment.IsTest())
-            {
-                services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
-                services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());   
-            }
             
             return services;
         }

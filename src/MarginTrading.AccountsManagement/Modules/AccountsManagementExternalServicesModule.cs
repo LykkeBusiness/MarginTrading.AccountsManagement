@@ -5,9 +5,9 @@ using Autofac;
 
 using Lykke.HttpClientGenerator;
 using Lykke.SettingsReader;
+using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Common.Startup.Authorization;
 using Lykke.Snow.Common.Startup.HttpClientGenerator;
-using Lykke.Snow.Mdm.Contracts.Api;
 
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.Settings;
@@ -65,7 +65,6 @@ namespace MarginTrading.AccountsManagement.Modules
                 HttpClientGeneratorFactory.Create("Mdm Service", _settings.CurrentValue.MdmServiceClient);
 
             builder.RegisterInstance(mdmClientGenerator.Generate<IBrokerSettingsApi>());
-            # endregion
             
             builder.Register(ctx =>
                 {
@@ -81,6 +80,7 @@ namespace MarginTrading.AccountsManagement.Modules
                 })
                 .As<IMeteorClient>()
                 .SingleInstance();
+            # endregion
         }
     }
 }
