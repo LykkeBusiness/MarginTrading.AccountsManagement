@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,20 +49,22 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
         
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (!await _featureManager.IsEnabledAsync(BrokerFeature.ProductComplexityWarning))
+            var handlers = new List<Func<OrderHistoryEvent, Task>>();
+            
+            if (await _featureManager.IsEnabledAsync(BrokerFeature.ProductComplexityWarning))
             {
-                _log.LogInformation("{Component} not started because product complexity warning feature is disabled for broker", nameof(OrderHistoryListener));
-                return;
+                if (_settings.ComplexityWarningsCount <= 0) 
+                {
+                    throw new InvalidOperationException($"Broker {_settings.BrokerId} feature {BrokerFeature.ProductComplexityWarning} is enabled, " +
+                                                        $"but {nameof(_settings.ComplexityWarningsCount)} = {_settings.ComplexityWarningsCount} is not valid ");
+                }
+                handlers.Add(HandleProductComplexityWarning);
             }
             
-            if (_settings.ComplexityWarningsCount <= 0) 
-            {
-                throw new InvalidOperationException($"Broker {_settings.BrokerId} feature {BrokerFeature.ProductComplexityWarning} is enabled, " +
-                                                    $"but {nameof(_settings.ComplexityWarningsCount)} = {_settings.ComplexityWarningsCount} is not valid ");
-            }
+            handlers.Add(Handle871mWarning);
             
             _subscriber
-                .Subscribe(this.Handle)
+                .Subscribe(e => this.Handle(e, handlers))
                 .Start();
         }
 
@@ -72,22 +75,15 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
             return Task.CompletedTask;
         }
 
-        private async Task Handle(OrderHistoryEvent e)
+        private async Task HandleProductComplexityWarning(OrderHistoryEvent e)
         {
-            var order = e.OrderSnapshot;
-            var isBasicOrder = new[]
-                {
-                    OrderTypeContract.Market,
-                    OrderTypeContract.Limit,
-                    OrderTypeContract.Stop
-                }
-                .Contains(order.Type);
-
-            if (!isBasicOrder || e.Type != OrderHistoryTypeContract.Place)
+            if (!IsBasicAndPlaceTypeOrder(e))
             {
                 return;
             }
 
+            var order = e.OrderSnapshot;
+            
             if (order.ProductComplexityConfirmationReceived())
             {
                 _log.LogInformation($"Product complexity confirmation received for account {order.AccountId} and orderId {order.Id}");
@@ -106,7 +102,17 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
 
                 await _complexityWarningRepository.Save(entity);   
             }
+        }
 
+        private async Task Handle871mWarning(OrderHistoryEvent e)
+        {
+            if (!IsBasicAndPlaceTypeOrder(e))
+            {
+                return;
+            }
+
+            var order = e.OrderSnapshot;
+            
             if (order.Warning871mConfirmed())
             {
                 _log.LogInformation($"871m warning confirmation received for account {order.AccountId} and orderId {order.Id}");
@@ -114,6 +120,28 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
                 await _accountManagementService.Update871mWarningFlag(order.AccountId, shouldShow871mWarning: false, order.Id);
 
                 _log.LogInformation($"Flag {nameof(AccountAdditionalInfo.ShouldShow871mWarning)} for account {order.AccountId} is switched to off"); 
+            }
+        }
+
+        private bool IsBasicAndPlaceTypeOrder(OrderHistoryEvent e)
+        {
+            var order = e.OrderSnapshot;
+            var isBasicOrder = new[]
+                {
+                    OrderTypeContract.Market,
+                    OrderTypeContract.Limit,
+                    OrderTypeContract.Stop
+                }
+                .Contains(order.Type);
+
+            return isBasicOrder && e.Type == OrderHistoryTypeContract.Place;
+        }
+
+        private async Task Handle(OrderHistoryEvent e, List<Func<OrderHistoryEvent, Task>> handlers)
+        {
+            foreach (var handler in handlers)
+            {
+                await handler(e);
             }
         }
     }
