@@ -5,9 +5,13 @@ using System;
 using static System.Math;
 using System.Threading.Tasks;
 using Common;
+
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.NegativeProtection;
+using MarginTrading.Backend.Contracts;
+
 using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.AccountsManagement.Services.Implementation
@@ -17,42 +21,57 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ISendBalanceCommandsService _sendBalanceCommandsService;
         private readonly ISystemClock _systemClock;
         private readonly bool _negativeProtectionAutoCompensation;
+        private readonly IAccountsApi _accountsApi;
         
         public NegativeProtectionService(
             ISendBalanceCommandsService sendBalanceCommandsService,
             ISystemClock systemClock,
-            AccountManagementSettings accountManagementSettings)
+            AccountManagementSettings accountManagementSettings,
+            IAccountsApi accountsApi)
         {
             _sendBalanceCommandsService = sendBalanceCommandsService;
             _systemClock = systemClock;
+            _accountsApi = accountsApi;
             _negativeProtectionAutoCompensation = accountManagementSettings.NegativeProtectionAutoCompensation;
         }
-        
-        public async Task<decimal?> CheckAsync(string operationId, string accountId, decimal newBalance, decimal changeAmount)
+
+        public async Task<decimal?> CheckAsync(OperationId operationId,
+            string accountId,
+            decimal newBalance,
+            decimal changeAmount)
         {
             if (newBalance >= 0 || changeAmount > 0)
                 return null;
 
-            // If the balance had already been negative before change happened we compensate only changeAmount
-            // If the balance had been positive before change happened we compensate the difference 
-            var compensationAmount = newBalance < changeAmount ? Abs(changeAmount) : Abs(newBalance); 
+            var compensationAmount =
+                // If the balance had already been negative before change happened
+                newBalance < changeAmount
+                    // we compensate only changeAmount
+                    ? Abs(changeAmount)
+                    // If the balance had been positive before change happened
+                    // we compensate the difference
+                    : Abs(newBalance);
 
             if (_negativeProtectionAutoCompensation)
             {
-                var auditLog = CreateCompensationAuditLog(DateTime.UtcNow);
-                
-                await _sendBalanceCommandsService.ChargeManuallyAsync(
-                    accountId,
-                    compensationAmount, 
-                    $"{operationId}-negative-protection",
-                    "Negative protection",
-                    NegativeProtectionSaga.CompensationTransactionSource,
-                    auditLog.ToJson(),
-                    AccountBalanceChangeReasonType.CompensationPayments,
-                    operationId,
-                    null,
-                    _systemClock.UtcNow.UtcDateTime
-                );
+                var accountStats = await _accountsApi.GetAccountStats(accountId);
+                if (!accountStats.IsInLiquidation)
+                {
+                    var auditLog = CreateCompensationAuditLog(DateTime.UtcNow);
+
+                    await _sendBalanceCommandsService.ChargeManuallyAsync(
+                        accountId,
+                        compensationAmount,
+                        operationId.ExtendWithNegativeProtection(),
+                        "Negative protection",
+                        NegativeProtectionSaga.CompensationTransactionSource,
+                        auditLog.ToJson(),
+                        AccountBalanceChangeReasonType.CompensationPayments,
+                        operationId,
+                        null,
+                        _systemClock.UtcNow.UtcDateTime
+                    );
+                }
             }
 
             return compensationAmount;
