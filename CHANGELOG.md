@@ -1,3 +1,16 @@
+## 2.17.2 - Nova 2. Delivery 38 (December 13, 2023)
+### What's changed
+* LT-4956: Modification of comment section in cash movements.
+
+### Deployment
+* Execute the following SQL script to update the database:
+```sql
+update [dbo].[AccountHistory]
+set Comment = REPLACE(REPLACE(Comment, 'Funds deposit ', ''), 'Funds withdrawal ', '')
+where ReasonType in ('Deposit', 'Withdraw') and Comment like 'Funds %'
+```
+
+
 ## 2.16.2 - Nova 2. Delivery 37 (2023-10-17)
 ### What's changed
 * LT-4992: Add and handle new flag shouldshow871mwarning.
