@@ -88,7 +88,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
                     )
                 );
 
-            Disposable = Math.Max(0, balanceProtected - usedMargin - unconfirmedMargin);
+            Disposable = Math.Max(0, balanceProtected - usedMargin - (unconfirmedMargin > 0 ? unconfirmedMargin : 0));
                     
             CanRevokeAmount = Math.Max(0,
                 TotalCapital - (
