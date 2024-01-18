@@ -62,6 +62,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
             decimal dividends,
             string assetId,
             decimal usedMargin, 
+            decimal unconfirmedMargin,
             Percent disposableCapitalWithholdPercent)
         {
             if (string.IsNullOrWhiteSpace(assetId))
@@ -87,7 +88,7 @@ namespace MarginTrading.AccountsManagement.InternalModels
                     )
                 );
 
-            Disposable = Math.Max(0, balanceProtected - usedMargin);
+            Disposable = Math.Max(0, balanceProtected - usedMargin - (unconfirmedMargin > 0 ? unconfirmedMargin : 0));
                     
             CanRevokeAmount = Math.Max(0,
                 TotalCapital - (

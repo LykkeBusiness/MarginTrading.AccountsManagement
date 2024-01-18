@@ -11,20 +11,22 @@ namespace MarginTrading.AccountsManagement.Tests
     {
         static object[] DisposableCapitalCases =
         {
-            new object[] { 0m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 0m },
-            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 100m },
-            new object[] { 100m, 50m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 50m },
-            new object[] { 100m, 0m, 50m, 0m, 0m, 0m, 0m, new Percent(100), 50m },
-            new object[] { 100m, 0m, 0m, 50m, 0m, 0m, 0m, new Percent(100), 50m },
-            new object[] { 100m, 0m, 0m, 0m, 50m, 0m, 0m, new Percent(100), 50m },
-            new object[] { 100m, 0m, 0m, 0m, 0m, 50m, 0m, new Percent(100), 50m },
-            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 50m, new Percent(100), 50m },
-            new object[] { 100m, 50m, 0m, 0m, 0m, 0m, 0m, new Percent(50), 50m },
-            new object[] { 100m, 0m, 50m, 0m, 0m, 0m, 0m, new Percent(50), 75m },
-            new object[] { 100m, 0m, 0m, 50m, 0m, 0m, 0m, new Percent(50), 75m },
-            new object[] { 100m, 0m, 0m, 0m, 50m, 0m, 0m, new Percent(50), 75m },
-            new object[] { 100m, 0m, 0m, 0m, 0m, 50m, 0m, new Percent(50), 75m },
-            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 50m, new Percent(50), 50m },
+            new object[] { 0m, 0m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 0m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 100m },
+            new object[] { 100m, 50m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 50m },
+            new object[] { 100m, 0m, 50m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 50m },
+            new object[] { 100m, 0m, 0m, 50m, 0m, 0m, 0m, 0m, new Percent(100), 50m },
+            new object[] { 100m, 0m, 0m, 0m, 50m, 0m, 0m, 0m, new Percent(100), 50m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 50m, 0m, 0m, new Percent(100), 50m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 50m, 0m, new Percent(100), 50m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 0m, 50m, new Percent(100), 50m },
+            new object[] { 100m, 50m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(50), 50m },
+            new object[] { 100m, 0m, 50m, 0m, 0m, 0m, 0m, 0m, new Percent(50), 75m },
+            new object[] { 100m, 0m, 0m, 50m, 0m, 0m, 0m, 0m, new Percent(50), 75m },
+            new object[] { 100m, 0m, 0m, 0m, 50m, 0m, 0m, 0m, new Percent(50), 75m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 50m, 0m, 0m, new Percent(50), 75m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 50m, 0m, new Percent(50), 50m },
+            new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 0m, 50m, new Percent(50), 50m },
         };
 
         [TestCaseSource(nameof(DisposableCapitalCases))]
@@ -35,6 +37,7 @@ namespace MarginTrading.AccountsManagement.Tests
             decimal dividends,
             decimal totalUnRealisedPnl,
             decimal usedMargin,
+            decimal unconfirmedMargin,
             Percent disposableCapitalWithholdPercent,
             decimal disposable)
         {
@@ -47,6 +50,7 @@ namespace MarginTrading.AccountsManagement.Tests
                 dividends,
                 "assetId",
                 usedMargin,
+                unconfirmedMargin,
                 disposableCapitalWithholdPercent
                 );
             
