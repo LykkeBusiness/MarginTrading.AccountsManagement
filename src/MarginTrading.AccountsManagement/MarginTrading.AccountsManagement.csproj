@@ -5,7 +5,7 @@
         <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
         <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <Version>2.15.2</Version>
+        <Version>2.17.2</Version>
         <LangVersion>8.0</LangVersion>
         <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
         <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
@@ -57,18 +57,23 @@
         <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="6.0.9" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables"
+            Version="6.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions"
+            Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"
+            Version="6.0.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.4.0" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
-        <ProjectReference Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
+        <ProjectReference
+            Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
+        <ProjectReference
+            Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Include=".\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />
