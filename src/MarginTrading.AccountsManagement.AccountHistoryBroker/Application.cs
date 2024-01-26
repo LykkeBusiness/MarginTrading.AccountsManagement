@@ -97,6 +97,10 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                     changeTimestamp: DateTime.UtcNow, account: accountChangedEvent.Account);
 
                 await _taxHistoryInsertedPublisher.PublishAsync(taxHistoryUpdatedEvent);
+
+                _logger.LogInformation("{Type} produced: @{Event}",
+                    nameof(AccountTaxHistoryUpdatedEvent),
+                    taxHistoryUpdatedEvent);
             }
         }
 
