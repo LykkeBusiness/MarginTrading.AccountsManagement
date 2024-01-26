@@ -1,3 +1,11 @@
+## 2.18.0 - Nova 2. Delivery 39 (January 26, 2024)
+### What's changed
+* LT-5175: Exclude unconfirmedmargin from disposable.
+* LT-5164: Accounts management service: add history of releases into changelog.md for github.
+
+
+
+
 ## 2.17.2 - Nova 2. Delivery 38 (December 13, 2023)
 ### What's changed
 * LT-4956: Modification of comment section in cash movements.
