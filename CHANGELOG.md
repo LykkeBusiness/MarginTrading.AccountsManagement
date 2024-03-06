@@ -1,3 +1,11 @@
+## 2.19.0 - Nova 2. Delivery 40 (February 28, 2024)
+### What's changed
+* LT-5293: [AccountHistoryBroker] Fix "update version number" and "deprecated packages validation" build steps
+* LT-5290: [AccountManagment] Fix "update version number" and "deprecated packages validation" build steps
+
+
+
+
 ## 2.18.0 - Nova 2. Delivery 39 (January 26, 2024)
 ### What's changed
 * LT-5175: Exclude unconfirmedmargin from disposable.
