@@ -16,6 +16,7 @@ using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Repositories;
+using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.UpdateBalance.Commands;
 using Microsoft.Extensions.Internal;
 
@@ -23,6 +24,7 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
 {
     internal class UpdateBalanceCommandsHandler
     {
+        private readonly AccountManagementSettings _accountManagementSettings;
         private readonly IAccountsRepository _accountsRepository;
         private readonly IChaosKitty _chaosKitty;
         private readonly ISystemClock _systemClock;
@@ -32,13 +34,15 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
 
         private const string OperationName = "UpdateBalance";
 
-        public UpdateBalanceCommandsHandler(IOperationExecutionInfoRepository executionInfoRepository,
+        public UpdateBalanceCommandsHandler(AccountManagementSettings accountManagementSettings,
+            IOperationExecutionInfoRepository executionInfoRepository,
             IAccountsRepository accountsRepository,
             IChaosKitty chaosKitty, 
             ISystemClock systemClock,
             IConvertService convertService,
             ILogger<UpdateBalanceCommandsHandler> logger)
         {
+            _accountManagementSettings = accountManagementSettings;
             _accountsRepository = accountsRepository;
             _chaosKitty = chaosKitty;
             _systemClock = systemClock;
@@ -135,6 +139,13 @@ namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance
         [UsedImplicitly]
         public async Task Handle(ChangeBalanceCommand command, IEventPublisher publisher)
         {
+            if (_accountManagementSettings.ExtendedLoggingSettings?.TaxesLoggingEnabled is true
+                && command.ReasonType == AccountBalanceChangeReasonTypeContract.Tax)
+            {
+                _logger.LogInformation("{Command} is received for tax {OperationId}",
+                    nameof(ChangeBalanceCommand), command.OperationId);
+            }
+
             await Handle(new UpdateBalanceInternalCommand(
                 command.OperationId,
                 command.AccountId,

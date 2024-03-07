@@ -84,7 +84,9 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Error while processing account changed event");
+                _logger.LogError(exception, "Error while processing {Event} with OperationId: {OperationId}",
+                    nameof(AccountChangedEvent),
+                    accountChangedEvent.OperationId);
                 throw;
             }
         }
@@ -98,9 +100,12 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 
                 await _taxHistoryInsertedPublisher.PublishAsync(taxHistoryUpdatedEvent);
 
-                _logger.LogInformation("{Type} produced: @{Event}",
-                    nameof(AccountTaxHistoryUpdatedEvent),
-                    taxHistoryUpdatedEvent);
+                if (_settings.ExtendedLoggingSettings?.TaxesLoggingEnabled is true)
+                {
+                    _logger.LogInformation("{Event} is sent for tax with OperationId: {OperationId}",
+                        typeof(AccountTaxHistoryUpdatedEvent),
+                        accountChangedEvent.OperationId);
+                }
             }
         }
 

@@ -17,6 +17,9 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
 
         public ServiceSettings AccountManagement { get; set; }
         public RabbitMqSettings RabbitMq { get; set; }
+        
+        [Optional]
+        public ExtendedLoggingSettings ExtendedLoggingSettings { get; set; }
     }
     
     [UsedImplicitly]
@@ -51,6 +54,15 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
     public class RabbitMqSettings
     {
         public SubscriptionSettings AccountTaxHistoryUpdated { get; set; }
+    }
+    
+    public class ExtendedLoggingSettings
+    {
+        /// <summary>
+        /// Enables detailed logging for the Taxes Saga
+        /// </summary>
+        [Optional]
+        public bool TaxesLoggingEnabled { get; set; }
     }
 
     public class SubscriptionSettings

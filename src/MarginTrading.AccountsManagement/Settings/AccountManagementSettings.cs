@@ -68,5 +68,8 @@ namespace MarginTrading.AccountsManagement.Settings
         public bool LossPercentageCalculationEnabled { get; set; } = false;
         
         public OidcSettings OidcSettings { get; set; }
+        
+        [Optional]
+        public ExtendedLoggingSettings ExtendedLoggingSettings { get; set; }
     }
 }
