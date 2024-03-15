@@ -99,6 +99,26 @@ namespace MarginTrading.AccountsManagement.Controllers
             return data.GroupBy(i => i.AccountId).ToDictionary(g => g.Key, g => g.Select(Convert).ToArray());
         }
 
+        /// <inheritdoc />
+        [Route("by-account/{accountId}/trading-day")]
+        [HttpGet]
+        public async Task<Dictionary<string, AccountBalanceChangeContract[]>> ByAccount(
+            string accountId,
+            [FromQuery] DateTime tradingDay, 
+            [FromQuery] AccountBalanceChangeReasonTypeContract? reasonType = null)
+        {
+            var data = await _accountBalanceChangesRepository.GetAsync(
+                accountId, 
+                tradingDay.AssumeUtcIfUnspecified(),
+                reasonType?.ToType<AccountBalanceChangeReasonType>());
+            
+            return data
+                .GroupBy(i => i.AccountId)
+                .ToDictionary(
+                    g => g.Key, 
+                    g => g.Select(Convert).ToArray());
+        }
+
         /// <summary>
         /// Get account balance change history by account Id and eventSourceId (like Withdraw or Deposit)
         /// </summary>
