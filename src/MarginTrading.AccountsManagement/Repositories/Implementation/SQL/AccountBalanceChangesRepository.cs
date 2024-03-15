@@ -148,6 +148,26 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
 
             return data.ToList();
         }
+        
+        public async Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, 
+            DateTime tradingDay, 
+            AccountBalanceChangeReasonType? reasonType = null)
+        {
+            var whereClause = "WHERE 1=1 " + (!string.IsNullOrWhiteSpace(accountId) ? " AND AccountId=@accountId" : "")
+                                           + " AND TradingDate = @tradingDay"
+                                           + (reasonType != null ? " AND ReasonType = @reasonType" : "");
+
+            await using var conn = new SqlConnection(_settings.Db.ConnectionString);
+            var data = await conn.QueryAsync<AccountBalanceChangeEntity>(
+                $"SELECT {GetColumns} FROM {TableName} WITH (NOLOCK) {whereClause}", new
+                {
+                    accountId, 
+                    tradingDay, 
+                    reasonType = reasonType.ToString(),
+                });
+
+            return data.ToList();
+        }
 
         public async Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, string eventSourceId)
         {
