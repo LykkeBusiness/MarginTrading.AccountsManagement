@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
+
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,6 +42,17 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
                                                  "[TradingDate] [datetime] NULL, " +
                                                  "INDEX IX_{0}_Base (Id, AccountId, ChangeTimestamp, EventSourceId, ReasonType)" +
                                                  ");";
+
+        private const string CreateTradingDateIndexScript = @"IF NOT EXISTS(
+	                    SELECT * FROM sys.indexes 
+	                    WHERE name = 'IX_{0}_TradingDate'
+	                    AND object_id = OBJECT_ID('dbo.{0}'))
+                        BEGIN
+                            CREATE INDEX [IX_{0}_TradingDate] ON [dbo].[{0}]
+		                    (
+			                    [TradingDate]
+		                    )
+                        END";
         
         private static Type DataTypeLight => typeof(IAccountBalanceChangeLight);
         private static readonly string GetColumnsLight = string.Join(",", DataTypeLight.GetProperties().Select(x => x.Name));
@@ -62,7 +75,13 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             _logger = logger;
 
             using var conn = new SqlConnection(_settings.Db.ConnectionString);
-            try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
+            try
+            {
+                conn.CreateTableIfDoesntExists(CreateTableScript, TableName);
+
+                var indexScript = string.Format(CreateTradingDateIndexScript, TableName);
+                conn.Execute(indexScript, commandType: CommandType.Text);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to create table {TableName}", TableName);
