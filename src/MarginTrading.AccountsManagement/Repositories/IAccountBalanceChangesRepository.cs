@@ -21,6 +21,10 @@ namespace MarginTrading.AccountsManagement.Repositories
             DateTime? @from = null, DateTime? to = null, AccountBalanceChangeReasonType? reasonType = null,
             bool filterByTradingDay = false);
         
+        Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId,
+            DateTime tradingDay, 
+            AccountBalanceChangeReasonType? reasonType = null);
+        
         Task<IReadOnlyList<IAccountBalanceChange>> GetAsync(string accountId, string eventSourceId);
 
         Task<decimal> GetCompensationsProfit(string accountId, DateTime[] days);

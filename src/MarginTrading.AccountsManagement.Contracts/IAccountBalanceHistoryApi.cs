@@ -43,6 +43,14 @@ namespace MarginTrading.AccountsManagement.Contracts
             [CanBeNull] [Query] DateTime? to = null,
             [CanBeNull] [Query] AccountBalanceChangeReasonTypeContract? reasonType = null,
             [Query] bool filterByTradingDay = false);
+        
+        /// <summary>
+        /// Get account balance change history by account Id and TradingDay
+        /// </summary>
+        [Get("/api/balance-history/by-account/{accountId}/trading-day")]
+        Task<Dictionary<string, AccountBalanceChangeContract[]>> ByAccount([NotNull] string accountId,
+            [Query] DateTime tradingDay,
+            [CanBeNull] [Query] AccountBalanceChangeReasonTypeContract? reasonType = null);
 
         /// <summary>
         /// Get account balance change history by account Id and eventSourceId (like Withdraw or Deposit)
