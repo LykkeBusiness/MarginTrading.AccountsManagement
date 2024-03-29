@@ -1,3 +1,40 @@
+## 2.20.0 - Nova 2. Delivery 41 (March 29, 2024)
+### What's changed
+* LT-5324: Additional logging for taxes saga.
+* LT-5278: Adjust the `iaccountbalancehistoryapi` api.
+
+### Deployment
+* For both **AccountsManagement** and **AccountHistory Broker**:
+
+Add a new configuration section `ExtendedLoggingSettings`, then set `TaxesLoggingEnabled` to `true`
+
+Example for **AccountsManagement**
+
+```
+{
+ "MarginTradingAccountManagement": 
+  {
+    "ExtendedLoggingSettings": 
+    {
+      "TaxesLoggingEnabled": true
+    },
+
+    // omitted
+```
+Example for **AccountHistory Broker**
+```
+{
+  "MtBrokerSettings": 
+  {
+    "ExtendedLoggingSettings": 
+    {
+      "TaxesLoggingEnabled": true
+    },
+
+    // omitted
+```
+
+
 ## 2.19.0 - Nova 2. Delivery 40 (February 28, 2024)
 ### What's changed
 * LT-5293: [AccountHistoryBroker] Fix "update version number" and "deprecated packages validation" build steps
