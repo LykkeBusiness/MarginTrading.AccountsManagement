@@ -57,3 +57,11 @@ IF NOT EXISTS(
              Instrument, 
              TradingDate)
     END;
+    
+-- for nvarchar columns the real length is this value divided by 2
+-- 128 means it's [nvarchar](64)
+if COL_LENGTH('[dbo].[AccountHistory]', 'Instrument') = 128
+BEGIN
+ALTER TABLE AccountHistory
+ALTER COLUMN Instrument NVARCHAR(100)
+END;
