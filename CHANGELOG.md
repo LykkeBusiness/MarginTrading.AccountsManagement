@@ -1,3 +1,7 @@
+## 2.21.0 - Nova 2. Delivery 43 (June 03, 2024)
+### What's changed
+* LT-5462: An error in the log "string or binary data would be truncated"
+
 ## 2.20.0 - Nova 2. Delivery 41 (March 29, 2024)
 ### What's changed
 * LT-5324: Additional logging for taxes saga.
