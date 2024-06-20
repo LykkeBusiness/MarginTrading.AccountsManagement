@@ -4,6 +4,8 @@
 using System;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
+
+using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.AccountsManagement.Workflow.UpdateBalance.Commands;
@@ -26,8 +28,8 @@ namespace MarginTrading.AccountsManagement.Workflow.ClosePosition
         [UsedImplicitly]
         private void Handle(PositionClosedEvent evt, ICommandSender sender)
         {
-            var operationId = evt.PositionId + "-update-balance";
-            
+            var operationId = new OperationId(evt.PositionId).ExtendWithUpdateBalance();
+
             sender.SendCommand(
                 new UpdateBalanceInternalCommand(
                     operationId,

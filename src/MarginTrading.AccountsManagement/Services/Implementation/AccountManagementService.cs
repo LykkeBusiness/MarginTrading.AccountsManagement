@@ -439,7 +439,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 nameof(UpdateAccountAsync),
                 result,
                 AccountChangedEventTypeContract.Updated,
-                Guid.NewGuid().ToString("N"),
+                new OperationId(),
                 previousSnapshot: account);
 
             return result;
@@ -454,7 +454,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
 
             var account = await EnsureAccountValidAsync(accountId, true);
 
-            await UpdateBalanceAsync(Guid.NewGuid().ToString(), accountId,
+            await UpdateBalanceAsync(new OperationId(), accountId,
                 _settings.Behavior.DefaultBalance - account.Balance, AccountBalanceChangeReasonType.Reset,
                 "Reset account Api");
 
@@ -535,7 +535,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                     nameof(UpdateClientTradingCondition),
                     account,
                     AccountChangedEventTypeContract.Updated,
-                    Guid.NewGuid().ToString("N"),
+                    new OperationId(),
                     previousSnapshot: beforeUpdate[account.Id]);
             }
 
@@ -594,7 +594,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 nameof(UpdateComplexityWarningFlag),
                 updated,
                 AccountChangedEventTypeContract.Updated,
-                Guid.NewGuid().ToString("N"),
+                new OperationId(),
                 previousSnapshot: previousSnapshot,
                 orderId: orderId);
         }
@@ -675,7 +675,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             //todo consider moving to CQRS projection
             if (_settings.Behavior?.DefaultBalance != null && _settings.Behavior.DefaultBalance != default)
             {
-                await UpdateBalanceAsync(Guid.NewGuid().ToString(), account.Id, _settings.Behavior.DefaultBalance,
+                await UpdateBalanceAsync(new OperationId(), account.Id, _settings.Behavior.DefaultBalance,
                     AccountBalanceChangeReasonType.Create, "Create account Api");
             }
 
