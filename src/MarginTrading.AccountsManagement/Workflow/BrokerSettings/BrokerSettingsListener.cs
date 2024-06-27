@@ -15,7 +15,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 {
     public class BrokerSettingsListener : HostedServiceMiddleware, IHostedService
     {
-        private readonly ILogger<BrokerSettingsListener> logger;
         private readonly RabbitMqPullingSubscriber<BrokerSettingsChangedEvent> brokerSettingsChangedSubscriber;
         private readonly IBrokerSettingsCache brokerSettingsCache;
         private readonly string brokerId;
@@ -27,7 +26,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
             string brokerId)
             : base(new DefaultLogLevelMapper(), logger)
         {
-            this.logger = logger;
             this.brokerSettingsChangedSubscriber = brokerSettingsChangedSubscriber;
             this.brokerSettingsCache = brokerSettingsCache;
             this.brokerId = brokerId;
@@ -35,8 +33,6 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            brokerSettingsCache.Initialize();
-            
             this.brokerSettingsChangedSubscriber
                 .Subscribe(@event => this.DecorateAndHandle(() => this.HandleBrokerSettingsChangedEvent(@event), @event.EventId))
                 .Start();

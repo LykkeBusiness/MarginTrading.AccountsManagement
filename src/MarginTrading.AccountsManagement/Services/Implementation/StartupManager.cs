@@ -23,6 +23,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ILogger _logger;
         private readonly IEnumerable<IStartable> _startables;
         private readonly ICqrsEngine _cqrsEngine;
+        private readonly IBrokerSettingsCache _brokerSettingsCache;
 
         public StartupManager(IAuditRepository auditRepository,
             IEodTaxFileMissingRepository taxFileMissingRepository,
@@ -31,7 +32,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IAccountHistoryRepository accountHistoryRepository,
             ILogger<StartupManager> logger,
             IEnumerable<IStartable> startables,
-            ICqrsEngine cqrsEngine)
+            ICqrsEngine cqrsEngine,
+            IBrokerSettingsCache brokerSettingsCache)
         {
             _auditRepository = auditRepository;
             _taxFileMissingRepository = taxFileMissingRepository;
@@ -41,10 +43,15 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _logger = logger;
             _startables = startables;
             _cqrsEngine = cqrsEngine;
+            _brokerSettingsCache = brokerSettingsCache;
         }
 
         public void Start()
         {
+            _logger.LogInformation("Initializing broker settings cache");
+            _brokerSettingsCache.Initialize();
+            _logger.LogInformation("Broker settings cache initialized");
+            
             foreach (var component in this._startables)
             {
                 var cName = component.GetType().Name;
