@@ -12,6 +12,7 @@ using Lykke.Snow.Common.Correlation.Http;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
+using Lykke.Snow.Common.Startup.Extensions;
 using Lykke.Snow.Common.Startup.HttpClientGenerator;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
@@ -82,12 +83,12 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddSingleton<RabbitMqCorrelationManager>();
             services.AddSingleton<CqrsCorrelationManager>();
             services.AddTransient<HttpCorrelationHandler>();
-
+            
             services.AddFeatureManagement(settings.MarginTradingAccountManagement.BrokerId);
-            services.AddHostedServices(settings);
-            services.AddBrokerSettings(settings);
-            services.AddEodProcessFinishedSubscriber(settings);
-            services.AddOrderHistoryEventSubscriber(settings);
+            services.AddBrokerId(settings.MarginTradingAccountManagement.BrokerId);
+            services.AddSingleton<ComplexityWarningConfiguration>();
+            services.AddHostedService<CleanupExpiredComplexityService>();
+            services.AddRabbitMqListeners(settings);
             
             services.AddSingleton<LossPercentagePublisher>();
             services.AddSingleton<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());

@@ -9,6 +9,8 @@ using Autofac;
 using Lykke.Cqrs;
 
 using MarginTrading.AccountsManagement.Repositories;
+using MarginTrading.AccountsManagement.Settings;
+
 using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.Services.Implementation
@@ -24,6 +26,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IEnumerable<IStartable> _startables;
         private readonly ICqrsEngine _cqrsEngine;
         private readonly IBrokerSettingsCache _brokerSettingsCache;
+        private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
 
         public StartupManager(IAuditRepository auditRepository,
             IEodTaxFileMissingRepository taxFileMissingRepository,
@@ -33,7 +36,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             ILogger<StartupManager> logger,
             IEnumerable<IStartable> startables,
             ICqrsEngine cqrsEngine,
-            IBrokerSettingsCache brokerSettingsCache)
+            IBrokerSettingsCache brokerSettingsCache,
+            ComplexityWarningConfiguration complexityWarningConfiguration)
         {
             _auditRepository = auditRepository;
             _taxFileMissingRepository = taxFileMissingRepository;
@@ -44,10 +48,13 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _startables = startables;
             _cqrsEngine = cqrsEngine;
             _brokerSettingsCache = brokerSettingsCache;
+            _complexityWarningConfiguration = complexityWarningConfiguration;
         }
 
         public void Start()
         {
+            _complexityWarningConfiguration.Validate().GetAwaiter().GetResult();
+            
             _logger.LogInformation("Initializing broker settings cache");
             _brokerSettingsCache.Initialize();
             _logger.LogInformation("Broker settings cache initialized");

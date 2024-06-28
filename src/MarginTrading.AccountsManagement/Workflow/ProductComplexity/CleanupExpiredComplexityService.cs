@@ -8,35 +8,35 @@ using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Hosting;
-using Microsoft.FeatureManagement;
 using Polly;
 
 namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
 {
     public class CleanupExpiredComplexityService : BackgroundService
     {
-        private readonly IFeatureManager _featureManager;
+        private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
         private readonly ILogger _logger;
         private readonly AccountManagementSettings _settings;
         private readonly IAccountManagementService _accountManagementService;
         private readonly IComplexityWarningRepository _complexityWarningRepository;
         
-        public CleanupExpiredComplexityService(IFeatureManager featureManager,
+        public CleanupExpiredComplexityService(
             ILogger<CleanupExpiredComplexityService> logger,
             AccountManagementSettings settings,
             IAccountManagementService accountManagementService,
-            IComplexityWarningRepository complexityWarningRepository)
+            IComplexityWarningRepository complexityWarningRepository,
+            ComplexityWarningConfiguration complexityWarningConfiguration)
         {
-            _featureManager = featureManager;
             _logger = logger;
             _settings = settings;
             _accountManagementService = accountManagementService;
             _complexityWarningRepository = complexityWarningRepository;
+            _complexityWarningConfiguration = complexityWarningConfiguration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!await _featureManager.IsEnabledAsync(BrokerFeature.ProductComplexityWarning))
+            if (!await _complexityWarningConfiguration.IsEnabled)
             {
                 _logger.LogInformation("Feature {FeatureName} is disabled. {Action} will not be executed",
                     BrokerFeature.ProductComplexityWarning,
