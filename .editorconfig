@@ -142,6 +142,9 @@ csharp_indent_case_contents = true
 csharp_indent_case_contents_when_block = true
 csharp_indent_labels = one_less_than_current
 csharp_indent_switch_labels = true
+csharp_indent_method_decl_pars = inside
+csharp_indent_invocation_pars = inside
+
 
 # Space preferences
 csharp_space_after_cast = false
@@ -170,6 +173,13 @@ csharp_space_between_square_brackets = false
 # Wrapping preferences
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
+csharp_wrap_arguments_style = chop_if_long
+csharp_wrap_parameters_style = chop_if_long
+csharp_wrap_after_declaration_lpar = true
+csharp_wrap_after_invocation_lpar = true
+csharp_max_formal_parameters_on_line = 3
+csharp_max_invocation_arguments_on_line = 3
+csharp_max_initializer_elements_on_line = 3
 
 #### Naming styles ####
 [*.{cs,vb}]
