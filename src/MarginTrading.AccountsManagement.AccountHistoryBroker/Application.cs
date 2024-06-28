@@ -3,10 +3,13 @@
 
 using System;
 using System.Threading.Tasks;
+
 using Common;
+
 using Microsoft.Extensions.Logging;
+
 using Lykke.MarginTrading.BrokerBase;
-using Lykke.MarginTrading.BrokerBase.Models;
+using Lykke.MarginTrading.BrokerBase.Messaging;
 using Lykke.MarginTrading.BrokerBase.Settings;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.RabbitMq;
@@ -37,15 +40,21 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             ILogger<Application> logger,
             Settings settings,
             CurrentApplicationInfo applicationInfo,
-            IAccountsApi accountsApi, 
-            TaxHistoryInsertedPublisher taxHistoryInsertedPublisher) : base(correlationManager, loggerFactory, logger, applicationInfo, MessageFormat.MessagePack) 
+            IAccountsApi accountsApi,
+            TaxHistoryInsertedPublisher taxHistoryInsertedPublisher,
+            IMessagingComponentFactory<AccountChangedEvent> messagingComponentFactory)
+            : base(
+                correlationManager,
+                loggerFactory,
+                applicationInfo,
+                messagingComponentFactory)
         {
             _correlationContextAccessor = correlationContextAccessor;
             _accountHistoryRepository = accountHistoryRepository;
-            _logger = logger;
             _settings = settings;
             _accountsApi = accountsApi;
             _taxHistoryInsertedPublisher = taxHistoryInsertedPublisher;
+            _logger = logger;
 
             _taxHistoryInsertedPublisher.Start();
         }
@@ -59,10 +68,12 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId;
             if (string.IsNullOrWhiteSpace(correlationId))
             {
-                _logger.LogDebug("Correlation id is empty for account {AccountId}. OperationId: {OperationId}",
-                    accountChangedEvent.Account.Id, accountChangedEvent.OperationId);
+                _logger.LogDebug(
+                    "Correlation id is empty for account {AccountId}. OperationId: {OperationId}",
+                    accountChangedEvent.Account.Id,
+                    accountChangedEvent.OperationId);
             }
-                    
+
             try
             {
                 if (accountChangedEvent.BalanceChange == null)
@@ -72,7 +83,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
                         accountChangedEvent.ToJson());
                     return;
                 }
-                
+
                 var accountHistory = Map(accountChangedEvent.BalanceChange, correlationId);
 
                 if (accountHistory.ChangeAmount != 0)
@@ -84,25 +95,32 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
             catch (Exception exception)
             {
-                _logger.LogError(exception, "Error while processing {Event} with OperationId: {OperationId}",
+                _logger.LogError(
+                    exception,
+                    "Error while processing {Event} with OperationId: {OperationId}",
                     nameof(AccountChangedEvent),
                     accountChangedEvent.OperationId);
                 throw;
             }
         }
 
-        private async Task PublishTaxHistoryEventIfApplicable(AccountHistory accountHistory, AccountChangedEvent accountChangedEvent)
+        private async Task PublishTaxHistoryEventIfApplicable(
+            AccountHistory accountHistory,
+            AccountChangedEvent accountChangedEvent)
         {
-            if(accountHistory.ReasonType == AccountBalanceChangeReasonType.Tax)
+            if (accountHistory.ReasonType == AccountBalanceChangeReasonType.Tax)
             {
-                var taxHistoryUpdatedEvent = new AccountTaxHistoryUpdatedEvent(operationId: accountChangedEvent.OperationId,
-                    changeTimestamp: DateTime.UtcNow, account: accountChangedEvent.Account);
+                var taxHistoryUpdatedEvent = new AccountTaxHistoryUpdatedEvent(
+                    operationId: accountChangedEvent.OperationId,
+                    changeTimestamp: DateTime.UtcNow,
+                    account: accountChangedEvent.Account);
 
                 await _taxHistoryInsertedPublisher.PublishAsync(taxHistoryUpdatedEvent);
 
                 if (_settings.ExtendedLoggingSettings?.TaxesLoggingEnabled is true)
                 {
-                    _logger.LogInformation("{Event} is sent for tax with OperationId: {OperationId}",
+                    _logger.LogInformation(
+                        "{Event} is sent for tax with OperationId: {OperationId}",
                         typeof(AccountTaxHistoryUpdatedEvent),
                         accountChangedEvent.OperationId);
                 }
@@ -121,7 +139,9 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
             }
         }
 
-        private static AccountHistory Map(AccountBalanceChangeContract accountBalanceChangeContract, string correlationId)
+        private static AccountHistory Map(
+            AccountBalanceChangeContract accountBalanceChangeContract,
+            string correlationId)
         {
             return new AccountHistory(
                 accountBalanceChangeContract.Id,
