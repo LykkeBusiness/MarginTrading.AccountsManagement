@@ -25,7 +25,7 @@ namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
         public static void AddRabbitMqListeners(this IServiceCollection services, AppSettings settings)
         {
             services.AddRabbitMqConnectionProvider();
-            
+
             services.AddRabbitMqListener<BrokerSettingsChangedEvent, BrokerSettingsHandler>(
                     settings.MarginTradingAccountManagement.RabbitMq.BrokerSettings,
                     ConfigureBrokerSettingsSubscriber)
