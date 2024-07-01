@@ -86,7 +86,7 @@ namespace MarginTrading.AccountsManagement.Startup
             
             services.AddFeatureManagement(settings.MarginTradingAccountManagement.BrokerId);
             services.AddBrokerId(settings.MarginTradingAccountManagement.BrokerId);
-            services.AddSingleton<ComplexityWarningConfiguration>();
+            services.AddSingleton<IComplexityWarningConfiguration, ComplexityWarningConfiguration>();
             services.AddSingleton<IOrderHistoryValidator, DefaultOrderHistoryValidator>();
             services.AddSingleton<IOrderValidator, DefaultOrderValidator>();
             services.AddHostedService<CleanupExpiredComplexityService>();

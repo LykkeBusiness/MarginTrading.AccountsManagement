@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
+using MarginTrading.AccountsManagement.Settings;
+
 using Microsoft.FeatureManagement;
 
 using BrokerFeature = Lykke.Snow.Mdm.Contracts.BrokerFeatures.BrokerFeature;
 
-namespace MarginTrading.AccountsManagement.Settings
+namespace MarginTrading.AccountsManagement.Services.Implementation
 {
-    public sealed class ComplexityWarningConfiguration
+    public sealed class ComplexityWarningConfiguration : IComplexityWarningConfiguration
     {
         private readonly AccountManagementSettings _settings;
         private readonly Lazy<Task<bool>> _featureEnabled;

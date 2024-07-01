@@ -9,5 +9,8 @@ namespace MarginTrading.AccountsManagement.Services
     public interface IOrderValidator
     {
         bool Warning871mConfirmed(OrderContract order) => order.Warning871mConfirmed();
+
+        bool ProductComplexityConfirmationReceived(OrderContract order, bool defaultValue) =>
+            order.ProductComplexityConfirmationReceived(defaultValue);
     }
 }

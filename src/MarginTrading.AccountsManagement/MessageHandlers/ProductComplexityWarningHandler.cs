@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
-using MarginTrading.AccountsManagement.Extensions.AdditionalInfo;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Services;
@@ -26,22 +25,25 @@ namespace MarginTrading.AccountsManagement.MessageHandlers
         private readonly IComplexityWarningRepository _complexityWarningRepository;
         private readonly AccountManagementSettings _settings;
         private readonly ILogger<ProductComplexityWarningHandler> _logger;
-        private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
+        private readonly IComplexityWarningConfiguration _complexityWarningConfiguration;
         private readonly IOrderHistoryValidator _orderHistoryValidator;
+        private readonly IOrderValidator _orderValidator;
 
         public ProductComplexityWarningHandler(
             ILogger<ProductComplexityWarningHandler> logger,
             IAccountManagementService accountManagementService,
             IComplexityWarningRepository complexityWarningRepository,
             AccountManagementSettings settings,
-            ComplexityWarningConfiguration complexityWarningConfiguration,
-            IOrderHistoryValidator orderHistoryValidator)
+            IComplexityWarningConfiguration complexityWarningConfiguration,
+            IOrderHistoryValidator orderHistoryValidator,
+            IOrderValidator orderValidator)
         {
             _accountManagementService = accountManagementService;
             _complexityWarningRepository = complexityWarningRepository;
             _settings = settings;
             _complexityWarningConfiguration = complexityWarningConfiguration;
             _orderHistoryValidator = orderHistoryValidator;
+            _orderValidator = orderValidator;
             _logger = logger;
         }
 
@@ -60,7 +62,7 @@ namespace MarginTrading.AccountsManagement.MessageHandlers
 
             var order = message.OrderSnapshot;
 
-            if (order.ProductComplexityConfirmationReceived())
+            if (_orderValidator.ProductComplexityConfirmationReceived(order, false))
             {
                 _logger.LogInformation(
                     $"Product complexity confirmation received for account {order.AccountId} and orderId {order.Id}");
@@ -74,14 +76,14 @@ namespace MarginTrading.AccountsManagement.MessageHandlers
                     order.CreatedTimestamp,
                     _settings.ComplexityWarningsCount,
                     out var confirmationFlagShouldBeSwitched);
-
+                
                 if (confirmationFlagShouldBeSwitched)
                 {
                     await _accountManagementService.UpdateComplexityWarningFlag(
                         order.AccountId,
                         shouldShowProductComplexityWarning: false,
                         order.Id);
-
+                
                     _logger.LogInformation(
                         $"Flag {BrokerFeature.ProductComplexityWarning} for account {entity.AccountId} is switched to off");
                 }
