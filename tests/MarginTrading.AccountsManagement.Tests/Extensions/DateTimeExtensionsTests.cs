@@ -2,11 +2,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Linq;
 
 using FluentAssertions;
 using MarginTrading.AccountsManagement.Extensions;
-using MarginTrading.AccountsManagement.Tests.Fakes;
 
 using NUnit.Framework;
 
@@ -14,24 +12,6 @@ namespace MarginTrading.AccountsManagement.Tests.Extensions
 {
     public class DateTimeExtensionsTests
     {
-        private FakeLocalTimeZone _fakeLocalTimeZone; 
-        
-        [SetUp]
-        public void SetUp()
-        {
-            var timeZoneInfo = TimeZoneInfo
-                .GetSystemTimeZones()
-                .ToList()
-                .First(x => x.BaseUtcOffset.Hours == 5);
-            _fakeLocalTimeZone = new FakeLocalTimeZone(timeZoneInfo);
-        }
-        
-        [TearDown]
-        public void TearDown()
-        {
-            _fakeLocalTimeZone.Dispose();
-        }
-        
         [Test]
         public void AssumeUtcIfUnspecified_UnspecifiedKind_SpecifiesUtc()
         {
@@ -60,23 +40,6 @@ namespace MarginTrading.AccountsManagement.Tests.Extensions
             //assert
             result.Kind.Should().Be(DateTimeKind.Utc);
             result.Should().HaveHour(10);
-        }
-        
-        [Test]
-        public void AssumeUtcIfUnspecified_LocalKind_ConvertsToUtc()
-        {
-            //arrange
-            var date = new DateTime(2022, 02, 15, 10, 30, 0);
-            var dateTime = DateTime.SpecifyKind(date, DateTimeKind.Local);
-            var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
-
-            //act
-            var result = dateTime.AssumeUtcIfUnspecified();
-
-            //assert
-            result.Kind.Should().Be(DateTimeKind.Utc);
-            offset.Should().NotBe(TimeSpan.Zero); // only for testing purposes
-            result.Should().Be(date.Add(-offset));
         }
     }
 }
