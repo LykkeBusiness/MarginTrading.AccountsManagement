@@ -8,8 +8,6 @@ using JetBrains.Annotations;
 using Lykke.RabbitMqBroker.Subscriber;
 
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
-using MarginTrading.AccountsManagement.Extensions;
-using MarginTrading.AccountsManagement.Extensions.AdditionalInfo;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.Backend.Contracts.Events;
 
@@ -21,24 +19,32 @@ namespace MarginTrading.AccountsManagement.MessageHandlers
     internal sealed class Warning871Handler : IMessageHandler<OrderHistoryEvent>
     {
         private readonly IAccountManagementService _accountManagementService;
+        private readonly IOrderHistoryValidator _orderHistoryValidator;
+        private readonly IOrderValidator _orderValidator;
         private readonly ILogger<Warning871Handler> _logger;
 
-        public Warning871Handler(ILogger<Warning871Handler> logger, IAccountManagementService accountManagementService)
+        public Warning871Handler(
+            ILogger<Warning871Handler> logger,
+            IAccountManagementService accountManagementService,
+            IOrderHistoryValidator orderHistoryValidator,
+            IOrderValidator orderValidator)
         {
             _logger = logger;
             _accountManagementService = accountManagementService;
+            _orderHistoryValidator = orderHistoryValidator;
+            _orderValidator = orderValidator;
         }
 
         public async Task Handle(OrderHistoryEvent message)
         {
-            if (!message.IsBasicAndPlaceTypeOrder())
+            if (!_orderHistoryValidator.IsBasicAndPlaceTypeOrder(message))
             {
                 return;
             }
 
             var order = message.OrderSnapshot;
 
-            if (order.Warning871mConfirmed())
+            if (_orderValidator.Warning871mConfirmed(order))
             {
                 _logger.LogInformation(
                     $"871m warning confirmation received for account {order.AccountId} and orderId {order.Id}");

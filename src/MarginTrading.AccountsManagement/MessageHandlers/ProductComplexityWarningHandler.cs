@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 
-using MarginTrading.AccountsManagement.Extensions;
 using MarginTrading.AccountsManagement.Extensions.AdditionalInfo;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.Repositories;
@@ -28,18 +27,21 @@ namespace MarginTrading.AccountsManagement.MessageHandlers
         private readonly AccountManagementSettings _settings;
         private readonly ILogger<ProductComplexityWarningHandler> _logger;
         private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
+        private readonly IOrderHistoryValidator _orderHistoryValidator;
 
         public ProductComplexityWarningHandler(
             ILogger<ProductComplexityWarningHandler> logger,
             IAccountManagementService accountManagementService,
             IComplexityWarningRepository complexityWarningRepository,
             AccountManagementSettings settings,
-            ComplexityWarningConfiguration complexityWarningConfiguration)
+            ComplexityWarningConfiguration complexityWarningConfiguration,
+            IOrderHistoryValidator orderHistoryValidator)
         {
             _accountManagementService = accountManagementService;
             _complexityWarningRepository = complexityWarningRepository;
             _settings = settings;
             _complexityWarningConfiguration = complexityWarningConfiguration;
+            _orderHistoryValidator = orderHistoryValidator;
             _logger = logger;
         }
 
@@ -51,7 +53,7 @@ namespace MarginTrading.AccountsManagement.MessageHandlers
                 return;
             }
             
-            if (!message.IsBasicAndPlaceTypeOrder())
+            if (!_orderHistoryValidator.IsBasicAndPlaceTypeOrder(message))
             {
                 return;
             }
