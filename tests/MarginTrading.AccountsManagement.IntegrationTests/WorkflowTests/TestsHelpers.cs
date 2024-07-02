@@ -49,6 +49,7 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
                 {
                     OperationId = Guid.NewGuid().ToString("N"),
                     AmountDelta = delta,
+                    ReasonType = AccountBalanceChangeReasonTypeContract.Manual,
                     Reason = "intergational tests"
                 });
 

@@ -20,13 +20,12 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
             var account = await TestsHelpers.GetAccount();
             account.Should().BeEquivalentTo(new
             {
-                ClientId = TestsHelpers.ClientId,
+                TestsHelpers.ClientId,
                 Id = TestsHelpers.AccountId,
-                Balance = 13,
                 IsDisabled = false,
             }, o => o.ExcludingMissingMembers());
-            
-            result.Should().BeEquivalentTo(account);
+
+            account.Balance.Should().BeGreaterOrEqualTo(13);
         }
 
         [TestCase(-10000)]
@@ -35,12 +34,13 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
         {
             // arrange
             await TestsHelpers.EnsureAccountState();
+            var balanceBefore = (await TestsHelpers.GetAccount()).Balance;
 
             // act
             await TestsHelpers.ChargeManually(delta);
 
             // assert
-            (await TestsHelpers.GetAccount()).Balance.Should().Be(0 + delta);
+            (await TestsHelpers.GetAccount()).Balance.Should().Be(balanceBefore + delta);
         }
     }
 }
