@@ -3,8 +3,10 @@
 
 using System.Threading.Tasks;
 
+using FluentAssertions;
+
 using MarginTrading.AccountsManagement.MessageHandlers;
-using MarginTrading.AccountsManagement.Services;
+using MarginTrading.AccountsManagement.Tests.Fakes;
 using MarginTrading.Backend.Contracts.Events;
 using MarginTrading.Backend.Contracts.Orders;
 
@@ -18,47 +20,39 @@ namespace MarginTrading.AccountsManagement.Tests
 {
     public class Warning871HandlerTests
     {
-        private Mock<IAccountManagementService> _accountManagementServiceMock;
+        private Warning871mFlagsAccountManagementService _accountManagementService;
         private Mock<ILogger<Warning871Handler>> _loggerMock;
-        private Mock<IOrderHistoryValidator> _orderHistoryValidatorMock;
-        private Mock<IOrderValidator> _orderValidatorMock;
-        private Warning871Handler _handler;
 
         [SetUp]
         public void SetUp()
         {
-            _accountManagementServiceMock = new Mock<IAccountManagementService>();
+            _accountManagementService = new Warning871mFlagsAccountManagementService();
             _loggerMock = new Mock<ILogger<Warning871Handler>>();
-            _orderHistoryValidatorMock = new Mock<IOrderHistoryValidator>();
-            _orderValidatorMock = new Mock<IOrderValidator>();
-            _handler = new Warning871Handler(
-                _loggerMock.Object,
-                _accountManagementServiceMock.Object,
-                _orderHistoryValidatorMock.Object,
-                _orderValidatorMock.Object);
         }
 
         [Test]
         public async Task When_Order_DoesNotMeet_Requirements_Handling_Should_Be_Skipped()
         {
-            var messageMock = new Mock<OrderHistoryEvent>();
-            _orderHistoryValidatorMock
-                .Setup(x => x.IsBasicAndPlaceTypeOrder(messageMock.Object))
-                .Returns(false);
+            var sut = new Warning871Handler(
+                _loggerMock.Object,
+                _accountManagementService,
+                new NegativeOrderHistoryValidator(),
+                new NegativeOrderValidator());
 
-            await _handler.Handle(messageMock.Object);
+            await sut.Handle(new OrderHistoryEvent { OrderSnapshot = new OrderContract { AccountId = "accountId" } });
 
-            _accountManagementServiceMock.Verify(
-                service => service.Update871mWarningFlag(
-                    It.IsAny<string>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<string>()),
-                Times.Never);
+            _accountManagementService.WarningFlags871m.Should().BeEmpty();
         }
-        
+
         [Test]
         public async Task When_Order_Meets_Requirements_And_Warning871_Confirmed_Handling_Should_Be_Performed()
         {
+            var sut = new Warning871Handler(
+                _loggerMock.Object,
+                _accountManagementService,
+                new PositiveOrderHistoryValidator(),
+                new PositiveOrderValidator());
+        
             var message = new OrderHistoryEvent
             {
                 OrderSnapshot = new OrderContract
@@ -67,26 +61,20 @@ namespace MarginTrading.AccountsManagement.Tests
                     Id = "orderId"
                 }
             };
-            _orderHistoryValidatorMock
-                .Setup(x => x.IsBasicAndPlaceTypeOrder(message))
-                .Returns(true);
-            _orderValidatorMock
-                .Setup(x => x.Warning871mConfirmed(message.OrderSnapshot))
-                .Returns(true);
-
-            await _handler.Handle(message);
-
-            _accountManagementServiceMock.Verify(
-                service => service.Update871mWarningFlag(
-                    message.OrderSnapshot.AccountId,
-                    It.IsAny<bool>(),
-                    message.OrderSnapshot.Id),
-                Times.Once);
+            await sut.Handle(message);
+        
+            _accountManagementService.WarningFlags871m.Should().ContainKey("accountId");
         }
         
         [Test]
         public async Task When_Order_Warning_Not_871Confirmed_Handling_Should_Be_Skipped()
         {
+            var sut = new Warning871Handler(
+                _loggerMock.Object,
+                _accountManagementService,
+                new PositiveOrderHistoryValidator(),
+                new NegativeOrderValidator());
+            
             var message = new OrderHistoryEvent
             {
                 OrderSnapshot = new OrderContract
@@ -95,21 +83,10 @@ namespace MarginTrading.AccountsManagement.Tests
                     Id = "orderId"
                 }
             };
-            _orderHistoryValidatorMock
-                .Setup(x => x.IsBasicAndPlaceTypeOrder(message))
-                .Returns(true);
-            _orderValidatorMock
-                .Setup(x => x.Warning871mConfirmed(message.OrderSnapshot))
-                .Returns(false);
-
-            await _handler.Handle(message);
-
-            _accountManagementServiceMock.Verify(
-                service => service.Update871mWarningFlag(
-                    It.IsAny<string>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<string>()),
-                Times.Never);
+        
+            await sut.Handle(message);
+            
+            _accountManagementService.WarningFlags871m.Should().BeEmpty();
         }
     }
 }
