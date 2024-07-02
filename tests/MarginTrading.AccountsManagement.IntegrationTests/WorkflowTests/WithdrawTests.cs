@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using FluentAssertions;
 
@@ -16,53 +17,59 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
         public async Task IfEnoughBalance_ShouldWithdraw()
         {
             // arrange
-            await TestsHelpers.EnsureAccountState(needBalance: 123);
-
+            var account = await TestsHelpers.EnsureAccountState(needBalance: 123);
+            var balanceBefore = account.Balance;
+        
             // act
 
-            var operationId = await ClientUtil.AccountsApi.BeginWithdraw(TestsHelpers.ClientId,
+            var response = await ClientUtil.AccountsApi.TryBeginWithdraw(
                 TestsHelpers.AccountId,
-                new AccountChargeManuallyRequest
+                new AccountChargeRequest
                 {
+                    OperationId = Guid.NewGuid().ToString("N"),
                     AmountDelta = 123,
                     Reason = "intergational tests: withdraw",
                 });
             
+            response.Error.Should().Be(WithdrawalErrorContract.None);
+            
             var messagesReceivedTask = Task.WhenAll(
-                RabbitUtil.WaitForCqrsMessage<AccountBalanceChangedEvent>(m => m.OperationId == operationId),
-                RabbitUtil.WaitForCqrsMessage<WithdrawalSucceededEvent>(m => m.OperationId == operationId));
-
+                RabbitUtil.WaitForCqrsMessage<AccountChangedEvent>(m => m.OperationId == response.OperationId),
+                RabbitUtil.WaitForCqrsMessage<WithdrawalSucceededEvent>(m => m.OperationId == response.OperationId));
+        
             await messagesReceivedTask;
-
+        
             // assert
-            (await TestsHelpers.GetAccount()).Balance.Should().Be(0);
+            (await TestsHelpers.GetAccount()).Balance.Should().Be(balanceBefore - 123);
         }
         
         [Test]
         public async Task IfNotEnoughBalance_ShouldFailWithdraw()
         {
             // arrange
-            await TestsHelpers.EnsureAccountState(needBalance: 123);
-            (await TestsHelpers.GetAccount()).Balance.Should().Be(123);
-
+            var account = await TestsHelpers.EnsureAccountState(needBalance: 1);
+            var balanceBefore = account.Balance;
+        
             // act
-
-            var operationId = await ClientUtil.AccountsApi.BeginWithdraw(TestsHelpers.ClientId,
+            var response = await ClientUtil.AccountsApi.TryBeginWithdraw(
                 TestsHelpers.AccountId,
                 new AccountChargeManuallyRequest
                 {
-                    AmountDelta = 124,
+                    OperationId = Guid.NewGuid().ToString("N"),
+                    AmountDelta = account.Balance + 1,
                     Reason = "intergational tests: withdraw",
                 });
-            
-            var eventTask = await Task.WhenAny(
-                RabbitUtil.WaitForCqrsMessage<WithdrawalSucceededEvent>(m => m.OperationId == operationId),
-                RabbitUtil.WaitForCqrsMessage<WithdrawalFailedEvent>(m => m.OperationId == operationId));
 
-            eventTask.Should().BeOfType<Task<WithdrawalFailedEvent>>();
+            response.Error.Should().Be(WithdrawalErrorContract.None);
 
+            var succeededTask = RabbitUtil.WaitForCqrsMessage<WithdrawalSucceededEvent>(m => m.OperationId == response.OperationId);
+            var failedTask = RabbitUtil.WaitForCqrsMessage<WithdrawalFailedEvent>(m => m.OperationId == response.OperationId);
+            var resultTask = await Task.WhenAny(succeededTask, failedTask);
+
+            resultTask.Should().Be(failedTask);
+        
             // assert
-            (await TestsHelpers.GetAccount()).Balance.Should().Be(123);
+            (await TestsHelpers.GetAccount()).Balance.Should().Be(balanceBefore);
         }
     }
 }

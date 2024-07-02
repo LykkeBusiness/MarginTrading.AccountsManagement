@@ -33,8 +33,8 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
         public async Task Always_ShouldUpdateBalance(decimal delta)
         {
             // arrange
-            await TestsHelpers.EnsureAccountState();
-            var balanceBefore = (await TestsHelpers.GetAccount()).Balance;
+            var account = await TestsHelpers.EnsureAccountState();
+            var balanceBefore = account.Balance;
 
             // act
             await TestsHelpers.ChargeManually(delta);
