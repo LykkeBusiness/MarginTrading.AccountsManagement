@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using NUnit.Framework;
 
-namespace MarginTrading.AccountsManagement.Tests
+namespace MarginTrading.AccountsManagement.IntegrationTests
 {
     public class AccountsControllerTests
     {

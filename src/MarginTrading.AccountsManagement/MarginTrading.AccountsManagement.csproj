@@ -80,5 +80,6 @@
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="MarginTrading.AccountsManagement.Tests" />
+        <InternalsVisibleTo Include="MarginTrading.AccountsManagement.IntegrationTests" />
     </ItemGroup>
 </Project>

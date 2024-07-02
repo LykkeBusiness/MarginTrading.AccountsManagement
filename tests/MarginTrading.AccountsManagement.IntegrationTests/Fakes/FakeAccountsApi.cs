@@ -8,7 +8,7 @@ using MarginTrading.Backend.Contracts;
 using MarginTrading.Backend.Contracts.Account;
 using MarginTrading.Backend.Contracts.Common;
 
-namespace MarginTrading.AccountsManagement.Tests.Fakes
+namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
 {
     internal sealed class FakeAccountsApi: IAccountsApi
     {

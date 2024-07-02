@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Meteor.Client;
 using Meteor.Client.Models;
 
-namespace MarginTrading.AccountsManagement.Tests.Fakes
+namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
 {
     internal sealed class FakeMeteorClient: IMeteorClient
     {

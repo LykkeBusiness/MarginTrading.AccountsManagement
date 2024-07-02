@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Lykke.Cqrs;
 using Lykke.Snow.Mdm.Contracts.Api;
 
+using MarginTrading.AccountsManagement.IntegrationTests.Fakes;
 using MarginTrading.AccountsManagement.Services;
-using MarginTrading.AccountsManagement.Tests.Fakes;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.TradingHistory.Client;
@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 using Moq;
 
-namespace MarginTrading.AccountsManagement.Tests
+namespace MarginTrading.AccountsManagement.IntegrationTests
 {
     internal static class TestBootstrapper
     {

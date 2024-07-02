@@ -9,7 +9,7 @@ using MarginTrading.Backend.Contracts.Common;
 using MarginTrading.Backend.Contracts.Orders;
 using MarginTrading.Backend.Contracts.Positions;
 
-namespace MarginTrading.AccountsManagement.Tests.Fakes
+namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
 {
     internal sealed class FakePositionsApi : IPositionsApi 
     {

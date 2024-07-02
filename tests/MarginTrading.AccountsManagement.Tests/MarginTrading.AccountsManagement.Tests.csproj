@@ -22,12 +22,4 @@
         <ProjectReference Include="..\..\src\MarginTrading.AccountsManagement.AccountHistoryBroker\MarginTrading.AccountsManagement.AccountHistoryBroker.csproj" />
         <ProjectReference Include="..\..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
     </ItemGroup>
-    <ItemGroup>
-        <None Update="appsettings.Serilog.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="appsettings.test.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
 </Project>

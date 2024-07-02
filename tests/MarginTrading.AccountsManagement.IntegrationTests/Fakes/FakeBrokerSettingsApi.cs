@@ -7,7 +7,7 @@ using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Requests;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 
-namespace MarginTrading.AccountsManagement.Tests.Fakes
+namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
 {
     internal sealed class FakeBrokerSettingsApi : IBrokerSettingsApi
     {

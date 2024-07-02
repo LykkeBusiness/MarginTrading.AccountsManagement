@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AccountsManagement.Services.Implementation;
 
-namespace MarginTrading.AccountsManagement.Tests.Fakes
+namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
 {
     internal sealed class FakeAccountsCache : IAccountsCache
     {
