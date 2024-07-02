@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using FluentAssertions;
-using MarginTrading.AccountsManagement.Contracts.Commands;
-using MarginTrading.AccountsManagement.Contracts.Events;
-using MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure;
+
 using NUnit.Framework;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
+namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
 {
     public class CloseOrderTests
     {

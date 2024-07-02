@@ -3,18 +3,24 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 using Common;
 using Common.Log;
+
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Subscriber;
-using MarginTrading.AccountsManagement.IntegrationalTests.Settings;
+
+using MarginTrading.AccountsManagement.IntegrationTests.Settings;
+
 using Microsoft.Extensions.PlatformAbstractions;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+
 using RabbitMQ.Client;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure
+namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 {
     public class RabbitMqService : IDisposable
     {

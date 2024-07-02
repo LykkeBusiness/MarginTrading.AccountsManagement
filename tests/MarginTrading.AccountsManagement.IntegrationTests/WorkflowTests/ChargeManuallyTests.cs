@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
+
 using FluentAssertions;
-using MarginTrading.AccountsManagement.Contracts.Api;
-using MarginTrading.AccountsManagement.Contracts.Models;
-using MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure;
+
 using NUnit.Framework;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
+namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
 {
     public class ChargeManuallyTests
     {

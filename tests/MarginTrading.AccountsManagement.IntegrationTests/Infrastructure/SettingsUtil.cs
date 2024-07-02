@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+
 using Lykke.SettingsReader;
-using MarginTrading.AccountsManagement.IntegrationalTests.Settings;
+
+using MarginTrading.AccountsManagement.IntegrationTests.Settings;
+
 using Microsoft.Extensions.Configuration;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure
+namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 {
     internal class SettingsUtil
     {

@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Extensions;
-using MarginTrading.AccountsManagement.IntegrationalTests.Settings;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure
+using Common.Extensions;
+
+using MarginTrading.AccountsManagement.IntegrationTests.Settings;
+
+namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 {
     public static class RabbitUtil
     {

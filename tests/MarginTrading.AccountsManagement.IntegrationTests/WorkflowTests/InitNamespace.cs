@@ -1,10 +1,11 @@
 ﻿using System.Threading;
-using MarginTrading.AccountsManagement.Contracts.Commands;
+
 using MarginTrading.AccountsManagement.Contracts.Events;
-using MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure;
+using MarginTrading.AccountsManagement.IntegrationTests.Infrastructure;
+
 using NUnit.Framework;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
+namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
 {
     [SetUpFixture]
     public class InitNamespace

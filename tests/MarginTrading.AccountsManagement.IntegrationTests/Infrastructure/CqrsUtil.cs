@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+
 using Common.Log;
+
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
 using Lykke.Messaging.RabbitMq;
-using MarginTrading.AccountsManagement.Contracts.Commands;
-using MarginTrading.AccountsManagement.IntegrationalTests.Settings;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure
+using MarginTrading.AccountsManagement.Contracts.Commands;
+using MarginTrading.AccountsManagement.IntegrationTests.Settings;
+
+namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 {
     public static class CqrsUtil
     {

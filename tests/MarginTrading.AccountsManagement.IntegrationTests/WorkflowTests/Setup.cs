@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
+namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
 {
     /// <summary>
     /// Runs before and after all tests in this namespace

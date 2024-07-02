@@ -1,7 +1,8 @@
 ﻿using Lykke.HttpClientGenerator;
+
 using MarginTrading.AccountsManagement.Contracts;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure
+namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 {
     public static class ClientUtil
     {

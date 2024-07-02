@@ -1,12 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
 using FluentAssertions;
+
 using MarginTrading.AccountsManagement.Contracts.Api;
 using MarginTrading.AccountsManagement.Contracts.Events;
-using MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure;
+using MarginTrading.AccountsManagement.IntegrationTests.Infrastructure;
+
 using NUnit.Framework;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
+namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
 {
     public class DepositTests
     {

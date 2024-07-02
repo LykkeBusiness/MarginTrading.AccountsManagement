@@ -1,10 +1,11 @@
-﻿﻿using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
 using MarginTrading.AccountsManagement.Contracts.Api;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
-using MarginTrading.AccountsManagement.IntegrationalTests.Infrastructure;
+using MarginTrading.AccountsManagement.IntegrationTests.Infrastructure;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
+namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
 {
     public static class TestsHelpers
     {
@@ -23,7 +24,7 @@ namespace MarginTrading.AccountsManagement.IntegrationalTests.WorkflowTests
                 });
             }
 
-            if (account.Balance != needBalance)
+            if (account.Balance < needBalance)
             {
                 await ChargeManually(needBalance - account.Balance);
                 account = new AccountContract(account.Id, account.ClientId, account.TradingConditionId, 

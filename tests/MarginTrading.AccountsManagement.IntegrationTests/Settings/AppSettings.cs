@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Settings
+namespace MarginTrading.AccountsManagement.IntegrationTests.Settings
 {
     [UsedImplicitly]
     internal class AppSettings

@@ -1,6 +1,6 @@
 ﻿using Lykke.SettingsReader.Attributes;
 
-namespace MarginTrading.AccountsManagement.IntegrationalTests.Settings
+namespace MarginTrading.AccountsManagement.IntegrationTests.Settings
 {
     public class CqrsContextNamesSettings
     {

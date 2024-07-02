@@ -1,4 +1,4 @@
-﻿namespace MarginTrading.AccountsManagement.IntegrationalTests.Settings
+﻿namespace MarginTrading.AccountsManagement.IntegrationTests.Settings
 {
     internal class AccountManagementServiceClientSettings
     {
