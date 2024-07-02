@@ -3,14 +3,15 @@
 
 using System.Threading.Tasks;
 
+using FluentAssertions;
+
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 
 using MarginTrading.AccountsManagement.MessageHandlers;
 using MarginTrading.AccountsManagement.Services;
-
-using Moq;
+using MarginTrading.AccountsManagement.Tests.Fakes;
 
 using NUnit.Framework;
 
@@ -18,16 +19,18 @@ namespace MarginTrading.AccountsManagement.Tests
 {
     public class BrokerSettingsHandlerTests
     {
-        private Mock<IBrokerSettingsCache> _brokerSettingsCacheMock;
+        private IBrokerSettingsCache _brokerSettingsCache;
         private BrokerId _brokerId;
         private BrokerSettingsHandler _handler;
         
         [SetUp]
         public void SetUp()
         {
-            _brokerSettingsCacheMock = new Mock<IBrokerSettingsCache>();
-            _brokerId = new BrokerId("1");
-            _handler = new BrokerSettingsHandler(_brokerSettingsCacheMock.Object, _brokerId);
+            _brokerSettingsCache = new SomeBrokerSettingsCache();
+            _brokerSettingsCache.Initialize();
+
+            _brokerId = _brokerSettingsCache.Get().BrokerId;
+            _handler = new BrokerSettingsHandler(_brokerSettingsCache, _brokerId);
         }
 
         [Test]
@@ -36,12 +39,12 @@ namespace MarginTrading.AccountsManagement.Tests
             var message = new BrokerSettingsChangedEvent
             {
                 ChangeType = ChangeType.Edition,
-                NewValue = new BrokerSettingsContract { BrokerId = _brokerId }
+                NewValue = new BrokerSettingsContract { BrokerId = _brokerId, Timezone = "Test1"}
             };
 
             await _handler.Handle(message);
-
-            _brokerSettingsCacheMock.Verify(cache => cache.Update(message.NewValue), Times.Once);
+            
+            _brokerSettingsCache.Get().Timezone.Should().Be("Test1");
         }
         
         [TestCase(ChangeType.Creation)]
@@ -51,12 +54,12 @@ namespace MarginTrading.AccountsManagement.Tests
             var message = new BrokerSettingsChangedEvent
             {
                 ChangeType = changeType,
-                NewValue = new BrokerSettingsContract { BrokerId = _brokerId }
+                NewValue = new BrokerSettingsContract { BrokerId = _brokerId, Timezone = "Test2" }
             };
-
+        
             await _handler.Handle(message);
-
-            _brokerSettingsCacheMock.Verify(cache => cache.Update(It.IsAny<BrokerSettingsContract>()), Times.Never);
+        
+            _brokerSettingsCache.Get().Timezone.Should().NotBe("Test2");
         }
         
         [Test]
@@ -65,12 +68,12 @@ namespace MarginTrading.AccountsManagement.Tests
             var message = new BrokerSettingsChangedEvent
             {
                 ChangeType = ChangeType.Edition,
-                NewValue = new BrokerSettingsContract { BrokerId = new BrokerId("2") }
+                NewValue = new BrokerSettingsContract { BrokerId = new BrokerId("2"), Timezone = "Test3" }
             };
-
+        
             await _handler.Handle(message);
-
-            _brokerSettingsCacheMock.Verify(cache => cache.Update(It.IsAny<BrokerSettingsContract>()), Times.Never);
+            
+            _brokerSettingsCache.Get().Timezone.Should().NotBe("Test3");
         }
     }
 }
