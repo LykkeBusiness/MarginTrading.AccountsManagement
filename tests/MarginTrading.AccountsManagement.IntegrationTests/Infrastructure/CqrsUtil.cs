@@ -7,36 +7,42 @@ using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Messaging;
 using Lykke.Messaging.RabbitMq;
+using Lykke.Messaging.Serialization;
+using Lykke.Snow.Common.Startup;
+using Lykke.Snow.Cqrs;
 
 using MarginTrading.AccountsManagement.Contracts.Commands;
 using MarginTrading.AccountsManagement.IntegrationTests.Settings;
+
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 {
     public static class CqrsUtil
     {
-        private static readonly CqrsEngine _cqrsEngine = CreateEngine();
+        private static readonly RabbitMqCqrsEngine _cqrsEngine = CreateEngine();
 
-        private static CqrsEngine CreateEngine()
+        private static RabbitMqCqrsEngine CreateEngine()
         {
             var sett = SettingsUtil.Settings.MarginTradingAccountManagement.Cqrs;
             var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory
             {
-                Uri = sett.ConnectionString
+                Uri = new Uri(sett.ConnectionString, UriKind.Absolute)
             };
 
             var log = new LogToConsole();
-            var messagingEngine = new MessagingEngine(log, new TransportResolver(new Dictionary<string, TransportInfo>
-            {
-                {
-                    "RabbitMq",
-                    new TransportInfo(rabbitMqSettings.Endpoint.ToString(), rabbitMqSettings.UserName,
-                        rabbitMqSettings.Password, "None", "RabbitMq")
-                }
-            }), new RabbitMqTransportFactory());
+            
             var rabbitMqConventionEndpointResolver =
-                new RabbitMqConventionEndpointResolver("RabbitMq", "messagepack", environment: sett.EnvironmentName);
-            return new CqrsEngine(log, new DependencyResolver(), messagingEngine, new DefaultEndpointProvider(), true,
+                new RabbitMqConventionEndpointResolver("RabbitMq", SerializationFormat.MessagePack, environment: sett.EnvironmentName);
+            
+            return new RabbitMqCqrsEngine(
+                log,
+                new DependencyResolver(),
+                new DefaultEndpointProvider(),
+                rabbitMqSettings.Endpoint.ToString(),
+                rabbitMqSettings.UserName,
+                rabbitMqSettings.Password,
+                true,
                 Register.DefaultEndpointResolver(rabbitMqConventionEndpointResolver),
                 RegistrerBoundedContext(sett));
         }

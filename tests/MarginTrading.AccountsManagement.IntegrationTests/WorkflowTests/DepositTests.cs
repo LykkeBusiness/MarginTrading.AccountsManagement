@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using FluentAssertions;
 
@@ -19,23 +20,24 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.WorkflowTests
             await TestsHelpers.EnsureAccountState();
 
             // act
-
-            var operationId = await ClientUtil.AccountsApi.BeginDeposit(TestsHelpers.ClientId,
+            var balanceBefore = (await TestsHelpers.GetAccount()).Balance;
+            var operationId = await ClientUtil.AccountsApi.BeginDeposit(
                 TestsHelpers.AccountId,
                 new AccountChargeManuallyRequest
                 {
+                    OperationId = Guid.NewGuid().ToString("N"),
                     AmountDelta = 123,
                     Reason = "intergational tests: deposit",
                 });
             
             var messagesReceivedTask = Task.WhenAll(
-                RabbitUtil.WaitForCqrsMessage<AccountBalanceChangedEvent>(m => m.OperationId == operationId),
+                RabbitUtil.WaitForCqrsMessage<AccountChangedEvent>(m => m.OperationId == operationId),
                 RabbitUtil.WaitForCqrsMessage<DepositSucceededEvent>(m => m.OperationId == operationId));
 
             await messagesReceivedTask;
 
             // assert
-            (await TestsHelpers.GetAccount()).Balance.Should().Be(123);
+            (await TestsHelpers.GetAccount()).Balance.Should().Be(balanceBefore + 123);
         }
     }
 }

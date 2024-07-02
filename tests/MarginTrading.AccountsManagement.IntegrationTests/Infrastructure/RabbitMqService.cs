@@ -4,15 +4,16 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-using Common;
-using Common.Log;
-
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
+using Lykke.RabbitMqBroker.Publisher.Serializers;
+using Lykke.RabbitMqBroker.Publisher.Strategies;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.RabbitMqBroker.Subscriber.Deserializers;
 
 using MarginTrading.AccountsManagement.IntegrationTests.Settings;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.PlatformAbstractions;
 
 using Newtonsoft.Json;
@@ -29,14 +30,16 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
             Converters = {new StringEnumConverter()}
         };
 
-        private readonly ConcurrentDictionary<string, IStopable> _subscribers =
-            new ConcurrentDictionary<string, IStopable>();
+        private readonly ConcurrentDictionary<string, IStartStop> _subscribers =
+            new ConcurrentDictionary<string, IStartStop>();
 
-        private readonly ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStopable>> _producers =
-            new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStopable>>(
+        private readonly ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStartStop>> _producers =
+            new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStartStop>>(
                 new SubscriptionSettingsEqualityComparer());
 
-        private readonly ILog _logger = new LogToConsole();
+        private readonly ConnectionProvider _connectionProvider = new ConnectionProvider(
+            NullLogger<ConnectionProvider>.Instance,
+            new AutorecoveringConnectionFactory());
 
         public void Dispose()
         {
@@ -44,6 +47,8 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
                 stoppable.Stop();
             foreach (var stoppable in _producers.Values)
                 stoppable.Value.Stop();
+
+            _connectionProvider.Dispose();
         }
 
         public IRabbitMqSerializer<TMessage> GetJsonSerializer<TMessage>()
@@ -78,30 +83,39 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 
             return (RabbitMqPublisher<TMessage>) _producers.GetOrAdd(subscriptionSettings, CreateProducer).Value;
 
-            Lazy<IStopable> CreateProducer(RabbitMqSubscriptionSettings s)
+            Lazy<IStartStop> CreateProducer(RabbitMqSubscriptionSettings s)
             {
                 // Lazy ensures RabbitMqPublisher will be created and started only once
                 // https://andrewlock.net/making-getoradd-on-concurrentdictionary-thread-safe-using-lazy/
-                return new Lazy<IStopable>(() => new RabbitMqPublisher<TMessage>(s)
-                    .DisableInMemoryQueuePersistence()
-                    .SetSerializer(serializer)
-                    .SetPublishStrategy(new TopicPublishStrategy())
-                    .SetLogger(_logger)
-                    .PublishSynchronously()
-                    .Start());
+                return new Lazy<IStartStop>(() =>
+                {
+                    var publisher = new RabbitMqPublisher<TMessage>(new NullLoggerFactory(), s)
+                        .DisableInMemoryQueuePersistence()
+                        .SetSerializer(serializer)
+                        .SetPublishStrategy(new TopicPublishStrategy(subscriptionSettings.ExchangeName))
+                        .PublishSynchronously();
+                    publisher.Start();
+                    return publisher;
+                });
             }
         }
 
         private class TopicPublishStrategy : IRabbitMqPublishStrategy
         {
-            public void Configure(RabbitMqSubscriptionSettings settings, IModel channel)
+            private readonly string _exchangeName;
+            
+            public TopicPublishStrategy(string exchangeName)
             {
-                channel.ExchangeDeclare(settings.ExchangeName, "topic", true);
+                _exchangeName = exchangeName;
+            }
+            public void Configure(IModel channel)
+            {
+                channel.ExchangeDeclare(_exchangeName, "topic", true);
             }
 
-            public void Publish(RabbitMqSubscriptionSettings settings, IModel channel, RawMessage message)
+            public void Publish(IModel channel, RawMessage message)
             {
-                channel.BasicPublish(settings.ExchangeName, message.RoutingKey, null, message.Body);
+                channel.BasicPublish(_exchangeName, message.RoutingKey, null, message.Body);
             }
         }
 
@@ -118,11 +132,11 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
                 IsDurable = isDurable,
             };
 
-            var rabbitMqSubscriber = new RabbitMqSubscriber<TMessage>(subscriptionSettings,
-                    new DefaultErrorHandlingStrategy(_logger, subscriptionSettings))
+            var rabbitMqSubscriber = new RabbitMqSubscriber<TMessage>(NullLogger<RabbitMqSubscriber<TMessage>>.Instance, 
+                    subscriptionSettings,
+                    _connectionProvider.GetExclusive(subscriptionSettings.ConnectionString))
                 .SetMessageDeserializer(deserializer)
-                .Subscribe(handler)
-                .SetLogger(_logger);
+                .Subscribe(handler);
 
             if (!_subscribers.TryAdd(subscriptionSettings.QueueName, rabbitMqSubscriber))
             {
