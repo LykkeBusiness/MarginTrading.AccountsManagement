@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using JetBrains.Annotations;
 
 using Lykke.Contracts.Responses;
+using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Api;
@@ -28,7 +29,6 @@ using Refit;
 using MarginTrading.AccountsManagement.Exceptions;
 using MarginTrading.AccountsManagement.Contracts.ErrorCodes;
 using MarginTrading.AccountsManagement.Filters;
-using MarginTrading.AccountsManagement.Infrastructure.Implementation;
 using MarginTrading.AccountsManagement.InternalModels;
 using MarginTrading.AccountsManagement.InternalModels.ErrorCodes;
 using MarginTrading.AccountsManagement.Services.Implementation;
@@ -47,7 +47,7 @@ namespace MarginTrading.AccountsManagement.Controllers
         private readonly ICqrsSender _cqrsSender;
         private readonly IScheduleSettingsApi _scheduleSettingsApi;
         private readonly IBrokerSettingsApi _brokerSettingsApi;
-        private readonly BrokerConfigurationAccessor _brokerConfigurationAccessor;
+        private readonly BrokerId _brokerId;
         private readonly ILogger _logger;
 
         public AccountsController(
@@ -59,7 +59,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             ICqrsSender cqrsSender,
             IScheduleSettingsApi scheduleSettingsApi, 
             IBrokerSettingsApi brokerSettingsApi, 
-            BrokerConfigurationAccessor brokerConfigurationAccessor,
+            BrokerId brokerId,
             ILogger<AccountsController> logger)
         {
             _accountManagementService = accountManagementService;
@@ -70,7 +70,7 @@ namespace MarginTrading.AccountsManagement.Controllers
             _cqrsSender = cqrsSender;
             _scheduleSettingsApi = scheduleSettingsApi;
             _brokerSettingsApi = brokerSettingsApi;
-            _brokerConfigurationAccessor = brokerConfigurationAccessor;
+            _brokerId = brokerId;
             _logger = logger;
         }
 
@@ -497,10 +497,10 @@ namespace MarginTrading.AccountsManagement.Controllers
                 };
             }
             
-            var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerConfigurationAccessor.BrokerId);
+            var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
             if (brokerSettingsResponse.ErrorCode != BrokerSettingsErrorCodesContract.None)
             {
-                throw new InvalidOperationException($"Cannot read broker settings for {_brokerConfigurationAccessor.BrokerId}, " +
+                throw new InvalidOperationException($"Cannot read broker settings for {_brokerId}, " +
                                                     $"because of {brokerSettingsResponse.ErrorCode}");
             }
 

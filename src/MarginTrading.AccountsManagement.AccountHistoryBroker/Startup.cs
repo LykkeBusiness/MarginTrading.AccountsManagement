@@ -12,6 +12,8 @@ using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Services;
 using MarginTrading.AccountsManagement.Contracts;
+using MarginTrading.AccountsManagement.Contracts.Events;
+
 using Microsoft.Extensions.Configuration;
 using SqlRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.SqlRepositories;
 using Microsoft.Extensions.Hosting;
@@ -29,6 +31,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         protected override void RegisterCustomServices(ContainerBuilder builder, 
             IReloadingManager<Settings> settings)
         {
+            builder.AddMessagePackBrokerMessagingFactory<AccountChangedEvent>();
             builder.RegisterClient<IAccountsApi>(settings.CurrentValue.AccountManagement.ServiceUrl,
                 config =>
                     config

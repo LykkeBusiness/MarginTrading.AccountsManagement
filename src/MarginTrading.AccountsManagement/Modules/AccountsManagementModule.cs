@@ -44,7 +44,6 @@ namespace MarginTrading.AccountsManagement.Modules
                 .As<ILog>()
                 .SingleInstance();
             
-            builder.RegisterInstance(new BrokerConfigurationAccessor(_settings.CurrentValue.MarginTradingAccountManagement.BrokerId));
             builder.RegisterInstance(_settings.Nested(s => s.MarginTradingAccountManagement)).SingleInstance();
             builder.RegisterInstance(_settings.CurrentValue.MarginTradingAccountManagement).SingleInstance();
             builder.RegisterInstance(_settings.CurrentValue.MarginTradingAccountManagement.Cqrs.ContextNames).SingleInstance();
@@ -108,7 +107,6 @@ namespace MarginTrading.AccountsManagement.Modules
             builder.RegisterType<NegativeProtectionService>().As<INegativeProtectionService>().SingleInstance();
             builder.RegisterType<AccuracyService>().As<IAccuracyService>().SingleInstance();
             builder.RegisterType<ConvertService>().As<IConvertService>().SingleInstance();
-            builder.RegisterType<RabbitMqService>().As<IRabbitMqService>().SingleInstance();
             builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
             builder.RegisterType<StartupManager>().As<IStartupManager>().SingleInstance();
             builder.RegisterType<BrokerSettingsCache>().As<IBrokerSettingsCache>()
