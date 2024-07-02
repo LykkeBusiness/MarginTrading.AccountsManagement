@@ -47,7 +47,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ITradingInstrumentsApi _tradingInstrumentsApi;
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
         private readonly IAccountsCache _cache;
-        private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
+        private readonly IComplexityWarningConfiguration _complexityWarningConfiguration;
         private readonly IAuditService _auditService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
         private readonly IBrokerSettingsCache _brokerSettingsCache;
@@ -71,7 +71,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             CorrelationContextAccessor correlationContextAccessor,
             IBrokerSettingsCache brokerSettingsCache,
             IMeteorSender meteorSender,
-            ComplexityWarningConfiguration complexityWarningConfiguration)
+            IComplexityWarningConfiguration complexityWarningConfiguration)
         {
             _accountsRepository = accountsRepository;
             _tradingConditionsService = tradingConditionsService;

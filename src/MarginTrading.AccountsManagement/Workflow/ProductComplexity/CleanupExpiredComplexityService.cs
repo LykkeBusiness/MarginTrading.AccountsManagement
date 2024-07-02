@@ -6,7 +6,6 @@ using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 using MarginTrading.AccountsManagement.InternalModels.Interfaces;
 using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Services;
-using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.Extensions.Hosting;
 using Polly;
@@ -15,7 +14,7 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
 {
     public class CleanupExpiredComplexityService : BackgroundService
     {
-        private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
+        private readonly IComplexityWarningConfiguration _complexityWarningConfiguration;
         private readonly ILogger _logger;
         private readonly AccountManagementSettings _settings;
         private readonly IAccountManagementService _accountManagementService;
@@ -26,7 +25,7 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
             AccountManagementSettings settings,
             IAccountManagementService accountManagementService,
             IComplexityWarningRepository complexityWarningRepository,
-            ComplexityWarningConfiguration complexityWarningConfiguration)
+            IComplexityWarningConfiguration complexityWarningConfiguration)
         {
             _logger = logger;
             _settings = settings;

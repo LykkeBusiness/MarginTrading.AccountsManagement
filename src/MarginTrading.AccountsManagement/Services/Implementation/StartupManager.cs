@@ -30,7 +30,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly IEnumerable<IStartable> _startables;
         private readonly ICqrsEngine _cqrsEngine;
         private readonly IBrokerSettingsCache _brokerSettingsCache;
-        private readonly ComplexityWarningConfiguration _complexityWarningConfiguration;
+        private readonly IComplexityWarningConfiguration _complexityWarningConfiguration;
         private readonly RabbitMqListener<BrokerSettingsChangedEvent> _brokerSettingsListener;
         private readonly RabbitMqListener<EodProcessFinishedEvent> _eodFinishedListener;
         private readonly RabbitMqListener<OrderHistoryEvent> _orderHistoryListener;
@@ -46,7 +46,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IEnumerable<IStartable> startables,
             ICqrsEngine cqrsEngine,
             IBrokerSettingsCache brokerSettingsCache,
-            ComplexityWarningConfiguration complexityWarningConfiguration,
+            IComplexityWarningConfiguration complexityWarningConfiguration,
             RabbitMqListener<BrokerSettingsChangedEvent> brokerSettingsListener,
             RabbitMqListener<EodProcessFinishedEvent> eodFinishedListener,
             RabbitMqListener<OrderHistoryEvent> orderHistoryListener)
