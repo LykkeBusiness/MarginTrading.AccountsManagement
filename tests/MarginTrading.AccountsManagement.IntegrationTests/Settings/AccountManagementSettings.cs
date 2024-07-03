@@ -13,11 +13,6 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Settings
         public DbSettings Db { get; set; }
         
         /// <summary>
-        /// RabbitMq exchanges connections
-        /// </summary>
-        public RabbitMqSettings RabbitMq { get; set; }
-        
-        /// <summary>
         /// Behavior settings for accounts
         /// </summary>
         [Optional, CanBeNull]
