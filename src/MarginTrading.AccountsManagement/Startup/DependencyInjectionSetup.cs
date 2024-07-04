@@ -27,7 +27,6 @@ using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Repositories.Implementation.SQL;
 using MarginTrading.AccountsManagement.Services.Implementation;
 using MarginTrading.AccountsManagement.Settings;
-using MarginTrading.AccountsManagement.Workflow.BrokerSettings;
 using MarginTrading.AccountsManagement.Workflow.ProductComplexity;
 using MarginTrading.Backend.Contracts;
 
@@ -90,7 +89,6 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddSingleton<IOrderHistoryValidator, DefaultOrderHistoryValidator>();
             services.AddSingleton<IOrderValidator, DefaultOrderValidator>();
             services.AddHostedService<CleanupExpiredComplexityService>();
-            services.AddRabbitMqListeners(settings);
             
             services.AddSingleton<LossPercentagePublisher>();
             services.AddSingleton<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());

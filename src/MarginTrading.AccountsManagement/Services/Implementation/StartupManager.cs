@@ -13,7 +13,6 @@ using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 
 using MarginTrading.AccountsManagement.Repositories;
-using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.Backend.Contracts.Events;
 
 using Microsoft.Extensions.Logging;
@@ -47,9 +46,9 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             ICqrsEngine cqrsEngine,
             IBrokerSettingsCache brokerSettingsCache,
             IComplexityWarningConfiguration complexityWarningConfiguration,
-            RabbitMqListener<BrokerSettingsChangedEvent> brokerSettingsListener,
-            RabbitMqListener<EodProcessFinishedEvent> eodFinishedListener,
-            RabbitMqListener<OrderHistoryEvent> orderHistoryListener)
+            RabbitMqListener<BrokerSettingsChangedEvent> brokerSettingsListener = null,
+            RabbitMqListener<EodProcessFinishedEvent> eodFinishedListener = null,
+            RabbitMqListener<OrderHistoryEvent> orderHistoryListener = null)
         {
             _auditRepository = auditRepository;
             _taxFileMissingRepository = taxFileMissingRepository;
@@ -74,14 +73,23 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _brokerSettingsCache.Initialize();
             _logger.LogInformation("Broker settings cache initialized");
 
-            _brokerSettingsListener.Start();
-            _logger.LogInformation("Broker settings listener started");
-            
-            _eodFinishedListener.Start();
-            _logger.LogInformation("EOD listener started");
-            
-            _orderHistoryListener.Start();
-            _logger.LogInformation("Order history listener started");
+            if (_brokerSettingsListener != null)
+            {
+                _brokerSettingsListener.Start();
+                _logger.LogInformation("Broker settings listener started");
+            }
+
+            if (_eodFinishedListener != null)
+            {
+                _eodFinishedListener.Start();
+                _logger.LogInformation("EOD listener started");
+            }
+
+            if (_orderHistoryListener != null)
+            {
+                _orderHistoryListener.Start();
+                _logger.LogInformation("Order history listener started");
+            }
 
             // start publishers
             foreach (var component in this._startables)

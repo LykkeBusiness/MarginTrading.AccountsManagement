@@ -8,6 +8,7 @@ using Lykke.Cqrs;
 using Lykke.Snow.Mdm.Contracts.Api;
 
 using MarginTrading.AccountsManagement.IntegrationTests.Fakes;
+using MarginTrading.AccountsManagement.Repositories;
 using MarginTrading.AccountsManagement.Services;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.Backend.Contracts;
@@ -17,6 +18,7 @@ using Meteor.Client;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -32,8 +34,12 @@ namespace MarginTrading.AccountsManagement.IntegrationTests
                 .WithWebHostBuilder(builder =>
                 {
                     builder
-                        .UseSetting("SettingsUrl", "appsettings.test.json")
                         .UseEnvironment("test")
+                        .ConfigureAppConfiguration(
+                            (ctx, b) =>
+                            {
+                                b.AddEnvironmentVariables();
+                            })
                         .ConfigureServices(MockServices);
                 });
 
@@ -56,8 +62,17 @@ namespace MarginTrading.AccountsManagement.IntegrationTests
             services.AddSingleton<IPositionsApi>(new FakePositionsApi());
             services.AddSingleton<IAccountsApi>(new FakeAccountsApi());
             services.AddSingleton(new Mock<IDealsApi>().Object);
+            
+            // mock repositories
+            services.AddSingleton(new Mock<IComplexityWarningRepository>().Object);
+            services.AddSingleton(new Mock<IAccountBalanceChangesRepository>().Object);
+            services.AddSingleton(new Mock<IEodTaxFileMissingRepository>().Object);
+            services.AddSingleton(new Mock<IAuditRepository>().Object);
+            services.AddSingleton(new Mock<IAccountHistoryRepository>().Object);
+            services.AddSingleton(new Mock<ILossPercentageRepository>().Object);
+            services.AddSingleton(new Mock<IAccountsRepository>().Object);
                             
-            // replace with fake broker settings since the feature management is requires it
+            // replace with fake broker settings since the feature management requires it
             services.AddSingleton<IBrokerSettingsApi>(new FakeBrokerSettingsApi());
             
             services.AddSingleton<IMeteorClient>(new FakeMeteorClient());

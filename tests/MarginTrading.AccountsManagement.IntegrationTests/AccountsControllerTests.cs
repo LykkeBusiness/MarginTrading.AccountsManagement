@@ -16,7 +16,7 @@ namespace MarginTrading.AccountsManagement.IntegrationTests
             var client = await TestBootstrapper.CreateTestClient();
 
             var response = await client.GetAsync($"/api/accounts/stat/non-existing-account-id");
-
+            
             Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
         }
 

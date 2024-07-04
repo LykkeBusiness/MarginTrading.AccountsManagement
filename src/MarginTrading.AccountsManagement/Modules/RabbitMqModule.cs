@@ -3,6 +3,8 @@
 
 using System;
 
+using Autofac;
+
 using BookKeeper.Client.Workflow.Events;
 
 using Lykke.RabbitMqBroker;
@@ -15,61 +17,67 @@ using MarginTrading.AccountsManagement.MessageHandlers;
 using MarginTrading.AccountsManagement.Settings;
 using MarginTrading.Backend.Contracts.Events;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace MarginTrading.AccountsManagement.Workflow.BrokerSettings
+namespace MarginTrading.AccountsManagement.Modules
 {
-    internal static class RabbitMqRegistrationExtensions
+    public class RabbitMqModule : Module
     {
-        public static void AddRabbitMqListeners(this IServiceCollection services, AppSettings settings)
-        {
-            services.AddRabbitMqConnectionProvider();
+        private readonly RabbitMqSettings _settings;
 
-            services.AddRabbitMqListener<BrokerSettingsChangedEvent, BrokerSettingsHandler>(
-                    settings.MarginTradingAccountManagement.RabbitMq.BrokerSettings,
+        public RabbitMqModule(RabbitMqSettings settings)
+        {
+            _settings = settings;
+        }
+
+        protected override void Load(ContainerBuilder builder)
+        {
+            builder.AddRabbitMqConnectionProvider();
+
+            builder.AddRabbitMqListener<BrokerSettingsChangedEvent, BrokerSettingsHandler>(
+                    _settings.BrokerSettings,
                     ConfigureBrokerSettingsSubscriber)
                 .AddOptions(RabbitMqListenerOptions<BrokerSettingsChangedEvent>.MessagePack.NoLoss);
             
-            services.AddRabbitMqListener<EodProcessFinishedEvent, EodFinishedHandler>(
-                    settings.MarginTradingAccountManagement.RabbitMq.EodProcessFinished,
+            builder.AddRabbitMqListener<EodProcessFinishedEvent, EodFinishedHandler>(
+                    _settings.EodProcessFinished,
                     ConfigureEodSubscriber)
                 .AddOptions(RabbitMqListenerOptions<EodProcessFinishedEvent>.MessagePack.NoLoss);
             
-            services.AddRabbitMqListener<OrderHistoryEvent, Warning871Handler>(
-                    settings.MarginTradingAccountManagement.RabbitMq.OrderHistory, 
+            builder.AddRabbitMqListener<OrderHistoryEvent, Warning871Handler>(
+                    _settings.OrderHistory, 
                     ConfigureOrderHistorySubscriber)
                 .AddMessageHandler<ProductComplexityWarningHandler>()
                 .AddOptions(RabbitMqListenerOptions<OrderHistoryEvent>.Json.NoLoss);
         }
-
+        
         private static void ConfigureOrderHistorySubscriber(
             RabbitMqSubscriber<OrderHistoryEvent> subscriber,
-            IServiceProvider serviceProvider)
+            IComponentContext сtx)
         {
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            var loggerFactory = сtx.Resolve<ILoggerFactory>();
             subscriber.UseMiddleware(
                 new ResilientErrorHandlingMiddleware<OrderHistoryEvent>(
                     loggerFactory.CreateLogger<ResilientErrorHandlingMiddleware<OrderHistoryEvent>>(),
                     TimeSpan.FromSeconds(1)));
             
-            var correlationManager = serviceProvider.GetRequiredService<RabbitMqCorrelationManager>();
+            var correlationManager = сtx.Resolve<RabbitMqCorrelationManager>();
             subscriber.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
         }
         
         private static void ConfigureEodSubscriber(
             RabbitMqSubscriber<EodProcessFinishedEvent> subscriber,
-            IServiceProvider serviceProvider)
+            IComponentContext ctx)
         {
-            var correlationManager = serviceProvider.GetRequiredService<RabbitMqCorrelationManager>();
+            var correlationManager = ctx.Resolve<RabbitMqCorrelationManager>();
             subscriber.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
         }
         
         private static void ConfigureBrokerSettingsSubscriber(
             RabbitMqSubscriber<BrokerSettingsChangedEvent> subscriber,
-            IServiceProvider serviceProvider)
+            IComponentContext ctx)
         {
-            var correlationManager = serviceProvider.GetRequiredService<RabbitMqCorrelationManager>();
+            var correlationManager = ctx.Resolve<RabbitMqCorrelationManager>();
             subscriber.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
         }
     }
