@@ -38,6 +38,7 @@ namespace MarginTrading.AccountsManagement.IntegrationTests
                         .ConfigureAppConfiguration(
                             (ctx, b) =>
                             {
+                                // It is expected "SettingsUrl" to be set
                                 b.AddEnvironmentVariables();
                             })
                         .ConfigureServices(MockServices);

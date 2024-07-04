@@ -20,6 +20,7 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
             var baseDir = GetExecutingAssemblyDir();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(baseDir)
+                // It is expected "SettingsUrl" to be set
                 .AddEnvironmentVariables();
             return builder.Build().LoadSettings<AppSettings>().CurrentValue;
         }
