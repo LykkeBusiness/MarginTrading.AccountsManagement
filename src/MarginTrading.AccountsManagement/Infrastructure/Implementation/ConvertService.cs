@@ -36,6 +36,8 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                 cfg.CreateMap<AccountBalanceChangeReasonType, string>().ConvertUsing(x => x.ToString());
                 cfg.CreateMap<string, AccountBalanceChangeReasonType>()
                     .ConvertUsing(x => Enum.Parse<AccountBalanceChangeReasonType>(x));
+                cfg.CreateMap<IAccountBalanceChange, AccountBalanceChangeEntity>()
+                    .ForMember(x => x.Oid, opt => opt.Ignore());
                 cfg.CreateMap<List<string>, string>().ConvertUsing(x => JsonConvert.SerializeObject(x));
                 cfg.CreateMap<string, List<string>>().ConvertUsing(x => JsonConvert.DeserializeObject<List<string>>(x));
                 cfg.CreateMap<IAccount, AccountContract>()
@@ -57,7 +59,8 @@ namespace MarginTrading.AccountsManagement.Infrastructure.Implementation
                     .ForMember(d => d.Name,
                         o => o.MapFrom(s => s.AccountName));
                 cfg.CreateMap<AccountStat, AccountStatContract>();
-                cfg.CreateMap<ILossPercentage, LossPercentageEntity>();
+                cfg.CreateMap<ILossPercentage, LossPercentageEntity>()
+                    .ForMember(x => x.Id, o => o.Ignore());
 
                 //Audit
                 cfg.CreateMap<AuditModel, AuditContract>();
