@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0</TargetFramework>
@@ -32,44 +32,42 @@
         <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
     </Target>
     <ItemGroup>
-        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
-        <PackageReference Include="AutoMapper" Version="13.0.1" />
-        <PackageReference Include="Dapper.Contrib" Version="2.0.78" />
-        <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
-        <PackageReference Include="JsonDiffPatch.Net" Version="2.3.0" />
-        <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" Version="11.6.0" />
-        <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.52.0" />
-        <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
-        <PackageReference Include="Lykke.Middlewares" Version="3.6.0" />
-        <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.15.0" />
-        <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="4.3.0" />
-        <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
-        <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
-        <PackageReference Include="LykkeBiz.Logs.MsSql" Version="3.0.0" />
-        <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="13.9.1" />
-        <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
-        <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="5.1.0" />
-        <PackageReference Include="MarginTrading.TradingHistory.Client" Version="3.7.0" />
-        <PackageReference Include="Meteor.Client" Version="1.5.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="8.0.7" />
-        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.7" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.6.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.6.2" />
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+        <PackageReference Include="AutoMapper" />
+        <PackageReference Include="Dapper.Contrib" />
+        <PackageReference Include="JetBrains.Annotations" />
+        <PackageReference Include="JsonDiffPatch.Net" />
+        <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" />
+        <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" />
+        <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" />
+        <PackageReference Include="Lykke.Middlewares" />
+        <PackageReference Include="Lykke.Snow.Common.Startup" />
+        <PackageReference Include="Lykke.Snow.Mdm.Contracts" />
+        <PackageReference Include="LykkeBiz.Common.ApiLibrary" />
+        <PackageReference Include="LykkeBiz.Common.MsSql" />
+        <PackageReference Include="LykkeBiz.Logs.MsSql" />
+        <PackageReference Include="LykkeBiz.Logs.Serilog" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" />
+        <PackageReference Include="LykkeBiz.SettingsReader" />
+        <PackageReference Include="LykkeBiz.Snow.Cqrs" />
+        <PackageReference Include="MarginTrading.TradingHistory.Client" />
+        <PackageReference Include="Meteor.Client" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+        <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference
-            Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
-        <ProjectReference
-            Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
+        <ProjectReference Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
+        <ProjectReference Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Include=".\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />

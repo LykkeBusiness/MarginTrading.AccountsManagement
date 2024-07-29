@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
@@ -9,24 +9,23 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="5.4.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
-    <PackageReference Include="Lykke.Common" Version="6.8.5" />
-    <PackageReference Include="Lykke.Cqrs" Version="4.6.0" />
-    <PackageReference Include="Lykke.HttpClientGenerator" Version="1.0.0" />
-    <PackageReference Include="Lykke.MarginTrading.AccountsManagement.Contracts" Version="1.0.4" />
-    <PackageReference Include="Lykke.Messaging.RabbitMq" Version="2.0.0" />
-    <PackageReference Include="Lykke.RabbitMqBroker" Version="7.0.1" />
-    <PackageReference Include="Lykke.SettingsReader" Version="2.4.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
-    <PackageReference Include="Moq" Version="4.8.3" />
-    <PackageReference Include="NUnit" Version="3.10.1" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables"
-      Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.0" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="Lykke.Common" />
+    <PackageReference Include="Lykke.Cqrs" />
+    <PackageReference Include="Lykke.HttpClientGenerator" />
+    <PackageReference Include="Lykke.MarginTrading.AccountsManagement.Contracts" />
+    <PackageReference Include="Lykke.Messaging.RabbitMq" />
+    <PackageReference Include="Lykke.RabbitMqBroker" />
+    <PackageReference Include="Lykke.SettingsReader" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
   </ItemGroup>
 </Project>

@@ -10,9 +10,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="1.9.11" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+        <PackageReference Include="MessagePack" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,8 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference
-            Include="..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
+        <ProjectReference Include="..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
     </ItemGroup>
 
 </Project>
