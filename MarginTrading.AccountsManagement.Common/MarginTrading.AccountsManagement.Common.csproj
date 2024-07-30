@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>MarginTrading.AccountsManagement.Dal.Common</RootNamespace>
-    <Version>2.21.0</Version>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RootNamespace>MarginTrading.AccountsManagement.Dal.Common</RootNamespace>
+        <Version>2.21.0</Version>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dapper" />
-    <PackageReference Include="LykkeBiz.Common" />
-    <PackageReference Include="Microsoft.Data.SqlClient" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Dapper"/>
+        <PackageReference Include="LykkeBiz.Common"/>
+        <PackageReference Include="LykkeBiz.Common.MsSql"/>
+    </ItemGroup>
 
 </Project>
