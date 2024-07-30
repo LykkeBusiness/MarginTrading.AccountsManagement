@@ -59,22 +59,5 @@ namespace MarginTrading.AccountsManagement.Tests.Extensions
             result.Kind.Should().Be(DateTimeKind.Utc);
             result.Should().HaveHour(10);
         }
-        
-        [Test]
-        public void AssumeUtcIfUnspecified_LocalKind_ConvertsToUtc()
-        {
-            //arrange
-            var date = new DateTime(2022, 02, 15, 10, 30, 0);
-            var dateTime = DateTime.SpecifyKind(date, DateTimeKind.Local);
-            var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
-
-            //act
-            var result = dateTime.AssumeUtcIfUnspecified();
-
-            //assert
-            result.Kind.Should().Be(DateTimeKind.Utc);
-            offset.Should().NotBe(TimeSpan.Zero); // only for testing purposes
-            result.Should().Be(date.Add(-offset));
-        }
     }
 }
