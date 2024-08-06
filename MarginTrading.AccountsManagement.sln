@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.AccountsManag
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.AccountsManagement.RecoveryTool", "MarginTrading.AccountsManagement.RecoveryTool\MarginTrading.AccountsManagement.RecoveryTool.csproj", "{1B804461-3A8C-4638-BF9E-A8C286D6B4EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.AccountsManagement.IntegrationTests", "tests\MarginTrading.AccountsManagement.IntegrationTests\MarginTrading.AccountsManagement.IntegrationTests.csproj", "{BEF4AB9A-B3DF-4CF6-B9D8-4D8A5DC8A0DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,5 +56,9 @@ Global
 		{1B804461-3A8C-4638-BF9E-A8C286D6B4EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B804461-3A8C-4638-BF9E-A8C286D6B4EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B804461-3A8C-4638-BF9E-A8C286D6B4EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEF4AB9A-B3DF-4CF6-B9D8-4D8A5DC8A0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEF4AB9A-B3DF-4CF6-B9D8-4D8A5DC8A0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEF4AB9A-B3DF-4CF6-B9D8-4D8A5DC8A0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEF4AB9A-B3DF-4CF6-B9D8-4D8A5DC8A0DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

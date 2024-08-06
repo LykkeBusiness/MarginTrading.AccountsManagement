@@ -13,7 +13,6 @@ using JetBrains.Annotations;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Common.Percents;
-using Lykke.Snow.Mdm.Contracts.BrokerFeatures;
 using MarginTrading.AccountsManagement.Contracts.Models;
 using MarginTrading.AccountsManagement.Contracts.Models.AdditionalInfo;
 using MarginTrading.AccountsManagement.Exceptions;
@@ -28,7 +27,6 @@ using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.TradingHistory.Client;
 using Microsoft.Extensions.Internal;
-using Microsoft.FeatureManagement;
 
 namespace MarginTrading.AccountsManagement.Services.Implementation
 {
@@ -49,7 +47,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
         private readonly ITradingInstrumentsApi _tradingInstrumentsApi;
         private readonly IEodTaxFileMissingRepository _taxFileMissingRepository;
         private readonly IAccountsCache _cache;
-        private readonly IFeatureManager _featureManager;
+        private readonly IComplexityWarningConfiguration _complexityWarningConfiguration;
         private readonly IAuditService _auditService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
         private readonly IBrokerSettingsCache _brokerSettingsCache;
@@ -69,11 +67,11 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             IAccountsApi accountsApi,
             IPositionsApi positionsApi, 
             ITradingInstrumentsApi tradingInstrumentsApi,
-            IFeatureManager featureManager,
             IAuditService auditService,
             CorrelationContextAccessor correlationContextAccessor,
             IBrokerSettingsCache brokerSettingsCache,
-            IMeteorSender meteorSender)
+            IMeteorSender meteorSender,
+            IComplexityWarningConfiguration complexityWarningConfiguration)
         {
             _accountsRepository = accountsRepository;
             _tradingConditionsService = tradingConditionsService;
@@ -89,11 +87,11 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             _accountsApi = accountsApi;
             _positionsApi = positionsApi;
             _tradingInstrumentsApi = tradingInstrumentsApi;
-            _featureManager = featureManager;
             _auditService = auditService;
             _correlationContextAccessor = correlationContextAccessor;
             _brokerSettingsCache = brokerSettingsCache;
             _meteorSender = meteorSender;
+            _complexityWarningConfiguration = complexityWarningConfiguration;
         }
 
 
@@ -644,7 +642,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 ? $"{_settings.Behavior?.AccountIdPrefix}{Guid.NewGuid():N}"
                 : accountId;
 
-            var shouldShowProductComplexityWarning =  await _featureManager.IsEnabledAsync(BrokerFeature.ProductComplexityWarning) ? (bool?) true : null;
+            var shouldShowProductComplexityWarning =  await _complexityWarningConfiguration.IsEnabled ? (bool?) true : null;
             
             IAccount account = new Account(
                 id,

@@ -32,6 +32,9 @@ namespace MarginTrading.AccountsManagement.Startup
                     cBuilder.RegisterModule(new AccountsManagementModule(settings));
                     if (!ctx.HostingEnvironment.IsTest())
                     {
+                        cBuilder.RegisterModule(
+                            new RabbitMqModule(settings.CurrentValue.MarginTradingAccountManagement.RabbitMq));
+                        cBuilder.RegisterModule(new DataModule(settings));
                         cBuilder.RegisterModule(new AccountsManagementExternalServicesModule(settings));
                         cBuilder.RegisterModule(
                             new CqrsModule(settings.CurrentValue.MarginTradingAccountManagement.Cqrs));
