@@ -1,6 +1,33 @@
+## 2.22.0 - Nova 2. Delivery 44 (August 16, 2024)
+### What's changed
+* LT-5525: Update rabbitmq broker library with new rabbitmq.client and templates.
+
+### Deployment
+**Configuration updates**:
+- Remove configuration section `MarginTradingAccountManagement.RabbitMQ.AccountChangedExchange`. It is not used.
+- Add `QueueName` key into configuration section `MarginTradingAccountManagement.RabbitMQ.OrderHistory` with value `lykke.mt.orderhistory.MarginTrading.AccountsManagement`.
+- Add `QueueName` key into configuration section `MarginTradingAccountManagement.RabbitMQ.BrokerSettings` with value `dev.MdmService.queue.BrokerSettingsChangedEvent`.
+- Add `QueueName` key into configuration section `MarginTradingAccountManagement.RabbitMQ.EodProcessFinished` with value `dev.BookKeeper.queue.EodProcessFinishedEvent`.
+
+Please ensure that the mirroring policy is configured on the RabbitMQ server side for the following queues:
+- `lykke.mt.orderhistory.MarginTrading.AccountsManagement`
+- `dev.MdmService.queue.BrokerSettingsChangedEvent`
+- `dev.BookKeeper.queue.EodProcessFinishedEvent`
+- `dev.AccountsManagement.queue.LossPercentageUpdated`
+
+These queues require the mirroring policy to be enabled as part of our ongoing initiative to enhance system reliability. They are now classified as "no loss" queues, which necessitates proper configuration. The mirroring feature must be enabled on the RabbitMQ server side.
+
+In some cases, you may encounter an error indicating that the server-side configuration of a queue differs from the client’s expected configuration. If this occurs, please delete the queue, allowing it to be automatically recreated by the client.
+
+**Warning**: The "no loss" configuration is only valid if the mirroring policy is enabled on the server side.
+
+Please be aware that the provided queue names may include environment-specific identifiers (e.g., dev, test, prod). Be sure to replace these with the actual environment name in use. The same applies to instance names embedded within the queue names (e.g., DefaultEnv, etc.).
+
+
 ## 2.21.0 - Nova 2. Delivery 43 (June 03, 2024)
 ### What's changed
 * LT-5462: An error in the log "string or binary data would be truncated"
+
 
 ## 2.20.0 - Nova 2. Delivery 41 (March 29, 2024)
 ### What's changed
@@ -45,14 +72,10 @@ Example for **AccountHistory Broker**
 * LT-5290: [AccountManagment] Fix "update version number" and "deprecated packages validation" build steps
 
 
-
-
 ## 2.18.0 - Nova 2. Delivery 39 (January 26, 2024)
 ### What's changed
 * LT-5175: Exclude unconfirmedmargin from disposable.
 * LT-5164: Accounts management service: add history of releases into changelog.md for github.
-
-
 
 
 ## 2.17.2 - Nova 2. Delivery 38 (December 13, 2023)
