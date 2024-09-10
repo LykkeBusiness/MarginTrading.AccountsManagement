@@ -2,18 +2,17 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <Version>2.22.0</Version>
-        <LangVersion>8.0</LangVersion>
         <UserSecretsId>94dc4c27-9e8c-48d6-a8e3-95844002f423</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="MessagePack" Version="1.9.11" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+        <PackageReference Include="MessagePack" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     </ItemGroup>
 
     <ItemGroup>
@@ -23,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
+        <ProjectReference Include="..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
     </ItemGroup>
 
 </Project>
