@@ -38,19 +38,19 @@ namespace MarginTrading.AccountsManagement.Modules
                     _settings.BrokerSettings,
                     ConfigureBrokerSettingsSubscriber)
                 .AddOptions(RabbitMqListenerOptions<BrokerSettingsChangedEvent>.MessagePack.NoLoss);
-            
+
             builder.AddRabbitMqListener<EodProcessFinishedEvent, EodFinishedHandler>(
                     _settings.EodProcessFinished,
                     ConfigureEodSubscriber)
                 .AddOptions(RabbitMqListenerOptions<EodProcessFinishedEvent>.MessagePack.NoLoss);
-            
+
             builder.AddRabbitMqListener<OrderHistoryEvent, Warning871Handler>(
-                    _settings.OrderHistory, 
+                    _settings.OrderHistory,
                     ConfigureOrderHistorySubscriber)
                 .AddMessageHandler<ProductComplexityWarningHandler>()
                 .AddOptions(RabbitMqListenerOptions<OrderHistoryEvent>.Json.NoLoss);
         }
-        
+
         private static void ConfigureOrderHistorySubscriber(
             RabbitMqSubscriber<OrderHistoryEvent> subscriber,
             IComponentContext сtx)
@@ -60,11 +60,11 @@ namespace MarginTrading.AccountsManagement.Modules
                 new ResilientErrorHandlingMiddleware<OrderHistoryEvent>(
                     loggerFactory.CreateLogger<ResilientErrorHandlingMiddleware<OrderHistoryEvent>>(),
                     TimeSpan.FromSeconds(1)));
-            
+
             var correlationManager = сtx.Resolve<RabbitMqCorrelationManager>();
             subscriber.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
         }
-        
+
         private static void ConfigureEodSubscriber(
             RabbitMqSubscriber<EodProcessFinishedEvent> subscriber,
             IComponentContext ctx)
@@ -72,7 +72,7 @@ namespace MarginTrading.AccountsManagement.Modules
             var correlationManager = ctx.Resolve<RabbitMqCorrelationManager>();
             subscriber.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
         }
-        
+
         private static void ConfigureBrokerSettingsSubscriber(
             RabbitMqSubscriber<BrokerSettingsChangedEvent> subscriber,
             IComponentContext ctx)
