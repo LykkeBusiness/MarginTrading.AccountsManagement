@@ -35,7 +35,6 @@
         <PackageReference Include="Autofac.Extensions.DependencyInjection" />
         <PackageReference Include="AutoMapper" />
         <PackageReference Include="Dapper.Contrib" />
-        <PackageReference Include="JetBrains.Annotations" />
         <PackageReference Include="JsonDiffPatch.Net" />
         <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" />
         <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" />
@@ -66,8 +65,10 @@
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
-        <ProjectReference Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
+        <ProjectReference
+            Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
+        <ProjectReference
+            Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Include=".\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />
