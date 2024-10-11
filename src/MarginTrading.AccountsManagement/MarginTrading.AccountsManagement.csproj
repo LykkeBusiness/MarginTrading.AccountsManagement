@@ -5,7 +5,7 @@
         <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
         <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <Version>2.19.2</Version>
+        <Version>2.23.0</Version>
         <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
         <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     </PropertyGroup>
@@ -40,6 +40,7 @@
         <PackageReference Include="Lykke.MarginTrading.BackendSnow.Contracts" />
         <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" />
         <PackageReference Include="Lykke.Middlewares" />
+        <PackageReference Include="Lykke.Snow.Common" />
         <PackageReference Include="Lykke.Snow.Common.Startup" />
         <PackageReference Include="Lykke.Snow.Mdm.Contracts" />
         <PackageReference Include="LykkeBiz.Common.ApiLibrary" />
