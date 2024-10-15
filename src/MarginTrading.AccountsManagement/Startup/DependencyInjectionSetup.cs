@@ -6,6 +6,7 @@ using Autofac;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
+using Lykke.Snow.Common.AssemblyLogging;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Correlation.Http;
@@ -48,6 +49,8 @@ namespace MarginTrading.AccountsManagement.Startup
         public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, 
             AppSettings settings, IHostEnvironment environment)
         {
+            services.AddAssemblyLogger();
+
             services
                 .AddApplicationInsightsTelemetry()
                 .AddControllers()
