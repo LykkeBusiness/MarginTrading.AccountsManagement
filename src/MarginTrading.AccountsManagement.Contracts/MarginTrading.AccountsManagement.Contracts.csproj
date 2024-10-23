@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Contracts" />
-    <PackageReference Include="MessagePack" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Refit" />
     <PackageReference Include="System.ComponentModel.Annotations" />

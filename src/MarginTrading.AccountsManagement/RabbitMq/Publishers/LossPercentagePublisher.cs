@@ -41,7 +41,7 @@ namespace MarginTrading.AccountsManagement.RabbitMq.Publishers
             _publisher = new RabbitMqPublisher<AutoComputedLossPercentageUpdateEvent>(
                     _loggerFactory,
                     _settings.RabbitMq.LossPercentageUpdated)
-                .SetSerializer(new MessagePackMessageSerializer<AutoComputedLossPercentageUpdateEvent>())
+                .SetSerializer(new MessagePackMessageSerializer<AutoComputedLossPercentageUpdateEvent>(options: null))
                 .SetPublishStrategy(new TopicPublishStrategy(_settings.RabbitMq.LossPercentageUpdated))
                 .DisableInMemoryQueuePersistence()
                 .PublishSynchronously();
