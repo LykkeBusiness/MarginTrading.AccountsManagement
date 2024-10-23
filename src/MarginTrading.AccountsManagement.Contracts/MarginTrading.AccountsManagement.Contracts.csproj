@@ -9,7 +9,7 @@
     <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Contracts" />
+    <PackageReference Include="Lykke.Contracts"/>
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Refit" />
     <PackageReference Include="System.ComponentModel.Annotations" />
