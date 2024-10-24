@@ -13,13 +13,13 @@
         <PackageVersion Include="JsonDiffPatch.Net" Version="2.3.0" />
         <PackageVersion Include="Lykke.Contracts" Version="4.0.1"/>
         <PackageVersion Include="Lykke.MarginTrading.AccountsManagement.Contracts" Version="1.0.4" />
-        <PackageVersion Include="Lykke.MarginTrading.AssetService.Contracts" Version="11.6.0" />
-        <PackageVersion Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.52.0" />
-        <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.1.2" />
+        <PackageVersion Include="Lykke.MarginTrading.AssetService.Contracts" Version="13.0.1" />
+        <PackageVersion Include="Lykke.MarginTrading.BackendSnow.Contracts" Version="1.57.0" />
+        <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="2.0.0" />
         <PackageVersion Include="Lykke.Middlewares" Version="3.6.0" />
         <PackageVersion Include="Lykke.Snow.Common" Version="4.0.3" />
         <PackageVersion Include="Lykke.Snow.Common.Startup" Version="3.15.0" />
-        <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="5.0.1" />
+        <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="5.0.2" />
         <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
         <PackageVersion Include="LykkeBiz.Common.MsSql" Version="5.0.2" />
         <PackageVersion Include="LykkeBiz.Common" Version="8.1.0" />
