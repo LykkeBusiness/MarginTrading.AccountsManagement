@@ -58,7 +58,7 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Infrastructure
 
         public IRabbitMqSerializer<TMessage> GetMsgPackSerializer<TMessage>()
         {
-            return new MessagePackMessageSerializer<TMessage>();
+            return new MessagePackMessageSerializer<TMessage>(options: null);
         }
 
         public IMessageDeserializer<TMessage> GetJsonDeserializer<TMessage>()

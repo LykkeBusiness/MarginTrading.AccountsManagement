@@ -29,7 +29,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         {
             _publisher = new RabbitMqPublisher<AccountTaxHistoryUpdatedEvent>(
                 _loggerFactory, _settings.RabbitMq.AccountTaxHistoryUpdated)
-                .SetSerializer(new MessagePackMessageSerializer<AccountTaxHistoryUpdatedEvent>())
+                .SetSerializer(new MessagePackMessageSerializer<AccountTaxHistoryUpdatedEvent>(options: null))
                 .SetPublishStrategy(new PropertiesWithMessageTypeTopicPublishStrategy(_settings.RabbitMq.AccountTaxHistoryUpdated))
                 .DisableInMemoryQueuePersistence()
                 .PublishSynchronously();
