@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AccountsManagement.Contracts.Api;
 using MarginTrading.AccountsManagement.Infrastructure;
 using MarginTrading.Backend.Contracts;
 using MarginTrading.Backend.Contracts.Account;
-using MarginTrading.Backend.Contracts.Common;
 
 using Microsoft.AspNetCore.Http;
 
@@ -42,8 +43,7 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
             return _decoratee.GetAllAccountStats();
         }
 
-        public Task<PaginatedResponseContract<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null,
-            int? take = null)
+        public Task<PaginatedResponse<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null, int? take = null)
         {
             return _decoratee.GetAllAccountStatsByPages(skip, take);
         }

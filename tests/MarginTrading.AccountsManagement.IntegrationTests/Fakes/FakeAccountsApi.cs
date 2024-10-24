@@ -4,9 +4,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Lykke.Contracts.Responses;
+
 using MarginTrading.Backend.Contracts;
 using MarginTrading.Backend.Contracts.Account;
-using MarginTrading.Backend.Contracts.Common;
+
+using Refit;
 
 namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
 {
@@ -17,11 +20,10 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
             throw new System.NotImplementedException();
         }
 
-        public Task<PaginatedResponseContract<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null, int? take = null)
+        public Task<PaginatedResponse<AccountStatContract>> GetAllAccountStatsByPages(int? skip = null, int? take = null)
         {
             throw new System.NotImplementedException();
         }
-
         public Task<List<string>> GetAllAccountIdsFiltered(ActiveAccountsRequest request)
         {
             throw new System.NotImplementedException();
