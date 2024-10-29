@@ -9,7 +9,7 @@ using MessagePack;
 namespace MarginTrading.AccountsManagement.Workflow.UpdateBalance.Commands
 {
     [MessagePackObject]
-    internal class UpdateBalanceInternalCommand
+    public class UpdateBalanceInternalCommand
     {
         [Key(0)]
         public string OperationId { get; }

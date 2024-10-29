@@ -5,7 +5,7 @@ using MessagePack;
 namespace MarginTrading.AccountsManagement.Workflow.Deposit.Commands
 {
     [MessagePackObject]
-    internal class FailDepositInternalCommand
+    public class FailDepositInternalCommand
     {
         [Key(0)]
         public string OperationId { get; }

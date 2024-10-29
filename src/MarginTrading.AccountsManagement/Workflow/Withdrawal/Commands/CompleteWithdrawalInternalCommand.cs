@@ -8,7 +8,7 @@ using MessagePack;
 namespace MarginTrading.AccountsManagement.Workflow.Withdrawal.Commands
 {
     [MessagePackObject]
-    internal class CompleteWithdrawalInternalCommand
+    public class CompleteWithdrawalInternalCommand
     {
         [Key(0)]
         public string OperationId { get; }

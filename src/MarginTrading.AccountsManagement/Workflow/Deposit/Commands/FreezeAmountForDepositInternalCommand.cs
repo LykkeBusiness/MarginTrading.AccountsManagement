@@ -7,7 +7,7 @@ using MessagePack;
 namespace MarginTrading.AccountsManagement.Workflow.Deposit.Commands
 {
     [MessagePackObject]
-    internal class FreezeAmountForDepositInternalCommand
+    public class FreezeAmountForDepositInternalCommand
     {
         [Key(0)]
         public string OperationId { get; }
