@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using System.Threading;
-using AsyncFriendlyStackTrace;
 using Microsoft.Extensions.Logging;
 using MarginTrading.AccountsManagement.Contracts.Events;
 using MarginTrading.AccountsManagement.Contracts.Models;
@@ -38,7 +37,7 @@ namespace MarginTrading.AccountsManagement.TestClient
                 }
 
                 Console.WriteLine(str);
-                Console.WriteLine(e.ToAsyncString());
+                Console.WriteLine(e.ToString());
             }
         }
 
