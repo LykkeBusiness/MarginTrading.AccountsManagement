@@ -8,7 +8,7 @@ using MessagePack;
 namespace MarginTrading.AccountsManagement.Workflow.Deposit.Events
 {
     [MessagePackObject]
-    internal class DepositStartedInternalEvent : BaseEvent
+    public class DepositStartedInternalEvent : BaseEvent
     {
       
 

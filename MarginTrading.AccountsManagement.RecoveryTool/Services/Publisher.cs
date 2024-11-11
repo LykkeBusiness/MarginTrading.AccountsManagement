@@ -43,7 +43,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.Services
             IBasicProperties properties = _publishingChannel.CreateBasicProperties();
             properties.Type = typeof(T).Name;
 
-            var serializer = new MessagePackMessageSerializer<T>();
+            var serializer = new MessagePackMessageSerializer<T>(options: null);
             var message = serializer.Serialize(command);
 
             _publishingChannel.BasicReturn += (sender, args) =>

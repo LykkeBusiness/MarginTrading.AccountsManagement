@@ -4,8 +4,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using Lykke.Contracts.Responses;
+
 using MarginTrading.Backend.Contracts;
-using MarginTrading.Backend.Contracts.Common;
 using MarginTrading.Backend.Contracts.Orders;
 using MarginTrading.Backend.Contracts.Positions;
 
@@ -36,7 +37,7 @@ namespace MarginTrading.AccountsManagement.IntegrationTests.Fakes
             return Task.FromResult(new List<OpenPositionContract>());
         }
 
-        public Task<PaginatedResponseContract<OpenPositionContract>> ListAsyncByPages(string accountId = null, string assetPairId = null, int? skip = null, int? take = null)
+        public Task<PaginatedResponse<OpenPositionContract>> ListAsyncByPages(string accountId = null, string assetPairId = null, int? skip = null, int? take = null)
         {
             throw new System.NotImplementedException();
         }
