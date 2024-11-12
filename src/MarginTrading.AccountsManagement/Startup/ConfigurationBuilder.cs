@@ -5,6 +5,8 @@ using System.IO;
 using System.Reflection;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
+using Lykke.SettingsReader.ConfigurationProvider;
+
 using MarginTrading.AccountsManagement.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,7 @@ namespace MarginTrading.AccountsManagement.Startup
                 .SetBasePath(builder.Environment.ContentRootPath)
                 .AddSerilogJson(builder.Environment)
                 .AddUserSecrets<Program>()
+                .AddHttpSourceConfiguration()
                 .AddEnvironmentVariables()
                 .Build();
 
