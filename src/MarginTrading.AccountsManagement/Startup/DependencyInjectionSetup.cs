@@ -6,6 +6,7 @@ using Autofac;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
+using Lykke.SettingsReader.SettingsTemplate;
 using Lykke.Snow.Common.AssemblyLogging;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
@@ -46,7 +47,7 @@ namespace MarginTrading.AccountsManagement.Startup
     {
         private static readonly string ApiName = "Nova 2 Accounts Management API";
 
-        public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, 
+        public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services,
             AppSettings settings, IHostEnvironment environment)
         {
             services.AddAssemblyLogger();
@@ -85,14 +86,14 @@ namespace MarginTrading.AccountsManagement.Startup
             services.AddSingleton<RabbitMqCorrelationManager>();
             services.AddSingleton<CqrsCorrelationManager>();
             services.AddTransient<HttpCorrelationHandler>();
-            
+
             services.AddFeatureManagement(settings.MarginTradingAccountManagement.BrokerId);
             services.AddBrokerId(settings.MarginTradingAccountManagement.BrokerId);
             services.AddSingleton<IComplexityWarningConfiguration, ComplexityWarningConfiguration>();
             services.AddSingleton<IOrderHistoryValidator, DefaultOrderHistoryValidator>();
             services.AddSingleton<IOrderValidator, DefaultOrderValidator>();
             services.AddHostedService<CleanupExpiredComplexityService>();
-            
+
             services.AddSingleton<LossPercentagePublisher>();
             services.AddSingleton<IRabbitPublisher<AutoComputedLossPercentageUpdateEvent>>(x => x.GetRequiredService<LossPercentagePublisher>());
             services.AddSingleton<IStartable>(x => x.GetRequiredService<LossPercentagePublisher>());
@@ -112,21 +113,23 @@ namespace MarginTrading.AccountsManagement.Startup
             if (!environment.IsTest())
             {
                 services.AddDelegatingHandler(settings.MarginTradingAccountManagement.OidcSettings);
-                services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());   
+                services.AddSingleton(provider => new NotSuccessStatusCodeDelegatingHandler());
             }
-            
+
             // Registering IAccountsApi with decorator using ASP.NET Core DI container
             // just because Autofac way causes errors
             services.AddScoped<IAccountsApi>(x =>
             {
                 var mtCoreClientsGenerator =
                     HttpClientGeneratorFactory.Create("MT Trading Core", settings.MtBackendServiceClient);
-                
+
                 return new AccountsApiDecorator(
                     mtCoreClientsGenerator.Generate<IAccountsApi>(),
                     x.GetRequiredService<IHttpContextAccessor>(),
                     x.GetRequiredService<IConvertService>());
             });
+
+            services.AddSettingsTemplateGenerator();
 
             return services;
         }
