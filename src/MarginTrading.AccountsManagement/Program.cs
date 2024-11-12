@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Lykke.SettingsReader.SettingsTemplate;
 using MarginTrading.AccountsManagement.Startup;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 
 namespace MarginTrading.AccountsManagement
 {
@@ -17,15 +17,15 @@ namespace MarginTrading.AccountsManagement
             await StartupWrapper.StartAsync(async () =>
             {
                 var builder = WebApplication.CreateBuilder(args);
-            
+
                 var (configuration, settingsManager) = builder.BuildConfiguration();
-            
+
                 builder.Services.RegisterInfrastructureServices(settingsManager.CurrentValue, builder.Environment);
-            
+
                 builder.ConfigureHost(configuration, settingsManager);
-            
+
                 var app = builder.Build();
-            
+                app.AddSettingsTemplateEndpoint();
                 await app
                     .Configure()
                     .RunAsync();
