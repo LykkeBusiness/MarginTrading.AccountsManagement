@@ -8,13 +8,16 @@ using Lykke.MarginTrading.BrokerBase;
 using Lykke.MarginTrading.BrokerBase.Models;
 using Lykke.MarginTrading.BrokerBase.Settings;
 using Lykke.SettingsReader;
+using Lykke.SettingsReader.SettingsTemplate;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Models;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories;
 using MarginTrading.AccountsManagement.AccountHistoryBroker.Services;
 using MarginTrading.AccountsManagement.Contracts;
 using MarginTrading.AccountsManagement.Contracts.Events;
 
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using SqlRepos = MarginTrading.AccountsManagement.AccountHistoryBroker.Repositories.SqlRepositories;
 using Microsoft.Extensions.Hosting;
 
@@ -28,7 +31,18 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
         {
         }
 
-        protected override void RegisterCustomServices(ContainerBuilder builder, 
+        public override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+            services.AddSettingsTemplateGenerator();
+        }
+
+        protected override void ConfigureEndpoints(IEndpointRouteBuilder endpointRouteBuilder)
+        {
+            endpointRouteBuilder.AddSettingsTemplateEndpoint();
+        }
+
+        protected override void RegisterCustomServices(ContainerBuilder builder,
             IReloadingManager<Settings> settings)
         {
             builder.AddMessagePackBrokerMessagingFactory<AccountChangedEvent>();
