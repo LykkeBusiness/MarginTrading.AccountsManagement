@@ -53,6 +53,10 @@ All variables and value constraints are default. For instance, to set host URL t
 
 ### Settings ###
 
-Settings schema is:
-<!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./template.json) -->
+AccountManagement settings schema is:
+<!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./service.json) -->
+<!-- MARKDOWN-AUTO-DOCS:END -->
+
+AccountHistoryBroker settings schema is:
+<!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./broker.json) -->
 <!-- MARKDOWN-AUTO-DOCS:END -->
