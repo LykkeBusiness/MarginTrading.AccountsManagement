@@ -12,6 +12,7 @@ namespace MarginTrading.AccountsManagement
     [UsedImplicitly]
     internal sealed class Program
     {
+        //test
         public static async Task Main(string[] args)
         {
             await StartupWrapper.StartAsync(async () =>
