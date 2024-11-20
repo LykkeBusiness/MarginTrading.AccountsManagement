@@ -25,7 +25,7 @@ namespace MarginTrading.AccountsManagement
                 builder.ConfigureHost(configuration, settingsManager);
 
                 var app = builder.Build();
-                app.AddSettingsTemplateEndpoint();
+                app.MapSettingsTemplate();
                 await app
                     .Configure()
                     .RunAsync();
