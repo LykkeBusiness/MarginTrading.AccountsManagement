@@ -53,50 +53,10 @@ All variables and value constraints are default. For instance, to set host URL t
 
 ### Settings ###
 
-Settings schema is:
+AccountManagement settings schema is:
+<!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./service.json) -->
+<!-- MARKDOWN-AUTO-DOCS:END -->
 
-```json
-{
-  "MarginTradingAccountManagement": {
-    "Db": {
-      "StorageMode": "SqlServer",
-      "ConnectionString": "data connection string",
-      "LogsConnString": "logs connection string",
-      "LongRunningSqlTimeoutSec": 20
-    },
-    "RabbitMq": {
-      "NegativeProtection": {
-        "ExchangeName": "lykke.mt.account.negativeprotection",
-        "ConnectionString": "amqp://login:pwd@rabbit-mt.mt.svc.cluster.local:5672"
-      }
-    },
-    "Cqrs": {
-      "ConnectionString": "amqp://login:pwd@rabbit-mt.mt.svc.cluster.local:5672",
-      "RetryDelay": "00:00:02",
-      "EnvironmentName": "env name"
-    },
-    "ChaosKitty": {
-      "StateOfChaos": 0
-    },
-    "Behavior": {
-      "BalanceResetIsEnabled": false,
-      "DefaultWithdrawalIsEnabled": true,
-      "AccountIdPrefix": "",
-      "DefaultBalance": 10
-    },
-    "EnableOperationsLogs": false,
-    "NegativeProtectionAutoCompensation": false,
-    "UseSerilog": false
-  },
-  "MarginTradingAccountManagementServiceClient": {
-    "ServiceUrl": "http://mt-account-management.mt.svc.cluster.local"
-  },
-  "MarginTradingSettingsServiceClient": {
-    "ServiceUrl": "http://mt-settings-service.mt.svc.cluster.local"
-  },
-  "MtBackendServiceClient": {
-    "ServiceUrl": "http://mt-trading-core.mt.svc.cluster.local",
-    "ApiKey": "api key"
-  }
-}
-```
+AccountHistoryBroker settings schema is:
+<!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./broker.json) -->
+<!-- MARKDOWN-AUTO-DOCS:END -->
