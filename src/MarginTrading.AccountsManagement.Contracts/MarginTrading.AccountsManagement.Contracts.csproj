@@ -4,12 +4,17 @@
     <Version>8.0.1</Version>
     <PackageId>Lykke.MarginTrading.AccountsManagement.Contracts</PackageId>
     <Company>Lykke Business</Company>
-  </PropertyGroup>
-  <PropertyGroup>
-    <NoWarn>1701;1702;1705;CA2007;0612;0618;1591</NoWarn>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Contracts" />
     <PackageReference Include="Refit" />
+    <PackageReference Include="Refit.Newtonsoft.Json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
 </Project>
