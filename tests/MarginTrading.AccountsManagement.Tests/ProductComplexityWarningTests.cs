@@ -1,13 +1,16 @@
 ﻿using System;
+
 using FluentAssertions;
+
 using MarginTrading.AccountsManagement.InternalModels;
+
 using NUnit.Framework;
 
 namespace MarginTrading.AccountsManagement.Tests
 {
     public class ProductComplexityWarningTests
     {
-        private string AccountId = "accountId";
+        private readonly string AccountId = "accountId";
 
         [Test]
         public void ShouldBeAbleToSwitchFlag()
@@ -42,7 +45,7 @@ namespace MarginTrading.AccountsManagement.Tests
         public void ShouldNotRaiseFlagChangeOnRetry()
         {
             var subject = ComplexityWarningState.Start(AccountId);
-            
+
             var orderId = Guid.NewGuid().ToString();
             var cnt = 0;
             do
@@ -73,7 +76,7 @@ namespace MarginTrading.AccountsManagement.Tests
 
             subject.ShouldShowComplexityWarning.Should().BeFalse();
             subject.SwitchedToFalseAt.Should().NotBeNull();
-            
+
             //Act
             subject.ResetConfirmation();
 
