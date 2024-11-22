@@ -24,6 +24,7 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Lykke.MarginTrading.AccountsManagement.Contracts" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" />
     <PackageReference Include="LykkeBiz.SettingsReader" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
@@ -35,8 +36,6 @@
   <ItemGroup>
     <ProjectReference
       Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
-    <ProjectReference
-      Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />

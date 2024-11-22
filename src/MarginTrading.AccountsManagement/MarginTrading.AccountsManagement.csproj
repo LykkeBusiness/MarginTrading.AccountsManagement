@@ -34,6 +34,7 @@
     <ItemGroup>
         <PackageReference Include="Autofac.Extensions.DependencyInjection" />
         <PackageReference Include="AutoMapper" />
+        <PackageReference Include="Lykke.MarginTrading.AccountsManagement.Contracts" />
         <PackageReference Include="Dapper.Contrib" />
         <PackageReference Include="JsonDiffPatch.Net" />
         <PackageReference Include="Lykke.MarginTrading.AssetService.Contracts" />
@@ -60,8 +61,6 @@
     <ItemGroup>
         <ProjectReference
             Include="..\..\MarginTrading.AccountsManagement.Common\MarginTrading.AccountsManagement.Common.csproj" />
-        <ProjectReference
-            Include="..\MarginTrading.AccountsManagement.Contracts\MarginTrading.AccountsManagement.Contracts.csproj" />
     </ItemGroup>
     <ItemGroup>
         <None Include=".\Scripts\**" CopyToOutputDirectory="PreserveNewest" LinkBase="Scripts" />
