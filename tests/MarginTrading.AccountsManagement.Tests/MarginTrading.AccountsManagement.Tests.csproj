@@ -16,9 +16,11 @@
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit3TestAdapter" />
         <PackageReference Include="coverlet.collector" />
+        <PackageReference Include="coverlet.msbuild" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\MarginTrading.AccountsManagement.AccountHistoryBroker\MarginTrading.AccountsManagement.AccountHistoryBroker.csproj" />
+        <ProjectReference
+            Include="..\..\src\MarginTrading.AccountsManagement.AccountHistoryBroker\MarginTrading.AccountsManagement.AccountHistoryBroker.csproj" />
         <ProjectReference Include="..\..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
     </ItemGroup>
 </Project>
