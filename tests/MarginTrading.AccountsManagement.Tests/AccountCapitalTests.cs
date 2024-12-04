@@ -9,7 +9,7 @@ namespace MarginTrading.AccountsManagement.Tests
 {
     public class AccountCapitalTests
     {
-        static object[] DisposableCapitalCases =
+        static readonly object[] DisposableCapitalCases =
         {
             new object[] { 0m, 0m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 0m },
             new object[] { 100m, 0m, 0m, 0m, 0m, 0m, 0m, 0m, new Percent(100), 100m },
