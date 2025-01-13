@@ -16,7 +16,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.LogParsers
         {
             var result = new List<DomainEvent>();
 
-            var regex = Create("UpdateBalanceCommandsHandler --");
+            var regex = Create();
             result.AddRange(Parse(log, regex));
 
             return result.Where(x => x.Type != EventType.None).ToList();
@@ -53,7 +53,7 @@ namespace MarginTrading.AccountsManagement.RecoveryTool.LogParsers
             return json;
         }
 
-        private Regex Create(string start)
+        private Regex Create()
         {
             var str = $"ChangeBalanceCommand \\[\\{{[\\s\\S]*?\\}}\\]|UpdateBalanceInternalCommand \\[\\{{[\\s\\S]*?\\}}\\]";
             return new Regex(str, RegexOptions.Singleline);
