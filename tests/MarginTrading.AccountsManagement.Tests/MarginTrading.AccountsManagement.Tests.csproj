@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Include="FluentAssertions" />
         <PackageReference Include="FsCheck.NUnit" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" />
+        <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
         <PackageReference Include="Moq" />
