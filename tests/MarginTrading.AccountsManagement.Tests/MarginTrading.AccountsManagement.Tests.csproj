@@ -18,7 +18,8 @@
         <PackageReference Include="coverlet.collector" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\MarginTrading.AccountsManagement.AccountHistoryBroker\MarginTrading.AccountsManagement.AccountHistoryBroker.csproj" />
+        <ProjectReference
+            Include="..\..\src\MarginTrading.AccountsManagement.AccountHistoryBroker\MarginTrading.AccountsManagement.AccountHistoryBroker.csproj" />
         <ProjectReference Include="..\..\src\MarginTrading.AccountsManagement\MarginTrading.AccountsManagement.csproj" />
     </ItemGroup>
 </Project>

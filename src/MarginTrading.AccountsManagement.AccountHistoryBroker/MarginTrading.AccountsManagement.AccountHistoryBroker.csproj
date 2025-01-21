@@ -4,7 +4,7 @@
     <AssemblyName>MarginTrading.AccountsManagement.AccountHistoryBroker</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>MarginTrading.AccountsManagement.AccountHistoryBroker</PackageId>
-    <Version>2.24.1</Version>
+    <Version>2.24.2</Version>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
   </PropertyGroup>

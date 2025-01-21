@@ -1,3 +1,8 @@
+## 2.24.2 - Nova 2. Delivery 47. Hotfix 3 (January 21, 2025)
+### What's changed
+* LT-6018: Account History Broker doesn't start
+
+
 ## 2.24.1 - Nova 2. Delivery 47. Hotfix 2 (January 15, 2025)
 ### What's changed
 * LT-5991: Bump LykkeBiz.RabbitMqBroker to 8.11.1

@@ -3,13 +3,13 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>MarginTrading.AccountsManagement.Dal.Common</RootNamespace>
-        <Version>2.24.1</Version>
+        <Version>2.24.2</Version>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapper"/>
-        <PackageReference Include="LykkeBiz.Common"/>
-        <PackageReference Include="LykkeBiz.Common.MsSql"/>
+        <PackageReference Include="Dapper" />
+        <PackageReference Include="LykkeBiz.Common" />
+        <PackageReference Include="LykkeBiz.Common.MsSql" />
     </ItemGroup>
 
 </Project>
