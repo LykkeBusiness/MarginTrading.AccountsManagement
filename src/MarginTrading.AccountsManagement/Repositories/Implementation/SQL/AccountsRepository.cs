@@ -75,7 +75,7 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
             ExecCreateOrAlter("dbo.searchClients.sql");
             ExecCreateOrAlter("dbo.getAllClients.sql");
             ExecCreateOrAlter("dbo.DeleteAccountData.sql");
-            ExecCreateOrAlter("[MIGRATION]_CreationTimestampColumn.sql");
+            ExecCreateOrAlter("[MIGRATION]_AddNewColumn_CreationTimestamp.sql");
         }
 
         public async Task AddAsync(IAccount account)

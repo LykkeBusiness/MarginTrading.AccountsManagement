@@ -1,3 +1,11 @@
+## [[TBD]] ([[DATE]])
+### What's changed
+* LT-6022: Add creation date to table dbo.MarginTradingAccounts
+
+### Migration: <<<[MIGRATION]_AddNewColumn_CreationTimestamp.sql>>> [AUTO]
+### Rollback: <<<[ROLLBACK]_AddNewColumn_CreationTimestamp.sql>>>
+
+
 ## 2.24.2 - Nova 2. Delivery 47. Hotfix 3 (January 21, 2025)
 ### What's changed
 * LT-6018: Account History Broker doesn't start
