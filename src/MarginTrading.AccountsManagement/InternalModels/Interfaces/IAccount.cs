@@ -44,5 +44,7 @@ namespace MarginTrading.AccountsManagement.InternalModels.Interfaces
         public AccountAdditionalInfo AdditionalInfo { get; }
 
         string ReferenceAccount { get; }
+        
+        DateTime CreationTimestamp { get; } 
     }
 }

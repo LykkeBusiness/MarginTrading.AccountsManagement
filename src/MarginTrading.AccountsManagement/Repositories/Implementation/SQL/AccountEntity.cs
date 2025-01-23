@@ -35,6 +35,8 @@ namespace MarginTrading.AccountsManagement.Repositories.Implementation.SQL
         public bool IsDeleted { get; set; }
 
         public DateTime ModificationTimestamp { get; set; }
+
+        public DateTime CreationTimestamp { get; set; }
         
         public DateTime ClientModificationTimestamp { get; set; }
 
