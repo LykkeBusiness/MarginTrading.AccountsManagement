@@ -6,7 +6,7 @@
         <PackageReference Include="FluentAssertions" />
         <PackageReference Include="Lykke.Snow.Common.Startup" />
         <PackageReference Include="LykkeBiz.HttpClientGenerator" />
-        <PackageReference Include="LykkeBiz.RabbitMqBroker" />
+        <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" />
         <PackageReference Include="LykkeBiz.SettingsReader" />
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit3TestAdapter" />

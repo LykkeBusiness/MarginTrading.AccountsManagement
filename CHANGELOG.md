@@ -1,3 +1,63 @@
+## [[TBD]] ([[DATE]])
+### What's changed
+* LT-6022: Add creation date to table dbo.MarginTradingAccounts
+
+### Migration: <<<[MIGRATION]_AddNewColumn_CreationTimestamp.sql>>> [AUTO]
+### Rollback: <<<[ROLLBACK]_AddNewColumn_CreationTimestamp.sql>>>
+
+
+## 2.24.2 - Nova 2. Delivery 47. Hotfix 3 (January 21, 2025)
+### What's changed
+* LT-6018: Account History Broker doesn't start
+
+
+## 2.24.1 - Nova 2. Delivery 47. Hotfix 2 (January 15, 2025)
+### What's changed
+* LT-5991: Bump LykkeBiz.RabbitMqBroker to 8.11.1
+
+
+## 2.25.0 - Nova 2. Delivery 48 (December 20, 2024)
+### What's changed
+* LT-5920: Update refit to 8.x version.
+* LT-5883: Keep schema for appsettings.json up to date.
+* LT-5871: Keep schema for appsettings.json up to date.
+
+
+## 2.24.0 - Nova 2. Delivery 47 (November 15, 2024)
+### What's changed
+* LT-5813: Update messagepack to 2.x version.
+* LT-5750: Add assembly load logger.
+* LT-5716: Migrate to quorum queues.
+
+### Deployment
+In this release, all previously specified queues have been converted to quorum queues to enhance system reliability. The affected queues are:
+- `lykke.mt.orderhistory.MarginTrading.AccountsManagement`
+- `dev.MdmService.queue.BrokerSettingsChangedEvent`
+- `dev.BookKeeper.queue.EodProcessFinishedEvent`
+- `dev.AccountsManagement.queue.LossPercentageUpdated`
+
+#### Automatic Conversion to Quorum Queues
+The conversion to quorum queues will occur automatically upon service startup **if**:
+* There are **no messages** in the existing queues.
+* There are **no active** subscribers to the queues.
+
+**Warning**: If messages or subscribers are present, the automatic conversion will fail. In such cases, please perform the following steps:
+1. Run the previous version of the component associated with the queue.
+1. Make sure all the messages are processed and the queue is empty.
+1. Shut down the component associated with the queue.
+1. Manually delete the existing classic queue from the RabbitMQ server.
+1. Restart the component to allow it to create the quorum queue automatically.
+
+#### Poison Queues
+All the above is also applicable to the poison queues associated with the affected queues. Please ensure that the poison queues are also converted to quorum queues.
+
+#### Disabling Mirroring Policies
+Since quorum queues inherently provide data replication and reliability, server-side mirroring policies are no longer necessary for these queues. Please disable any existing mirroring policies applied to them to prevent redundant configurations and potential conflicts.
+
+#### Environment and Instance Identifiers
+Please note that the queue names may include environment-specific identifiers (e.g., dev, test, prod). Ensure you replace these placeholders with the actual environment names relevant to your deployment. The same applies to instance names embedded within the queue names (e.g., DefaultEnv, etc.).
+
+
 ## 2.23.0 - Nova 2. Delivery 46 (September 27, 2024)
 ### What's changed
 * LT-5589: Migrate to net 8.

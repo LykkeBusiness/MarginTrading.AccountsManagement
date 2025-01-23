@@ -55,8 +55,227 @@ All variables and value constraints are default. For instance, to set host URL t
 
 AccountManagement settings schema is:
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./service.json) -->
+<!-- The below code snippet is automatically added from ./service.json -->
+```json
+{
+  "APP_UID": "Integer",
+  "ASPNETCORE_ENVIRONMENT": "String",
+  "ENVIRONMENT": "String",
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "String"
+      }
+    }
+  },
+  "MarginTradingAccountManagement": {
+    "Behavior": {
+      "AccountIdPrefix": "String",
+      "BalanceResetIsEnabled": "Boolean",
+      "DefaultBalance": "Integer",
+      "DefaultWithdrawalIsEnabled": "Boolean"
+    },
+    "BrokerId": "String",
+    "Cache": {
+      "ExpirationPeriod": "DateTime",
+      "RedisConfiguration": "String"
+    },
+    "ComplexityWarningExpiration": "String",
+    "ComplexityWarningExpirationCheckPeriod": "DateTime",
+    "ComplexityWarningsCount": "Integer",
+    "Cqrs": {
+      "ConnectionString": "String",
+      "EnvironmentName": "String",
+      "RetryDelay": "DateTime"
+    },
+    "Db": {
+      "ConnectionString": "String",
+      "LogsConnString": "String",
+      "LongRunningSqlTimeoutSec": "Integer",
+      "StorageMode": "String"
+    },
+    "EnableOperationsLogs": "Boolean",
+    "LossPercentageCalculationEnabled": "Boolean",
+    "LossPercentageCalculationPeriodInDays": "Integer",
+    "LossPercentageExpirationCheckPeriodInDays": "Integer",
+    "NegativeProtectionAutoCompensation": "Boolean",
+    "OidcSettings": {
+      "ApiAuthority": "String",
+      "ClientId": "String",
+      "ClientScope": "String",
+      "ClientSecret": "String",
+      "RenewTokenTimeoutSec": "Integer",
+      "RequireHttps": "Boolean",
+      "ValidateIssuerName": "Boolean"
+    },
+    "RabbitMq": {
+      "AccountHistoryExchange": {
+        "ConnectionString": "String",
+        "ExchangeName": "String"
+      },
+      "BrokerSettings": {
+        "ConnectionString": "String",
+        "ExchangeName": "String",
+        "QueueName": "String",
+        "RoutingKey": "String"
+      },
+      "EodProcessFinished": {
+        "ConnectionString": "String",
+        "ExchangeName": "String",
+        "QueueName": "String",
+        "RoutingKey": "String"
+      },
+      "LossPercentageUpdated": {
+        "ConnectionString": "String",
+        "ExchangeName": "String",
+        "IsDurable": "Boolean",
+        "QueueName": "String",
+        "RoutingKey": "String"
+      },
+      "NegativeProtection": {
+        "ConnectionString": "String",
+        "ExchangeName": "String"
+      },
+      "OrderHistory": {
+        "ConnectionString": "String",
+        "ExchangeName": "String",
+        "QueueName": "String"
+      }
+    },
+    "UseSerilog": "Boolean"
+  },
+  "MarginTradingAccountManagementServiceClient": {
+    "ApiKey": "String",
+    "ServiceUrl": "String"
+  },
+  "MarginTradingSettingsServiceClient": {
+    "ApiKey": "String",
+    "ServiceUrl": "String"
+  },
+  "MdmServiceClient": {
+    "ApiKey": "String",
+    "ServiceUrl": "String"
+  },
+  "MeteorServiceClient": {
+    "ServiceUrl": "String"
+  },
+  "MtBackendServiceClient": {
+    "ApiKey": "String",
+    "ServiceUrl": "String"
+  },
+  "serilog": {
+    "Enrich": [
+      "String"
+    ],
+    "minimumLevel": {
+      "default": "String"
+    },
+    "Properties": {
+      "Application": "String"
+    },
+    "Using": [
+      "String"
+    ],
+    "writeTo": [
+      {
+        "Args": {
+          "configure": [
+            {
+              "Args": {
+                "outputTemplate": "String"
+              },
+              "Name": "String"
+            }
+          ]
+        },
+        "Name": "String"
+      }
+    ]
+  },
+  "TradingHistoryClient": {
+    "ApiKey": "String",
+    "ServiceUrl": "String"
+  },
+  "TZ": "String"
+}
+```
 <!-- MARKDOWN-AUTO-DOCS:END -->
 
 AccountHistoryBroker settings schema is:
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./broker.json) -->
+<!-- The below code snippet is automatically added from ./broker.json -->
+```json
+{
+  "APP_UID": "Integer",
+  "ASPNETCORE_ENVIRONMENT": "String",
+  "ENVIRONMENT": "String",
+  "IsLive": "Boolean",
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "String"
+      }
+    }
+  },
+  "MtBrokerSettings": {
+    "AccountManagement": {
+      "ServiceUrl": "String"
+    },
+    "ConsumerCount": "Integer",
+    "Db": {
+      "ConnString": "String",
+      "StorageMode": "String"
+    },
+    "MtRabbitMqConnString": "String",
+    "RabbitMq": {
+      "AccountTaxHistoryUpdated": {
+        "ConnectionString": "String",
+        "ExchangeName": "String",
+        "IsDurable": "Boolean",
+        "RoutingKey": "String"
+      }
+    },
+    "RabbitMqQueues": {
+      "AccountHistory": {
+        "ExchangeName": "String"
+      }
+    }
+  },
+  "MtBrokersLogs": {
+    "LogsConnString": "String",
+    "StorageMode": "String",
+    "UseSerilog": "Boolean"
+  },
+  "serilog": {
+    "Enrich": [
+      "String"
+    ],
+    "minimumLevel": {
+      "default": "String"
+    },
+    "Properties": {
+      "Application": "String"
+    },
+    "Using": [
+      "String"
+    ],
+    "writeTo": [
+      {
+        "Args": {
+          "configure": [
+            {
+              "Args": {
+                "outputTemplate": "String"
+              },
+              "Name": "String"
+            }
+          ]
+        },
+        "Name": "String"
+      }
+    ]
+  },
+  "TZ": "String"
+}
+```
 <!-- MARKDOWN-AUTO-DOCS:END -->
