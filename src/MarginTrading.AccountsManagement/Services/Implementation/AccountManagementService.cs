@@ -643,7 +643,8 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 : accountId;
 
             var shouldShowProductComplexityWarning =  await _complexityWarningConfiguration.IsEnabled ? (bool?) true : null;
-            
+
+            var utcNow = DateTime.UtcNow;
             IAccount account = new Account(
                 id,
                 clientId,
@@ -655,14 +656,15 @@ namespace MarginTrading.AccountsManagement.Services.Implementation
                 false,
                 !(_settings.Behavior?.DefaultWithdrawalIsEnabled ?? true),
                 false,
-                DateTime.UtcNow,
+                utcNow,
                 accountName,
                 userId,
                 new AccountAdditionalInfo
                 {
                     ShouldShowProductComplexityWarning = shouldShowProductComplexityWarning
                 },
-                referenceAccount);
+                referenceAccount,
+                utcNow);
 
             await _accountsRepository.AddAsync(account);
             account = await _accountsRepository.GetAsync(accountId);
