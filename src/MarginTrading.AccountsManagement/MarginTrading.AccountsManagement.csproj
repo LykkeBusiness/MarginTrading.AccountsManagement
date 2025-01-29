@@ -20,11 +20,6 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
     <Target Name="CopySerilogConfig" AfterTargets="AfterBuild">
         <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(OutDir)" />
     </Target>
@@ -48,6 +43,7 @@
         <PackageReference Include="LykkeBiz.Logs.MsSql" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" />
         <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" />
         <PackageReference Include="LykkeBiz.SettingsReader" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" />

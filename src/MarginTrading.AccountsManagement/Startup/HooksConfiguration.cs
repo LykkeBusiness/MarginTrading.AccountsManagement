@@ -14,23 +14,33 @@ namespace MarginTrading.AccountsManagement.Startup
         public static void RegisterHooks(this WebApplication app)
         {
             app.Lifetime.ApplicationStarted.Register(() => OnApplicationStarted(app));
+            app.Lifetime.ApplicationStopping.Register(() => OnApplicationStopping(app));
         }
 
         private static void OnApplicationStarted(WebApplication app)
         {
             var log = app.Services.GetService<ILogger<Program>>();
+            var startupManager = app.Services.GetRequiredService<IStartupManager>();
 
             try
             {
-                app.Services.GetRequiredService<IStartupManager>().Start();
-
+                startupManager.Start();
                 log?.LogInformation("Nova 2 Accounts Management API started");
             }
             catch (Exception ex)
             {
                 log?.LogCritical(ex, "Error on startup");
+                startupManager.Stop();
                 app.StopAsync().GetAwaiter().GetResult();
             }
+        }
+
+        private static void OnApplicationStopping(WebApplication app)
+        {
+            var log = app.Services.GetService<ILogger<Program>>();
+            var startupManager = app.Services.GetRequiredService<IStartupManager>();
+            startupManager.Stop();
+            log?.LogInformation("Nova 2 Accounts Management API stopping");
         }
     }
 }

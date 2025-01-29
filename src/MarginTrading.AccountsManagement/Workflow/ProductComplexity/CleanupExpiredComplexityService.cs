@@ -19,7 +19,7 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
         private readonly AccountManagementSettings _settings;
         private readonly IAccountManagementService _accountManagementService;
         private readonly IComplexityWarningRepository _complexityWarningRepository;
-        
+
         public CleanupExpiredComplexityService(
             ILogger<CleanupExpiredComplexityService> logger,
             AccountManagementSettings settings,
@@ -57,8 +57,12 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await retryForever.ExecuteAsync(Run, stoppingToken);
-                await Task.Delay(_settings.ComplexityWarningExpirationCheckPeriod, stoppingToken);
+                try
+                {
+                    await retryForever.ExecuteAsync(Run, stoppingToken);
+                    await Task.Delay(_settings.ComplexityWarningExpirationCheckPeriod, stoppingToken);
+                }
+                catch (TaskCanceledException) {}
             }
         }
 
@@ -82,7 +86,7 @@ namespace MarginTrading.AccountsManagement.Workflow.ProductComplexity
                     expirationTimestamp,
                     acc.SwitchedToFalseAt,
                     nameof(IAccount.AdditionalInfo.ShouldShowProductComplexityWarning));
-                
+
                 acc.ResetConfirmation();
                 await _accountManagementService.UpdateComplexityWarningFlag(acc.AccountId, shouldShowProductComplexityWarning: true);
 
