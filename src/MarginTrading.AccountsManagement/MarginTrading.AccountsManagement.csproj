@@ -5,7 +5,7 @@
         <AssemblyName>MarginTrading.AccountsManagement</AssemblyName>
         <RootNamespace>MarginTrading.AccountsManagement</RootNamespace>
         <NoWarn>$(NoWarn);1591</NoWarn>
-        <Version>2.20.18</Version>
+        <Version>2.21.1</Version>
         <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
         <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     </PropertyGroup>
@@ -18,11 +18,6 @@
         <None Update="Dockerfile">
             <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-    </ItemGroup>
-    <ItemGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <None Update="appsettings.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
     <Target Name="CopySerilogConfig" AfterTargets="AfterBuild">
@@ -48,6 +43,7 @@
         <PackageReference Include="LykkeBiz.Logs.MsSql" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" />
         <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" />
         <PackageReference Include="LykkeBiz.SettingsReader" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" />
