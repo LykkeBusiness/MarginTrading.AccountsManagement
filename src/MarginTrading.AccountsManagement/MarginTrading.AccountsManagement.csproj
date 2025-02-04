@@ -48,6 +48,7 @@
         <PackageReference Include="LykkeBiz.Logs.MsSql" />
         <PackageReference Include="LykkeBiz.Logs.Serilog" />
         <PackageReference Include="LykkeBiz.MarginTrading.BrokerBase" />
+        <PackageReference Include="LykkeBiz.RabbitMqBroker" />
         <PackageReference Include="LykkeBiz.SettingsReader" />
         <PackageReference Include="LykkeBiz.Snow.Cqrs" />
         <PackageReference Include="MarginTrading.TradingHistory.Client" />
