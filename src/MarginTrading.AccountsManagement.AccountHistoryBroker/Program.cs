@@ -9,7 +9,7 @@ namespace MarginTrading.AccountsManagement.AccountHistoryBroker
     {
         public static void Main(string[] args)
         {
-            RunOnPort(5021, true);
+            RunOnPort(5021);
         }
     }
 }

@@ -1,6 +1,8 @@
-## [[TBD]] ([[DATE]])
+## 2.26.0 - Nova 2. Delivery 49 (February 07, 2025)
 ### What's changed
-* LT-6022: Add creation date to table dbo.MarginTradingAccounts
+* LT-6024: Use async method to start subscribers.
+* LT-6022: Add  creation date to table dbo.margintradingaccounts.
+* LT-5995: Update rabbitmqbroker in margintrading.accountsmanagement.
 
 ### Migration: <<<[MIGRATION]_AddNewColumn_CreationTimestamp.sql>>> [AUTO]
 ### Rollback: <<<[ROLLBACK]_AddNewColumn_CreationTimestamp.sql>>>
