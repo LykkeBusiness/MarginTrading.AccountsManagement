@@ -1,3 +1,7 @@
+## 2.26.1 - Nova 2. Delivery 49. Hotfix 1 (February 17, 2025)
+### What's changed
+* LT-6050: Don't use settingsService explicitly in broker
+
 ## 2.26.0 - Nova 2. Delivery 49 (February 07, 2025)
 ### What's changed
 * LT-6024: Use async method to start subscribers.
